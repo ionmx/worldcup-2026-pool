@@ -1,0 +1,16 @@
+import { createContext } from 'react';
+import { type User } from 'firebase/auth';
+import { type UserData } from '../services/userService';
+
+export interface AuthContextType {
+  user: User | null;
+  userData: UserData | null;
+  loading: boolean;
+}
+
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  userData: null,
+  loading: true,
+});
+
