@@ -133,6 +133,10 @@ firebase deploy --only functions
 - **PascalCase** for component and route file names
 - **TypeScript strict mode** enabled
 
+## Contributing
+
+Contributions are welcome! Feel free to open a Pull Request.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
