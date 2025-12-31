@@ -15,12 +15,12 @@ def build_teams(data)
   hash = {}
   data.each do |item|
     round = item.dig('StageName', 0, 'Description')
-    next if round != 'First stage'
-    country_code = item.dig('Home', 'Abbreviation')
+    next if round != 'First Stage'
+    country_code = item.dig('Home', 'Abbreviation') ? item.dig('Home', 'Abbreviation') : item.dig('PlaceHolderA') 
     hash[country_code] = 
       {
         code: country_code,
-        name: item.dig('Home', 'ShortClubName'),
+        name: item.dig('Home', 'ShortClubName') ? item.dig('Home', 'ShortClubName') : item.dig('PlaceHolderA'),
         group: item.dig('GroupName', 0, 'Description').sub('Group ', '')
       }
   end
