@@ -1,14 +1,12 @@
 import React from 'react';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup } from 'firebase/auth';
-import logo from '../assets/worldcup-logo.png';
-import googleLogo from '../assets/g-logo.png';
-import { Button } from '../components/Button';
-import { PageContainer } from '../components/PageContainer';
+import { worldcupLogo as logo, googleLogo } from '../assets';
+import { Button, PageContainer } from '../components';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-export default function SignIn() {
+export const SignIn = () => {
   const [error, setError] = React.useState<string | null>(null);
   const { userData } = useAuth();
   const navigate = useNavigate();
@@ -48,3 +46,4 @@ export default function SignIn() {
     </PageContainer>
   );
 }
+

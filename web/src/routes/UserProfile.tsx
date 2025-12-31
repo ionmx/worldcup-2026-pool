@@ -1,8 +1,7 @@
 import { useParams } from 'react-router-dom';
-import { PageContainer } from '../components/PageContainer';
-import { NavBar } from '../components/NavBar';
+import { PageContainer, NavBar } from '../components';
 
-export default function UserProfile() {
+export const UserProfile = () => {
   const { userName } = useParams();
 
   return (
@@ -12,3 +11,4 @@ export default function UserProfile() {
     </PageContainer>
   );
 }
+

@@ -1,4 +1,4 @@
-import bgImage from '../assets/bg.png';
+import { bgImage } from '../assets';
 
 type PageContainerProps = {
   children: React.ReactNode;

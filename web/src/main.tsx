@@ -2,9 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
-import { AuthProvider } from './context/AuthProvider';
-import SignIn from './routes/signin';
-import UserProfile from './routes/user-profile';
+import { AuthProvider } from './context';
+import { SignIn, UserProfile } from './routes';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
