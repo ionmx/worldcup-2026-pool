@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageContainer, NavBar, Card, Button } from '../components';
+import { PageContainer, NavBar, Card, Button, LinkButton } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { checkUsernameAvailable, sanitizeUsername, updateUserProfile } from '../services';
 
@@ -123,17 +123,17 @@ export const EditProfile = () => {
           )}
 
           <div className="flex gap-3 mt-4">
-            <Button
-              type="button"
-              onClick={() => void navigate(-1)}
-              className="flex-1 px-4 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors cursor-pointer"
+            <LinkButton
+              to={`/${userData?.userName ?? ''}`}
+              variant="secondary"
+              className="flex-1"
             >
               Cancel
-            </Button>
+            </LinkButton>
             <Button
               type="submit"
               disabled={saving || !isFormValid}
-              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg text-white transition-colors cursor-pointer"
+              className="flex-1"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </Button>
