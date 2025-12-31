@@ -31,7 +31,7 @@ export const SignIn = () => {
           alt="World Cup 2026 Pool"
           className="w-[200px]"
         />
-        <h1 className="text-2xl font-bold mb-6 text-center pt-4">World Cup 2026 Pool</h1>
+        <h1 className="text-2xl font-light mb-6 text-center pt-4">FIFA WORLD CUP 2026 POOL</h1>
         {error && (
           <p className="text-red-500 mb-4 text-center">{error}</p>
         )}
