@@ -84,11 +84,11 @@ export const UserMenu = () => {
                   <img src={closeIcon} alt="Close" className="w-4 h-4 opacity-50 hover:opacity-100 transition-opacity" />
                 </button>
               </div>
-              <div className="flex flex-col items-center gap-2 mb-4">
+              <div className="flex flex-col items-center gap-2 mb-8">
                 <img src={userData?.photoURL} alt={userData?.displayName} className="w-16 h-16 rounded-full object-cover" />
                 <div className="text-white font-medium">Hello, {userData?.displayName?.split(' ')[0]}!</div>
               </div>
-              <ul className="w-full p-0 border rounded-lg border-white/10 bg-white/5">
+              <ul className="w-full p-0 mb-2 border rounded-lg border-white/10 bg-white/5">
                 {menuItems.map((item) => (
                   <li key={item.label}>
                     {'to' in item ? (
