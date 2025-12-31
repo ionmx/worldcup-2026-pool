@@ -1,7 +1,7 @@
 import React from 'react';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup } from 'firebase/auth';
-import { worldcupLogo as logo, googleLogo } from '../assets';
+import { worldcupLogo, googleLogo } from '../assets';
 import { Button, Card, PageContainer } from '../components';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -27,7 +27,7 @@ export const SignIn = () => {
     <PageContainer className="flex flex-col items-center justify-center">
       <Card className="px-4 py-16 w-[400px] flex flex-col items-center justify-center">
         <img
-          src={logo}
+          src={worldcupLogo}
           alt="World Cup 2026 Pool"
           className="w-[200px]"
         />
