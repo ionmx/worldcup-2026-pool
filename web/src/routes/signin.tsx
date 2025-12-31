@@ -27,7 +27,7 @@ export default function SignIn() {
 
   return (
     <PageContainer className="flex flex-col items-center justify-center">
-      <div className="relative border border-white/10 bg-black/50 rounded-lg px-4 py-16 w-[400px] flex flex-col items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:translate-y-full after:w-[80%] after:h-8 after:bg-linear-to-b after:from-black/40 after:to-transparent after:blur-md after:rounded-[100%]">
+      <div className="relative border border-white/10 bg-black/10 backdrop-blur-sm rounded-lg px-4 py-16 w-[400px] flex flex-col items-center justify-center shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:translate-y-full after:w-[80%] after:h-8 after:bg-linear-to-b after:from-black/40 after:to-transparent after:blur-md after:rounded-[100%]">
       <img
         src={logo}
         alt="World Cup 2026 Pool"
