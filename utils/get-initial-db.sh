@@ -63,7 +63,7 @@ def build_matches(data)
 end
 
 result = {
-  teams: build_teams(data),
+#  teams: build_teams(data),
   matches: build_matches(data)
 }
 

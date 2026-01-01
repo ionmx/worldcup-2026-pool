@@ -7,12 +7,17 @@ type PageContainerProps = {
 
 export const PageContainer = ({ children, className = '' }: PageContainerProps) => {
   return (
-    <div
-      className={`min-h-screen bg-cover bg-center bg-no-repeat text-white ${className}`}
-      style={{ backgroundImage: `linear-gradient(to bottom, black, transparent 30%, transparent 70%, black), url(${bgImage})` }}
-    >
-      {children}
-    </div>
+    <>
+      {/* Fixed background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
+        style={{ backgroundImage: `linear-gradient(to bottom, black, transparent 30%, transparent 70%, black), url(${bgImage})` }}
+      />
+      {/* Scrollable content */}
+      <div className={`min-h-screen text-white ${className}`}>
+        {children}
+      </div>
+    </>
   );
 };
 
