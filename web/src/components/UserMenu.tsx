@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../firebase';
@@ -6,6 +7,7 @@ import { closeIcon, editProfileIcon, predictionsIcon, signOutIcon } from '../ass
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './Button';
 import { Card } from './Card';
+import { LinkButton } from './LinkButton';
 
 type MenuItem = {
   label: string;
@@ -16,8 +18,9 @@ const menuItemClass = "w-full px-4 py-3 text-left text-white hover:bg-white/10 t
 
 export const UserMenu = () => {
   const navigate = useNavigate();
-  const { userData } = useAuth();
+  const { user, userData } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
+  const buttonRef = React.useRef<HTMLDivElement>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const handleSignOut = () => {
@@ -41,7 +44,11 @@ export const UserMenu = () => {
   // Close dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const clickedOutsideButton = buttonRef.current && !buttonRef.current.contains(target);
+      const clickedOutsideDropdown = dropdownRef.current && !dropdownRef.current.contains(target);
+
+      if (clickedOutsideButton && clickedOutsideDropdown) {
         setIsOpen(false);
       }
     };
@@ -52,8 +59,13 @@ export const UserMenu = () => {
 
   const closeMenu = () => setIsOpen(false);
 
+  // Show sign in button if not authenticated
+  if (!user) {
+    return <LinkButton to="/signin">Sign In</LinkButton>;
+  }
+
   return (
-    <div ref={dropdownRef}>
+    <div ref={buttonRef}>
       <div className="flex flex-col items-end">
         <Button
           onClick={() => setIsOpen(!isOpen)}
@@ -72,10 +84,12 @@ export const UserMenu = () => {
           )}
           <span className="text-white font-medium">{userData?.displayName}</span>
         </Button>
-
-        {isOpen && (
-          <div className="relative">
-            <Card className="absolute right-0 top-2 w-72 overflow-hidden p-4">
+        {isOpen && createPortal(
+          <div
+            ref={dropdownRef}
+            className="fixed top-18 right-4 z-50"
+          >
+            <Card className="w-72 p-4 bg-transparent shadow-none after:hidden">
               <div className="flex items-center justify-between gap-4 mb-8">
                 <div className="text-xs text-white/70">{userData?.email}</div>
                 <button
@@ -112,7 +126,8 @@ export const UserMenu = () => {
                 ))}
               </ul>
             </Card>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     </div>
