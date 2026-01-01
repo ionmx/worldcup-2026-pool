@@ -1,3 +1,3 @@
-export { checkUsernameAvailable, handleUserLogin, sanitizeUsername, updateUserProfile } from './userService';
+export { checkUsernameAvailable, handleUserLogin, sanitizeUsername, updateUserProfile, uploadProfilePicture } from './userService';
 export type { UserData } from './userService';
 

@@ -1,5 +1,6 @@
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import { ref, get, set, update, remove, query, limitToFirst } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { User } from 'firebase/auth';
 
 export interface UserData {
@@ -134,4 +135,30 @@ export const updateUserProfile = async (
     userName: newUserName,
     displayName: data.displayName,
   });
+};
+
+/**
+ * Upload a profile picture to Firebase Storage
+ * @param uid - User's UID
+ * @param file - Image file to upload
+ * @returns Download URL of the uploaded image
+ */
+export const uploadProfilePicture = async (uid: string, file: File): Promise<string> => {
+  // Get file extension from the original file
+  const extension = file.name.split('.').pop() ?? 'jpg';
+
+  // Create a reference to the file location
+  const fileRef = storageRef(storage, `profile-pictures/${uid}/profile.${extension}`);
+
+  // Upload the file
+  await uploadBytes(fileRef, file);
+
+  // Get the download URL
+  const downloadURL = await getDownloadURL(fileRef);
+
+  // Update the user's photoURL in the database
+  const userRef = ref(db, `users/${uid}`);
+  await update(userRef, { photoURL: downloadURL });
+
+  return downloadURL;
 };

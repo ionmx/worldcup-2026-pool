@@ -2,7 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer, NavBar, Card, Button, LinkButton } from '../components';
 import { useAuth } from '../hooks/useAuth';
-import { checkUsernameAvailable, sanitizeUsername, updateUserProfile } from '../services';
+import { undoIcon } from '../assets';
+import { checkUsernameAvailable, sanitizeUsername, updateUserProfile, uploadProfilePicture } from '../services';
 
 export const EditProfile = () => {
   const navigate = useNavigate();
@@ -12,8 +13,38 @@ export const EditProfile = () => {
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [usernameStatus, setUsernameStatus] = React.useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const originalUserName = userData?.userName ?? '';
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select an image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image must be less than 5MB');
+        return;
+      }
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      setError(null);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   // Debounced username availability check
   React.useEffect(() => {
@@ -42,7 +73,7 @@ export const EditProfile = () => {
     return () => clearTimeout(timeoutId);
   }, [userName, originalUserName, user?.uid]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     if (usernameStatus === 'taken') return;
@@ -53,17 +84,24 @@ export const EditProfile = () => {
     setSaving(true);
     setError(null);
 
-    updateUserProfile(user.uid, { userName: finalUserName, displayName }, originalUserName)
-      .then(() => {
-        if (userData) {
-          setUserData({ ...userData, userName: finalUserName, displayName });
-        }
-        void navigate(`/${finalUserName}`);
-      })
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to update profile');
-        setSaving(false);
-      });
+    try {
+      let newPhotoURL = userData?.photoURL ?? '';
+
+      // Upload new profile picture if selected
+      if (selectedFile) {
+        newPhotoURL = await uploadProfilePicture(user.uid, selectedFile);
+      }
+
+      await updateUserProfile(user.uid, { userName: finalUserName, displayName }, originalUserName);
+
+      if (userData) {
+        setUserData({ ...userData, userName: finalUserName, displayName, photoURL: newPhotoURL });
+      }
+      void navigate(`/${finalUserName}`);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update profile');
+      setSaving(false);
+    }
   };
 
   const isFormValid = userName.length >= 3 && usernameStatus !== 'taken' && usernameStatus !== 'checking';
@@ -77,7 +115,41 @@ export const EditProfile = () => {
       <Card className="w-full max-w-md p-8">
         <h1 className="text-2xl font-bold text-white mb-6 text-center">Edit Profile</h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
+          {/* Profile Picture */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative">
+              <img
+                src={previewUrl ?? userData?.photoURL}
+                alt="Profile"
+                className="w-24 h-24 rounded-full object-cover border-2 border-white/20"
+              />
+              {previewUrl && (
+                <Button
+                  onClick={handleRemovePhoto}
+                  className="absolute px-0! -top-1 -right-1 rounded-full w-8 h-8 backdrop-blur-lg"
+                  title="Undo"
+                >
+                  <img src={undoIcon} alt="Undo" className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+              id="photo-upload"
+            />
+            <label
+              htmlFor="photo-upload"
+              className="text-sm text-white/60 hover:text-white cursor-pointer transition-colors"
+            >
+              Change Photo
+            </label>
+          </div>
+
           <div>
             <label htmlFor="displayName" className={labelClass}>Display Name</label>
             <input
