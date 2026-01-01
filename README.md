@@ -24,8 +24,7 @@ worldcup-2026-pool/
 ├── functions/              # Firebase Cloud Functions
 │   └── src/
 │       └── index.ts
-├── utils/                  # Utility scripts
-└── firebase.json           # Firebase configuration
+└── utils/                  # Utility scripts
 ```
 
 ## Getting Started
