@@ -4,7 +4,7 @@ import { createdByPic, worldcupLogo } from '../assets';
 export const About = () => {
   return (
     <AppLayout>
-      <div className="min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="md:min-h-screen flex items-center justify-center px-4 py-8">
         <div className="max-w-2xl w-full">
           <Card className="p-6">
             {/* Project Description */}
