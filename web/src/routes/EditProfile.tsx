@@ -223,7 +223,9 @@ export const EditProfile = () => {
                           .replace(/\.{2,}/g, '.')
                       )
                     }
-                    onBlur={(e) => setUserName(sanitizeUsername(e.target.value))}
+                    onBlur={(e) =>
+                      setUserName(sanitizeUsername(e.target.value))
+                    }
                     placeholder="your-username"
                     className={`${inputClass} ${usernameStatus === 'taken' ? 'border-red-400' : usernameStatus === 'available' ? 'border-green-400' : ''}`}
                     required
