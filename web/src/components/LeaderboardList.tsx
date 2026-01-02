@@ -63,14 +63,14 @@ export const LeaderboardList = ({ variant = 'compact' }: LeaderboardProps) => {
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className={`flex flex-col overflow-y-auto h-full ${isCompact ? 'gap-1 pb-6 px-2' : 'gap-2'}`}
+          className={`flex flex-col overflow-y-auto h-full gap-1 ${isCompact ? 'px-2 pb-6' : ''}`}
         >
           {users.map((user, index) => (
             <Link
               key={user.id}
               to={`/${user.userName}`}
-              className={`flex items-center rounded-lg hover:bg-white/5 transition-colors ${
-                isCompact ? 'gap-2 px-2 py-1.5' : 'gap-3 p-3'
+              className={`flex items-center gap-2 rounded-lg hover:bg-white/5 transition-colors ${
+                isCompact ? 'px-2 py-1.5' : 'px-3 py-3'
               }`}
             >
               <span
