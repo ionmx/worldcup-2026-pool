@@ -7,6 +7,7 @@ import {
   remove,
   query,
   limitToFirst,
+  onValue,
 } from 'firebase/database';
 import {
   ref as storageRef,
@@ -206,4 +207,32 @@ export const uploadProfilePicture = async (
   await update(userRef, { photoURL: downloadURL });
 
   return downloadURL;
+};
+
+export interface UserWithId extends UserData {
+  id: string;
+}
+
+/**
+ * Subscribe to all users with real-time updates, sorted by score descending.
+ */
+export const subscribeToLeaderboard = (
+  callback: (users: UserWithId[]) => void
+): (() => void) => {
+  const usersRef = ref(db, 'users');
+  const unsubscribe = onValue(usersRef, (snapshot) => {
+    const data = snapshot.val() as Record<string, UserData> | null;
+    if (!data) {
+      callback([]);
+      return;
+    }
+    const users: UserWithId[] = Object.entries(data).map(([id, user]) => ({
+      id,
+      ...user,
+    }));
+    // Sort by score descending
+    users.sort((a, b) => b.score - a.score);
+    callback(users);
+  });
+  return unsubscribe;
 };

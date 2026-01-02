@@ -1,5 +1,6 @@
 import { worldcupLogo } from '../assets';
 import { Card } from './Card';
+import { Leaderboard } from './Leaderboard';
 import { UserMenu } from './UserMenu';
 
 export const Sidebar = () => {
@@ -13,6 +14,9 @@ export const Sidebar = () => {
           </span>
         </div>
         <UserMenu />
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <Leaderboard />
+        </div>
       </Card>
     </aside>
   );

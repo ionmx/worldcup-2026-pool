@@ -6,10 +6,11 @@ export {
   getUserByUsername,
   handleUserLogin,
   sanitizeUsername,
+  subscribeToLeaderboard,
   updateUserProfile,
   uploadProfilePicture,
 } from './userService';
-export type { UserData } from './userService';
+export type { UserData, UserWithId } from './userService';
 
 export {
   getPrediction,

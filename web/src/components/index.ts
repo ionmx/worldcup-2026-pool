@@ -1,6 +1,7 @@
 export { AppLayout } from './AppLayout';
 export { Button } from './Button';
 export { Card } from './Card';
+export { Leaderboard } from './Leaderboard';
 export { LinkButton } from './LinkButton';
 export { MatchCard } from './MatchCard';
 export { MatchesByDay } from './MatchesByDay';
