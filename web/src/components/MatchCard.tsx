@@ -158,22 +158,25 @@ export const MatchCard = ({
 
         {/* Points Column */}
         {showPoints && (
-          <div
-            className={`flex flex-col items-center justify-center pl-3 border-l border-white/10 ${
-              prediction.points > 0 ? 'text-green-400' : 'text-red-400'
-            }`}
-          >
-            <span className="text-lg">
+          <div className="flex flex-col items-center border rounded-lg border-white/10 bg-white/5">
+            <span className="flex-1 flex items-center text-2xl">
               {prediction.points === 15
                 ? '🥳'
                 : prediction.points > 0
                   ? '😄'
                   : '😔'}
             </span>
-            <span className="text-sm font-bold">
+            <span
+              className={`text-xs px-2 py-0.5 rounded-b ${
+                prediction.points > 0
+                  ? 'bg-green-600 text-white'
+                  : 'bg-red-600 text-white'
+              }`}
+            >
               {prediction.points > 0
                 ? `+${prediction.points}`
-                : prediction.points}
+                : prediction.points}{' '}
+              pts
             </span>
           </div>
         )}
