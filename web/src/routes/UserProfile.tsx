@@ -21,12 +21,13 @@ type ViewMode = 'day' | 'group';
 
 export const UserProfile = () => {
   const { userName } = useParams();
-  const { matches, loading, error } = useMatches();
+  const { matches, loading: matchesLoading, error } = useMatches();
   const { user, userData } = useAuth();
   const [viewMode, setViewMode] = React.useState<ViewMode>('day');
   const [predictions, setPredictions] = React.useState<UserPredictions>({});
   const [profileUserId, setProfileUserId] = React.useState<string | null>(null);
   const [profileData, setProfileData] = React.useState<UserData | null>(null);
+  const [profileLoading, setProfileLoading] = React.useState(true);
   const [leaderboardPosition, setLeaderboardPosition] = React.useState<
     number | null
   >(null);
@@ -34,11 +35,21 @@ export const UserProfile = () => {
   // Determine if viewing own profile
   const isOwnProfile = userData?.userName === userName;
 
+  // Reset state when userName changes to prevent stale data flash
+  React.useEffect(() => {
+    setProfileLoading(true);
+    setProfileUserId(null);
+    setProfileData(null);
+    setPredictions({});
+    setLeaderboardPosition(null);
+  }, [userName]);
+
   // Get the user ID and data for the profile being viewed
   React.useEffect(() => {
     if (isOwnProfile && user && userData) {
       setProfileUserId(user.uid);
       setProfileData(userData);
+      setProfileLoading(false);
     } else if (userName) {
       // Fetch the user ID by username for viewing others' profiles
       getUserByUsername(userName)
@@ -46,7 +57,8 @@ export const UserProfile = () => {
           setProfileUserId(profileUser?.id ?? null);
           setProfileData(profileUser?.data ?? null);
         })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setProfileLoading(false));
     }
   }, [userName, isOwnProfile, user, userData]);
 
@@ -76,66 +88,69 @@ export const UserProfile = () => {
     return () => unsubscribe();
   }, [profileUserId]);
 
+  const loading = profileLoading || matchesLoading;
+
   return (
     <AppLayout>
       <div className="pt-8 px-4 pb-8 max-w-4xl mx-auto">
-        {/* User Header */}
-        {profileData && (
-          <div className="flex items-center gap-4 mb-8 border-b border-white/10 pb-8">
-            <ProfilePicture
-              src={profileData.photoURL}
-              name={profileData.displayName}
-              size="md"
-              className="border-2 border-white/20"
-            />
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-white">
-                {profileData.displayName}
-              </h1>
-              <div className="flex items-center gap-3 text-white/70 text-sm">
-                <span>@{profileData.userName}</span>
-                <span>·</span>
-                <span>{profileData.score} pts</span>
-                {leaderboardPosition && (
-                  <>
+        {loading ? (
+          <div className="text-center text-white/70 py-20">Loading...</div>
+        ) : (
+          <>
+            {/* User Header */}
+            {profileData && (
+              <div className="flex items-center gap-4 mb-8 border-b border-white/10 pb-8">
+                <ProfilePicture
+                  src={profileData.photoURL}
+                  name={profileData.displayName}
+                  size="md"
+                  className="border-2 border-white/20"
+                />
+                <div className="flex-1">
+                  <h1 className="text-2xl font-bold text-white">
+                    {profileData.displayName}
+                  </h1>
+                  <div className="flex items-center gap-3 text-white/70 text-sm">
+                    <span>@{profileData.userName}</span>
                     <span>·</span>
-                    <span className="text-yellow-400">
-                      {getMedalOrPosition(leaderboardPosition)} place
-                    </span>
-                  </>
-                )}
+                    <span>{profileData.score} pts</span>
+                    {leaderboardPosition && (
+                      <>
+                        <span>·</span>
+                        <span className="text-yellow-400">
+                          {getMedalOrPosition(leaderboardPosition)} place
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            )}
+
+            <MatchesHeader viewMode={viewMode} onViewModeChange={setViewMode} />
+
+            {error && (
+              <div className="text-center text-red-400">Error: {error}</div>
+            )}
+
+            {matches &&
+              (viewMode === 'day' ? (
+                <MatchesByDay
+                  matches={matches}
+                  isOwnProfile={isOwnProfile}
+                  userId={profileUserId ?? undefined}
+                  predictions={predictions}
+                />
+              ) : (
+                <MatchesByGroup
+                  matches={matches}
+                  isOwnProfile={isOwnProfile}
+                  userId={profileUserId ?? undefined}
+                  predictions={predictions}
+                />
+              ))}
+          </>
         )}
-
-        <MatchesHeader viewMode={viewMode} onViewModeChange={setViewMode} />
-
-        {/* Content */}
-        {loading && (
-          <div className="text-center text-white/70">Loading matches...</div>
-        )}
-
-        {error && (
-          <div className="text-center text-red-400">Error: {error}</div>
-        )}
-
-        {matches &&
-          (viewMode === 'day' ? (
-            <MatchesByDay
-              matches={matches}
-              isOwnProfile={isOwnProfile}
-              userId={profileUserId ?? undefined}
-              predictions={predictions}
-            />
-          ) : (
-            <MatchesByGroup
-              matches={matches}
-              isOwnProfile={isOwnProfile}
-              userId={profileUserId ?? undefined}
-              predictions={predictions}
-            />
-          ))}
       </div>
     </AppLayout>
   );
