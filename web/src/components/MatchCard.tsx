@@ -89,59 +89,93 @@ export const MatchCard = ({
     day: 'numeric',
   });
 
+  const showPoints = isPlayed && prediction;
+
   return (
     <Card className="p-4 hover:bg-white/10 transition-colors after:hidden">
-      {/* Home Team Row */}
-      <div className="flex items-center gap-3 mb-2">
-        <img
-          src={getFlag(match.home)}
-          alt={match.home}
-          className="h-8 w-12 object-contain"
-        />
-        <span className="flex-1 font-medium">{match.homeName}</span>
-        {isPlayed && <span className={scoreClass}>{match.homeScore}</span>}
-        {canPredict && (
-          <input
-            type="number"
-            min="0"
-            max="99"
-            value={homePrediction}
-            onChange={(e) => setHomePrediction(e.target.value)}
-            onBlur={handleBlur}
-            className={inputClass}
-            disabled={saving}
-            placeholder="-"
-          />
-        )}
-        {!canPredict && prediction && (
-          <span className={predictionClass}>{prediction.homePrediction}</span>
-        )}
-      </div>
+      {/* Teams and Points Row */}
+      <div className="flex gap-3 mb-3">
+        {/* Team Rows */}
+        <div className="flex-1">
+          {/* Home Team Row */}
+          <div className="flex items-center gap-3 mb-2">
+            <img
+              src={getFlag(match.home)}
+              alt={match.home}
+              className="h-8 w-12 object-contain"
+            />
+            <span className="flex-1 font-medium">{match.homeName}</span>
+            {isPlayed && <span className={scoreClass}>{match.homeScore}</span>}
+            {canPredict && (
+              <input
+                type="number"
+                min="0"
+                max="99"
+                value={homePrediction}
+                onChange={(e) => setHomePrediction(e.target.value)}
+                onBlur={handleBlur}
+                className={inputClass}
+                disabled={saving}
+                placeholder="-"
+              />
+            )}
+            {!canPredict && prediction && (
+              <span className={predictionClass}>
+                {prediction.homePrediction}
+              </span>
+            )}
+          </div>
 
-      {/* Away Team Row */}
-      <div className="flex items-center gap-3 mb-3">
-        <img
-          src={getFlag(match.away)}
-          alt={match.away}
-          className="h-8 w-12 object-contain"
-        />
-        <span className="flex-1 font-medium">{match.awayName}</span>
-        {isPlayed && <span className={scoreClass}>{match.awayScore}</span>}
-        {canPredict && (
-          <input
-            type="number"
-            min="0"
-            max="99"
-            value={awayPrediction}
-            onChange={(e) => setAwayPrediction(e.target.value)}
-            onBlur={handleBlur}
-            className={inputClass}
-            disabled={saving}
-            placeholder="-"
-          />
-        )}
-        {!canPredict && prediction && (
-          <span className={predictionClass}>{prediction.awayPrediction}</span>
+          {/* Away Team Row */}
+          <div className="flex items-center gap-3">
+            <img
+              src={getFlag(match.away)}
+              alt={match.away}
+              className="h-8 w-12 object-contain"
+            />
+            <span className="flex-1 font-medium">{match.awayName}</span>
+            {isPlayed && <span className={scoreClass}>{match.awayScore}</span>}
+            {canPredict && (
+              <input
+                type="number"
+                min="0"
+                max="99"
+                value={awayPrediction}
+                onChange={(e) => setAwayPrediction(e.target.value)}
+                onBlur={handleBlur}
+                className={inputClass}
+                disabled={saving}
+                placeholder="-"
+              />
+            )}
+            {!canPredict && prediction && (
+              <span className={predictionClass}>
+                {prediction.awayPrediction}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Points Column */}
+        {showPoints && (
+          <div
+            className={`flex flex-col items-center justify-center pl-3 border-l border-white/10 ${
+              prediction.points > 0 ? 'text-green-400' : 'text-red-400'
+            }`}
+          >
+            <span className="text-lg">
+              {prediction.points === 15
+                ? '🥳'
+                : prediction.points > 0
+                  ? '😄'
+                  : '😔'}
+            </span>
+            <span className="text-sm font-bold">
+              {prediction.points > 0
+                ? `+${prediction.points}`
+                : prediction.points}
+            </span>
+          </div>
         )}
       </div>
 
@@ -149,16 +183,11 @@ export const MatchCard = ({
       <div className="flex items-center gap-2 text-xs text-white/50">
         {match.group && <span>Group: {match.group}</span>}
         {match.group && <span>·</span>}
-        <span className="truncate">{match.location}</span>
+        <span className="truncate">{match.locationCity}, {match.locationCountry}</span>
         <span>·</span>
         <span>
           {dateString}, {timeString}
         </span>
-        {prediction && prediction.points > 0 && (
-          <span className="ml-auto text-green-400 font-medium">
-            +{prediction.points} pts
-          </span>
-        )}
       </div>
     </Card>
   );
