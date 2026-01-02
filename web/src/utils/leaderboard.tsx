@@ -38,3 +38,17 @@ export const getPositionCompact = (position: number): React.ReactNode => {
     </span>
   );
 };
+
+/** Returns Tailwind color class for position (gold, silver, bronze) */
+export const getPositionColor = (position: number): string => {
+  switch (position) {
+    case 1:
+      return 'text-yellow-400';
+    case 2:
+      return 'text-gray-300';
+    case 3:
+      return 'text-amber-600';
+    default:
+      return 'text-white/70';
+  }
+};

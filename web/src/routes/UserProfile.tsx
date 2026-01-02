@@ -15,7 +15,7 @@ import {
   subscribeToLeaderboard,
   getUserByUsername,
 } from '../services';
-import { getMedalOrPosition } from '../utils';
+import { getMedalOrPosition, getPositionColor } from '../utils';
 
 type ViewMode = 'day' | 'group';
 
@@ -89,6 +89,10 @@ export const UserProfile = () => {
   }, [profileUserId]);
 
   const loading = profileLoading || matchesLoading;
+  const positionColor = getPositionColor(leaderboardPosition ?? 0) || '';
+  const positionText = getMedalOrPosition(leaderboardPosition ?? 0)
+    ? `${leaderboardPosition} place`
+    : '';
 
   return (
     <AppLayout>
@@ -117,9 +121,7 @@ export const UserProfile = () => {
                     {leaderboardPosition && (
                       <>
                         <span>·</span>
-                        <span className="text-yellow-400">
-                          {getMedalOrPosition(leaderboardPosition)} place
-                        </span>
+                        <span className={positionColor}>{positionText}</span>
                       </>
                     )}
                   </div>
