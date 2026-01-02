@@ -21,11 +21,11 @@ export const Leaderboard = () => {
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      <h3 className="text-white/70 text-xs font-medium uppercase tracking-wider mb-2">
+      <h3 className="text-white/70 text-xs font-medium uppercase tracking-wider mb-2 px-4">
         Leaderboard
       </h3>
       <div className="relative flex-1 min-h-0">
-        <div className="flex flex-col gap-1 overflow-y-auto h-full pb-6">
+        <div className="flex flex-col gap-1 overflow-y-auto h-full pb-6 px-2">
           {users.map((user, index) => (
             <Link
               key={user.id}
