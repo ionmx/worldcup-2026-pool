@@ -104,7 +104,7 @@ export const Rules = () => {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-white/60 text-sm">Actual Result</span>
                 <span className="text-white font-mono">
-                  Netherlands 1 - 1 Japan
+                  Netherlands 2 - 2 Japan
                 </span>
               </div>
               <div className="flex items-center justify-between mb-2">
@@ -116,7 +116,7 @@ export const Rules = () => {
               <div className="flex items-center justify-between">
                 <span className="text-white/60 text-sm">Points Earned</span>
                 <span className="text-yellow-400 font-bold">
-                  😄 8 points (10 - |0-1| - |0-1| = 8)
+                  😄 6 points (10 - |0-2| - |0-2| = 6)
                 </span>
               </div>
             </div>
