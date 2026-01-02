@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, googleProvider } from '../firebase';
@@ -15,10 +16,10 @@ const menuItemClass =
   'w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2';
 
 type UserMenuProps = {
-  compact?: boolean;
+  mobile?: boolean;
 };
 
-export const UserMenu = ({ compact = false }: UserMenuProps) => {
+export const UserMenu = ({ mobile = false }: UserMenuProps) => {
   const navigate = useNavigate();
   const { user, userData } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -91,8 +92,8 @@ export const UserMenu = ({ compact = false }: UserMenuProps) => {
   // Show sign in button if not authenticated
   if (!user) {
     return (
-      <Button onClick={handleSignIn} className={compact ? 'text-xs' : 'w-full'}>
-        {compact ? 'Sign In' : 'Sign In with Google'}
+      <Button onClick={handleSignIn} className={mobile ? 'text-xs' : 'w-full'}>
+        {mobile ? 'Sign In' : 'Sign In with Google'}
       </Button>
     );
   }
@@ -101,14 +102,14 @@ export const UserMenu = ({ compact = false }: UserMenuProps) => {
     <div ref={buttonRef} className="relative">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center ${compact ? 'gap-2 justify-end' : 'w-full gap-3 justify-start'}`}
+        className={`flex items-center ${mobile ? 'p-0!' : 'w-full gap-3 justify-start'}`}
       >
         <ProfilePicture
           src={userData?.photoURL}
           name={userData?.displayName}
-          size={compact ? 'xs' : 'sm'}
+          size="sm"
         />
-        {!compact && (
+        {!mobile && (
           <div className="flex flex-col items-start text-left">
             <span className="text-white font-medium text-sm">
               {userData?.displayName?.split(' ')[0]}
@@ -116,37 +117,68 @@ export const UserMenu = ({ compact = false }: UserMenuProps) => {
           </div>
         )}
       </Button>
-      {isOpen && (
-        <ul
-          ref={dropdownRef}
-          className={`p-0 ${compact ? 'absolute right-0 top-full mt-2 w-48 bg-black/90 backdrop-blur-lg rounded-lg border border-white/10 shadow-xl z-50' : 'w-full mt-2'}`}
-        >
-          {menuItems.map((item) => (
-            <li key={item.label}>
-              {'to' in item ? (
-                <Link
-                  to={item.to}
-                  onClick={closeMenu}
-                  className={menuItemClass}
-                >
-                  {item.icon} {item.label}
-                </Link>
-              ) : (
-                <button
-                  onClick={() => {
-                    item.onClick();
-                    closeMenu();
-                  }}
-                  className={menuItemClass}
-                >
-                  {item.icon}
-                  {item.label}
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      {isOpen &&
+        (mobile ? (
+          createPortal(
+            <ul
+              ref={dropdownRef}
+              className="p-0 fixed left-0 right-0 top-[57px] bg-black/80 backdrop-blur-lg border-b border-white/10 shadow-xl z-50"
+            >
+              {menuItems.map((item) => (
+                <li key={item.label}>
+                  {'to' in item ? (
+                    <Link
+                      to={item.to}
+                      onClick={closeMenu}
+                      className={menuItemClass}
+                    >
+                      {item.icon} {item.label}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        item.onClick();
+                        closeMenu();
+                      }}
+                      className={menuItemClass}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>,
+            document.body
+          )
+        ) : (
+          <ul ref={dropdownRef} className="p-0 w-full mt-2">
+            {menuItems.map((item) => (
+              <li key={item.label}>
+                {'to' in item ? (
+                  <Link
+                    to={item.to}
+                    onClick={closeMenu}
+                    className={menuItemClass}
+                  >
+                    {item.icon} {item.label}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => {
+                      item.onClick();
+                      closeMenu();
+                    }}
+                    className={menuItemClass}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        ))}
     </div>
   );
 };

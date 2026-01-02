@@ -29,7 +29,7 @@ export const getMedalOrPosition = (position: number): React.ReactNode => {
 /** Compact version for leaderboard list - medal only for top 3 */
 export const getPositionCompact = (position: number): React.ReactNode => {
   if (position <= 3) {
-    return <span className="text-lg">{['🥇', '🥈', '🥉'][position - 1]}</span>;
+    return <>{['🥇', '🥈', '🥉'][position - 1]}</>;
   }
   return (
     <span className="text-white/50 font-medium">

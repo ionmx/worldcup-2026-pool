@@ -43,9 +43,7 @@ export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
                   FIFA WC 2026 POOL
                 </span>
               </Link>
-              <div className="w-40">
-                <UserMenu compact />
-              </div>
+              <UserMenu mobile />
             </div>
           </header>
 
