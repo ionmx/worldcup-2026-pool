@@ -158,7 +158,13 @@ export const MatchCard = ({
 
         {/* Points Column */}
         {showPoints && (
-          <div className="flex flex-col items-center border rounded-lg border-white/10 bg-white/5">
+          <div
+            className={`flex flex-col items-center border rounded-lg ${
+              prediction.points > 0
+                ? 'border-green-500/20 bg-green-600/10'
+                : 'border-red-500/20 bg-red-600/10'
+            }`}
+          >
             <span className="flex-1 flex items-center text-2xl">
               {prediction.points === 15
                 ? '🥳'
@@ -169,8 +175,8 @@ export const MatchCard = ({
             <span
               className={`text-xs px-2 py-0.5 rounded-b ${
                 prediction.points > 0
-                  ? 'bg-green-600 text-white'
-                  : 'bg-red-600 text-white'
+                  ? 'bg-green-800 text-white'
+                  : 'bg-red-800 text-white'
               }`}
             >
               {prediction.points > 0
