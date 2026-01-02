@@ -52,7 +52,7 @@ export const MatchesByDay = ({
           <h3 className="text-lg font-semibold mb-3 text-white/80 pb-2">
             {day}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {groupedByDay[day]
               .sort((a, b) => a.timestamp - b.timestamp)
               .map((match) => (

@@ -56,7 +56,7 @@ export const MatchesByGroup = ({
           <h3 className="text-lg font-semibold mb-3 text-white/80 pb-2">
             {group}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {groupedMatches[group]
               .sort((a, b) => a.timestamp - b.timestamp)
               .map((match) => (
