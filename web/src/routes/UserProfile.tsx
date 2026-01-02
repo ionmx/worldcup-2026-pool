@@ -1,12 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import {
-  PageContainer,
-  NavBar,
-  MatchesByDay,
-  MatchesByGroup,
-  Button,
-} from '../components';
+import { AppLayout, MatchesByDay, MatchesByGroup, Button } from '../components';
 import { useMatches, useAuth } from '../hooks';
 import {
   type UserPredictions,
@@ -50,9 +44,8 @@ export const UserProfile = () => {
   }, [profileUserId]);
 
   return (
-    <PageContainer className="relative">
-      <NavBar />
-      <div className="pt-20 px-4 pb-8 max-w-4xl mx-auto">
+    <AppLayout>
+      <div className="pt-8 px-4 pb-8 max-w-4xl mx-auto">
         <div className="flex justify-between items-center mt-2">
           <h1 className="text-3xl font-bold mb-6 text-center">Matches</h1>
 
@@ -107,6 +100,6 @@ export const UserProfile = () => {
             />
           ))}
       </div>
-    </PageContainer>
+    </AppLayout>
   );
 };

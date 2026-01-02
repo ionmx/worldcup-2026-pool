@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import { ProtectedRoute } from './components';
 import { AuthProvider, MatchProvider } from './context';
-import { EditProfile, SignIn, UserProfile } from './routes';
+import { EditProfile, Home, UserProfile } from './routes';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -12,8 +12,7 @@ createRoot(document.getElementById('root')!).render(
       <MatchProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/signin" replace />} />
-            <Route path="/signin" element={<SignIn />} />
+            <Route path="/" element={<Home />} />
             <Route
               path="/edit-profile"
               element={

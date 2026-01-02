@@ -1,14 +1,12 @@
 import { bgImage } from '../assets';
+import { Sidebar } from './Sidebar';
 
-type PageContainerProps = {
+type AppLayoutProps = {
   children: React.ReactNode;
   className?: string;
 };
 
-export const PageContainer = ({
-  children,
-  className = '',
-}: PageContainerProps) => {
+export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
   return (
     <>
       {/* Fixed background */}
@@ -18,8 +16,11 @@ export const PageContainer = ({
           backgroundImage: `linear-gradient(to bottom, black, transparent 30%, transparent 70%, black), url(${bgImage})`,
         }}
       />
-      {/* Scrollable content */}
-      <div className={`min-h-screen text-white ${className}`}>{children}</div>
+      {/* Layout container */}
+      <div className="flex min-h-screen text-white">
+        <Sidebar />
+        <main className={`flex-1 ${className}`}>{children}</main>
+      </div>
     </>
   );
 };

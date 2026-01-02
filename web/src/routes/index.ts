@@ -1,3 +1,3 @@
 export { EditProfile } from './EditProfile';
-export { SignIn } from './SignIn';
+export { Home } from './Home';
 export { UserProfile } from './UserProfile';

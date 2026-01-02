@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PageContainer, NavBar, Card, Button, LinkButton } from '../components';
+import { AppLayout, Card, Button, LinkButton } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { undoIcon } from '../assets';
 import {
@@ -132,8 +132,7 @@ export const EditProfile = () => {
   const labelClass = 'block text-white/70 text-sm mb-2';
 
   return (
-    <PageContainer className="flex flex-col items-center justify-center relative">
-      <NavBar />
+    <AppLayout className="flex flex-col items-center justify-center">
       <Card className="w-full max-w-md p-8">
         <h1 className="text-2xl font-bold text-white mb-6 text-center">
           Edit Profile
@@ -257,6 +256,6 @@ export const EditProfile = () => {
           </div>
         </form>
       </Card>
-    </PageContainer>
+    </AppLayout>
   );
 };

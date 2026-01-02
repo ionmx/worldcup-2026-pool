@@ -1,10 +1,10 @@
+export { AppLayout } from './AppLayout';
 export { Button } from './Button';
 export { Card } from './Card';
 export { LinkButton } from './LinkButton';
 export { MatchCard } from './MatchCard';
 export { MatchesByDay } from './MatchesByDay';
 export { MatchesByGroup } from './MatchesByGroup';
-export { NavBar } from './NavBar';
-export { PageContainer } from './PageContainer';
 export { ProtectedRoute } from './ProtectedRoute';
+export { Sidebar } from './Sidebar';
 export { UserMenu } from './UserMenu';

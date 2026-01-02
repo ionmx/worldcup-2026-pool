@@ -1,18 +1,10 @@
 import React from 'react';
-import { createPortal } from 'react-dom';
-import { signOut } from 'firebase/auth';
+import { signInWithPopup, signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
-import { auth } from '../firebase';
-import {
-  closeIcon,
-  editProfileIcon,
-  predictionsIcon,
-  signOutIcon,
-} from '../assets';
+import { auth, googleProvider } from '../firebase';
+import { editProfileIcon, predictionsIcon, signOutIcon } from '../assets';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './Button';
-import { Card } from './Card';
-import { LinkButton } from './LinkButton';
 
 type MenuItem = {
   label: string;
@@ -27,12 +19,21 @@ export const UserMenu = () => {
   const { user, userData } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
   const buttonRef = React.useRef<HTMLDivElement>(null);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const dropdownRef = React.useRef<HTMLUListElement>(null);
+  const justSignedIn = React.useRef(false);
+
+  // Navigate to user profile after sign-in
+  React.useEffect(() => {
+    if (justSignedIn.current && userData?.userName) {
+      justSignedIn.current = false;
+      void navigate(`/${userData.userName}`);
+    }
+  }, [userData, navigate]);
 
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
-        void navigate('/signin');
+        void navigate('/');
       })
       .catch(console.error);
   };
@@ -79,88 +80,77 @@ export const UserMenu = () => {
 
   const closeMenu = () => setIsOpen(false);
 
+  const handleSignIn = () => {
+    justSignedIn.current = true;
+    signInWithPopup(auth, googleProvider).catch((error) => {
+      justSignedIn.current = false;
+      console.error(error);
+    });
+  };
+
   // Show sign in button if not authenticated
   if (!user) {
-    return <LinkButton to="/signin">Sign In</LinkButton>;
+    return (
+      <Button
+        onClick={handleSignIn}
+        className="w-full bg-white/10 hover:bg-white/20 rounded-lg px-4 py-3"
+      >
+        Sign In with Google
+      </Button>
+    );
   }
 
   return (
     <div ref={buttonRef}>
-      <div className="flex flex-col items-end">
-        <Button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-3 bg-black/30 hover:bg-black/50 rounded-full py-2 px-4 transition-colors cursor-pointer whitespace-nowrap w-fit"
-        >
-          {userData?.photoURL ? (
-            <img
-              src={userData.photoURL}
-              alt={userData.displayName}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold">
-              {userData?.displayName?.charAt(0) ?? '?'}
-            </div>
-          )}
-          <span className="text-white font-medium">
-            {userData?.displayName}
+      <Button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-start gap-3 bg-white/5 hover:bg-white/10 rounded-lg py-3 px-3 transition-colors cursor-pointer"
+      >
+        {userData?.photoURL ? (
+          <img
+            src={userData.photoURL}
+            alt={userData.displayName}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold">
+            {userData?.displayName?.charAt(0) ?? '?'}
+          </div>
+        )}
+        <div className="flex flex-col items-start text-left">
+          <span className="text-white font-medium text-sm">
+            {userData?.displayName?.split(' ')[0]}
           </span>
-        </Button>
-        {isOpen &&
-          createPortal(
-            <div ref={dropdownRef} className="fixed top-18 right-4 z-50">
-              <Card className="w-72 p-4 bg-transparent shadow-none after:hidden">
-                <div className="flex items-center justify-between gap-4 mb-8">
-                  <div className="text-xs text-white/70">{userData?.email}</div>
-                  <button onClick={closeMenu} className="cursor-pointer">
-                    <img
-                      src={closeIcon}
-                      alt="Close"
-                      className="w-4 h-4 opacity-50 hover:opacity-100 transition-opacity"
-                    />
-                  </button>
-                </div>
-                <div className="flex flex-col items-center gap-2 mb-8">
-                  <img
-                    src={userData?.photoURL}
-                    alt={userData?.displayName}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                  <div className="text-white font-medium">
-                    Hello, {userData?.displayName?.split(' ')[0]}!
-                  </div>
-                </div>
-                <ul className="w-full p-0 mb-2 border rounded-lg border-white/10 bg-white/5">
-                  {menuItems.map((item) => (
-                    <li key={item.label}>
-                      {'to' in item ? (
-                        <Link
-                          to={item.to}
-                          onClick={closeMenu}
-                          className={menuItemClass}
-                        >
-                          {item.icon} {item.label}
-                        </Link>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            item.onClick();
-                            closeMenu();
-                          }}
-                          className={menuItemClass}
-                        >
-                          {item.icon}
-                          {item.label}
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            </div>,
-            document.body
-          )}
-      </div>
+        </div>
+      </Button>
+      {isOpen && (
+        <ul ref={dropdownRef} className="w-full mt-2 p-0">
+          {menuItems.map((item) => (
+            <li key={item.label}>
+              {'to' in item ? (
+                <Link
+                  to={item.to}
+                  onClick={closeMenu}
+                  className={menuItemClass}
+                >
+                  {item.icon} {item.label}
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    item.onClick();
+                    closeMenu();
+                  }}
+                  className={menuItemClass}
+                >
+                  {item.icon}
+                  {item.label}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
