@@ -143,131 +143,135 @@ export const EditProfile = () => {
   const labelClass = 'block text-white/70 text-sm mb-2';
 
   return (
-    <AppLayout className="flex flex-col items-center justify-center">
-      <Card className="w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">
-          Edit Profile
-        </h1>
+    <AppLayout>
+      <div className="md:min-h-screen flex items-center justify-center px-4 py-8">
+        <div className="max-w-md">
+          <Card className="p-6">
+            <h1 className="text-2xl font-bold text-white mb-6 text-center">
+              Edit Profile
+            </h1>
 
-        <form
-          onSubmit={(e) => void handleSubmit(e)}
-          className="flex flex-col gap-4"
-        >
-          {/* Profile Picture */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="relative">
-              <ProfilePicture
-                src={previewUrl ?? userData?.photoURL}
-                name={userData?.displayName}
-                size="xl"
-                className="border-2 border-white/20"
-              />
-              {previewUrl && (
-                <Button
-                  onClick={handleRemovePhoto}
-                  className="absolute px-0! -top-1 -right-1 rounded-full w-8 h-8 backdrop-blur-lg border-none opacity-70 hover:opacity-100"
-                  title="Undo"
+            <form
+              onSubmit={(e) => void handleSubmit(e)}
+              className="flex flex-col gap-4"
+            >
+              {/* Profile Picture */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative">
+                  <ProfilePicture
+                    src={previewUrl ?? userData?.photoURL}
+                    name={userData?.displayName}
+                    size="xl"
+                    className="border-2 border-white/20"
+                  />
+                  {previewUrl && (
+                    <Button
+                      onClick={handleRemovePhoto}
+                      className="absolute px-0! -top-1 -right-1 rounded-full w-8 h-8 backdrop-blur-lg border-none opacity-70 hover:opacity-100"
+                      title="Undo"
+                    >
+                      <span className="text-sm">↩️</span>
+                    </Button>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  id="photo-upload"
+                />
+                <label
+                  htmlFor="photo-upload"
+                  className="text-sm text-white/60 hover:text-white cursor-pointer transition-colors"
                 >
-                  <span className="text-sm">↩️</span>
+                  Change Photo
+                </label>
+              </div>
+
+              <div>
+                <label htmlFor="displayName" className={labelClass}>
+                  Display Name
+                </label>
+                <input
+                  id="displayName"
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Your display name"
+                  className={inputClass}
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="userName" className={labelClass}>
+                  Username
+                </label>
+                <div className="relative">
+                  <input
+                    id="userName"
+                    type="text"
+                    value={userName}
+                    onChange={(e) =>
+                      setUserName(
+                        e.target.value
+                          .toLowerCase()
+                          .replace(/[^a-z0-9._-]/g, '')
+                          .replace(/^\./, '')
+                          .replace(/\.{2,}/g, '.')
+                      )
+                    }
+                    onBlur={(e) => setUserName(sanitizeUsername(e.target.value))}
+                    placeholder="your-username"
+                    className={`${inputClass} ${usernameStatus === 'taken' ? 'border-red-400' : usernameStatus === 'available' ? 'border-green-400' : ''}`}
+                    required
+                    minLength={3}
+                  />
+                  {usernameStatus === 'checking' && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">
+                      Checking...
+                    </span>
+                  )}
+                  {usernameStatus === 'available' && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400 text-sm">
+                      ✓ Available
+                    </span>
+                  )}
+                  {usernameStatus === 'taken' && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400 text-sm">
+                      ✗ Taken
+                    </span>
+                  )}
+                </div>
+                <p className="text-white/50 text-xs mt-1">
+                  Letters, numbers, periods, hyphens, and underscores only.
+                </p>
+              </div>
+
+              {error && <p className="text-red-400 text-sm">{error}</p>}
+
+              <div className="flex gap-3 mt-4">
+                <LinkButton
+                  to={`/${userData?.userName ?? ''}`}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  Cancel
+                </LinkButton>
+                <Button
+                  type="submit"
+                  disabled={saving || !isFormValid}
+                  className="flex-1"
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
                 </Button>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-              id="photo-upload"
-            />
-            <label
-              htmlFor="photo-upload"
-              className="text-sm text-white/60 hover:text-white cursor-pointer transition-colors"
-            >
-              Change Photo
-            </label>
-          </div>
-
-          <div>
-            <label htmlFor="displayName" className={labelClass}>
-              Display Name
-            </label>
-            <input
-              id="displayName"
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your display name"
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="userName" className={labelClass}>
-              Username
-            </label>
-            <div className="relative">
-              <input
-                id="userName"
-                type="text"
-                value={userName}
-                onChange={(e) =>
-                  setUserName(
-                    e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9._-]/g, '')
-                      .replace(/^\./, '')
-                      .replace(/\.{2,}/g, '.')
-                  )
-                }
-                onBlur={(e) => setUserName(sanitizeUsername(e.target.value))}
-                placeholder="your-username"
-                className={`${inputClass} ${usernameStatus === 'taken' ? 'border-red-400' : usernameStatus === 'available' ? 'border-green-400' : ''}`}
-                required
-                minLength={3}
-              />
-              {usernameStatus === 'checking' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">
-                  Checking...
-                </span>
-              )}
-              {usernameStatus === 'available' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400 text-sm">
-                  ✓ Available
-                </span>
-              )}
-              {usernameStatus === 'taken' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400 text-sm">
-                  ✗ Taken
-                </span>
-              )}
-            </div>
-            <p className="text-white/50 text-xs mt-1">
-              Letters, numbers, periods, hyphens, and underscores only.
-            </p>
-          </div>
-
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-
-          <div className="flex gap-3 mt-4">
-            <LinkButton
-              to={`/${userData?.userName ?? ''}`}
-              variant="secondary"
-              className="flex-1"
-            >
-              Cancel
-            </LinkButton>
-            <Button
-              type="submit"
-              disabled={saving || !isFormValid}
-              className="flex-1"
-            >
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-        </form>
-      </Card>
+              </div>
+            </form>
+          </Card>
+        </div>
+      </div>
     </AppLayout>
   );
 };
