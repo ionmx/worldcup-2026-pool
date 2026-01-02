@@ -19,13 +19,6 @@ export const Leaderboard = () => {
     );
   }
 
-  // TODO: Remove this - temporary for UI testing
-  const testUsers = Array.from({ length: 100 }, (_, i) => ({
-    ...users[i % users.length],
-    id: `${users[i % users.length].id}-${i}`,
-    score: Math.max(0, 150 - i * 2),
-  }));
-
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <h3 className="text-white/70 text-xs font-medium uppercase tracking-wider mb-2">
@@ -33,7 +26,7 @@ export const Leaderboard = () => {
       </h3>
       <div className="relative flex-1 min-h-0">
         <div className="flex flex-col gap-1 overflow-y-auto h-full pb-6">
-          {testUsers.map((user, index) => (
+          {users.map((user, index) => (
             <Link
               key={user.id}
               to={`/${user.userName}`}
