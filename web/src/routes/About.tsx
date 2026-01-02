@@ -16,7 +16,9 @@ export const About = () => {
                 </h2>
               </div>
               <p className="text-white/80">
-              A fun and competitive FIFA World Cup 2026 prediction game. Guess match scores, challenge friends and family, and race up the leaderboard for ultimate bragging rights!
+                A fun and competitive FIFA World Cup 2026 prediction game. Guess
+                match scores, challenge friends and family, and race up the
+                leaderboard for ultimate bragging rights!
               </p>
             </div>
 
