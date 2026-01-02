@@ -11,7 +11,7 @@ export const About = () => {
             <div className="mb-6">
               <div className="flex flex-row items-center justify-center gap-4 mb-8 mt-4">
                 <img src={worldcupLogo} alt="World Cup 2026" className="h-16" />
-                <h2 className="text-2xl font-semibold text-white">
+                <h2 className="md:text-2xl text-lg font-semibold text-white">
                   FIFA WORLD CUP 2026 POOL
                 </h2>
               </div>
@@ -25,14 +25,14 @@ export const About = () => {
             <hr className="border-white/10 mb-6" />
 
             {/* Created by */}
-            <div className="mb-6 flex flex-row justify-between items-center">
+            <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
               <div className="flex items-center gap-3">
                 <img
                   src={createdByPic}
                   alt="Jonathan Hernández"
                   className="w-6 h-6 rounded-full object-cover"
                 />
-                <h2 className="text-xl font-semibold">
+                <h2 className="md:text-xl text-lg font-semibold">
                   Created by Jonathan Hernández
                 </h2>
               </div>
@@ -61,7 +61,7 @@ export const About = () => {
 
             {/* Contribute */}
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <h2 className="md:text-xl text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <span>🤝</span> Contribute
               </h2>
               <p className="text-white/80 mb-4">
@@ -83,7 +83,7 @@ export const About = () => {
 
             {/* Support */}
             <div>
-              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <h2 className="md:text-xl text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <span>☕</span> Support
               </h2>
               <p className="text-white/80 mb-4">

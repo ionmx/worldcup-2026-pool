@@ -98,13 +98,15 @@ export const MatchCard = ({
         {/* Team Rows */}
         <div className="flex-1">
           {/* Home Team Row */}
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
             <img
               src={getFlag(match.home)}
               alt={match.home}
-              className="h-8 w-12 object-contain"
+              className="h-6 w-9 md:h-8 md:w-12 object-contain"
             />
-            <span className="flex-1 font-medium">{match.homeName}</span>
+            <span className="flex-1 font-medium text-sm md:text-base">
+              {match.homeName}
+            </span>
             {isPlayed && <span className={scoreClass}>{match.homeScore}</span>}
             {canPredict && (
               <input
@@ -127,13 +129,15 @@ export const MatchCard = ({
           </div>
 
           {/* Away Team Row */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <img
               src={getFlag(match.away)}
               alt={match.away}
-              className="h-8 w-12 object-contain"
+              className="h-6 w-9 md:h-8 md:w-12 object-contain"
             />
-            <span className="flex-1 font-medium">{match.awayName}</span>
+            <span className="flex-1 font-medium text-sm md:text-base">
+              {match.awayName}
+            </span>
             {isPlayed && <span className={scoreClass}>{match.awayScore}</span>}
             {canPredict && (
               <input
