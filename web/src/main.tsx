@@ -13,6 +13,22 @@ import {
   UserProfile,
 } from './routes';
 
+// Hide splash screen - exposed globally so components can call it
+window.hideSplash = () => {
+  const splash = document.getElementById('splash');
+  if (splash) {
+    splash.style.opacity = '0';
+    setTimeout(() => splash.remove(), 300);
+  }
+};
+
+// Extend Window interface
+declare global {
+  interface Window {
+    hideSplash: () => void;
+  }
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>

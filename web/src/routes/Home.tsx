@@ -13,6 +13,13 @@ export const Home = () => {
   const { matches, loading, error } = useMatches();
   const [viewMode, setViewMode] = React.useState<ViewMode>('day');
 
+  // Hide splash once data is loaded
+  React.useEffect(() => {
+    if (!loading && (matches || error)) {
+      window.hideSplash?.();
+    }
+  }, [loading, matches, error]);
+
   return (
     <AppLayout>
       <div className="pt-8 px-4 pb-8 max-w-4xl mx-auto">

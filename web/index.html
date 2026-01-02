@@ -5,14 +5,52 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/app-icon.png" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#000000" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="WC 2026 Pool" />
     <title>World Cup 2026 Pool</title>
   </head>
-  <body>
+  <body style="background: #000; margin: 0">
+    <!-- Splash screen - shown immediately while JS loads -->
+    <div
+      id="splash"
+      style="
+        position: fixed;
+        inset: 0;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.3s ease-out;
+      "
+    >
+      <img
+        src="/app-icon.png"
+        alt="Loading"
+        style="width: 120px; height: 120px; border-radius: 24px"
+      />
+      <p
+        style="
+          color: rgba(255, 255, 255, 0.5);
+          margin-top: 16px;
+          font-family: system-ui, sans-serif;
+          font-size: 14px;
+        "
+      >
+        Loading...
+      </p>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

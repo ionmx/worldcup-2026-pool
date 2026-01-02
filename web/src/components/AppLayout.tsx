@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { bgImage, worldcupLogo } from '../assets';
 import { Sidebar } from './Sidebar';
@@ -16,6 +17,14 @@ const mobileNavItems = [
 ];
 
 export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
+  // Fallback: hide splash after 1 second (for pages without data loading)
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      window.hideSplash?.();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       {/* Fixed background */}
