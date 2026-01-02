@@ -3,7 +3,12 @@ import { createPortal } from 'react-dom';
 import { signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../firebase';
-import { closeIcon, editProfileIcon, predictionsIcon, signOutIcon } from '../assets';
+import {
+  closeIcon,
+  editProfileIcon,
+  predictionsIcon,
+  signOutIcon,
+} from '../assets';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './Button';
 import { Card } from './Card';
@@ -14,7 +19,8 @@ type MenuItem = {
   icon: React.ReactNode;
 } & ({ to: string } | { onClick: () => void });
 
-const menuItemClass = "w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2";
+const menuItemClass =
+  'w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2';
 
 export const UserMenu = () => {
   const navigate = useNavigate();
@@ -32,8 +38,20 @@ export const UserMenu = () => {
   };
 
   const menuItems: MenuItem[] = [
-    { label: 'My Predictions', to: `/${userData?.userName}`, icon: <img src={predictionsIcon} alt="My Predictions" className="w-5 h-5" /> },
-    { label: 'Edit Profile', to: '/edit-profile', icon: <img src={editProfileIcon} alt="Edit Profile" className="w-5 h-5" /> },
+    {
+      label: 'My Predictions',
+      to: `/${userData?.userName}`,
+      icon: (
+        <img src={predictionsIcon} alt="My Predictions" className="w-5 h-5" />
+      ),
+    },
+    {
+      label: 'Edit Profile',
+      to: '/edit-profile',
+      icon: (
+        <img src={editProfileIcon} alt="Edit Profile" className="w-5 h-5" />
+      ),
+    },
     {
       label: 'Sign Out',
       onClick: handleSignOut,
@@ -45,8 +63,10 @@ export const UserMenu = () => {
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      const clickedOutsideButton = buttonRef.current && !buttonRef.current.contains(target);
-      const clickedOutsideDropdown = dropdownRef.current && !dropdownRef.current.contains(target);
+      const clickedOutsideButton =
+        buttonRef.current && !buttonRef.current.contains(target);
+      const clickedOutsideDropdown =
+        dropdownRef.current && !dropdownRef.current.contains(target);
 
       if (clickedOutsideButton && clickedOutsideDropdown) {
         setIsOpen(false);
@@ -82,53 +102,64 @@ export const UserMenu = () => {
               {userData?.displayName?.charAt(0) ?? '?'}
             </div>
           )}
-          <span className="text-white font-medium">{userData?.displayName}</span>
+          <span className="text-white font-medium">
+            {userData?.displayName}
+          </span>
         </Button>
-        {isOpen && createPortal(
-          <div
-            ref={dropdownRef}
-            className="fixed top-18 right-4 z-50"
-          >
-            <Card className="w-72 p-4 bg-transparent shadow-none after:hidden">
-              <div className="flex items-center justify-between gap-4 mb-8">
-                <div className="text-xs text-white/70">{userData?.email}</div>
-                <button
-                  onClick={closeMenu}
-                  className="cursor-pointer"
-                >
-                  <img src={closeIcon} alt="Close" className="w-4 h-4 opacity-50 hover:opacity-100 transition-opacity" />
-                </button>
-              </div>
-              <div className="flex flex-col items-center gap-2 mb-8">
-                <img src={userData?.photoURL} alt={userData?.displayName} className="w-16 h-16 rounded-full object-cover" />
-                <div className="text-white font-medium">Hello, {userData?.displayName?.split(' ')[0]}!</div>
-              </div>
-              <ul className="w-full p-0 mb-2 border rounded-lg border-white/10 bg-white/5">
-                {menuItems.map((item) => (
-                  <li key={item.label}>
-                    {'to' in item ? (
-                      <Link to={item.to} onClick={closeMenu} className={menuItemClass}>
-                        {item.icon} {item.label}
-                      </Link>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          item.onClick();
-                          closeMenu();
-                        }}
-                        className={menuItemClass}
-                      >
-                        {item.icon}
-                        {item.label}
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </div>,
-          document.body
-        )}
+        {isOpen &&
+          createPortal(
+            <div ref={dropdownRef} className="fixed top-18 right-4 z-50">
+              <Card className="w-72 p-4 bg-transparent shadow-none after:hidden">
+                <div className="flex items-center justify-between gap-4 mb-8">
+                  <div className="text-xs text-white/70">{userData?.email}</div>
+                  <button onClick={closeMenu} className="cursor-pointer">
+                    <img
+                      src={closeIcon}
+                      alt="Close"
+                      className="w-4 h-4 opacity-50 hover:opacity-100 transition-opacity"
+                    />
+                  </button>
+                </div>
+                <div className="flex flex-col items-center gap-2 mb-8">
+                  <img
+                    src={userData?.photoURL}
+                    alt={userData?.displayName}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                  <div className="text-white font-medium">
+                    Hello, {userData?.displayName?.split(' ')[0]}!
+                  </div>
+                </div>
+                <ul className="w-full p-0 mb-2 border rounded-lg border-white/10 bg-white/5">
+                  {menuItems.map((item) => (
+                    <li key={item.label}>
+                      {'to' in item ? (
+                        <Link
+                          to={item.to}
+                          onClick={closeMenu}
+                          className={menuItemClass}
+                        >
+                          {item.icon} {item.label}
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            item.onClick();
+                            closeMenu();
+                          }}
+                          className={menuItemClass}
+                        >
+                          {item.icon}
+                          {item.label}
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            </div>,
+            document.body
+          )}
       </div>
     </div>
   );

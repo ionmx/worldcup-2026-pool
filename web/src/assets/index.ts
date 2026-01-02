@@ -6,4 +6,3 @@ export { default as predictionsIcon } from './predictions-icon.svg';
 export { default as signOutIcon } from './sign-out-icon.svg';
 export { default as undoIcon } from './undo-icon.svg';
 export { default as worldcupLogo } from './worldcup-logo.png';
-

@@ -3,16 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { PageContainer, NavBar, Card, Button, LinkButton } from '../components';
 import { useAuth } from '../hooks/useAuth';
 import { undoIcon } from '../assets';
-import { checkUsernameAvailable, sanitizeUsername, updateUserProfile, uploadProfilePicture } from '../services';
+import {
+  checkUsernameAvailable,
+  sanitizeUsername,
+  updateUserProfile,
+  uploadProfilePicture,
+} from '../services';
 
 export const EditProfile = () => {
   const navigate = useNavigate();
   const { user, userData, setUserData } = useAuth();
   const [userName, setUserName] = React.useState(userData?.userName ?? '');
-  const [displayName, setDisplayName] = React.useState(userData?.displayName ?? '');
+  const [displayName, setDisplayName] = React.useState(
+    userData?.displayName ?? ''
+  );
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [usernameStatus, setUsernameStatus] = React.useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [usernameStatus, setUsernameStatus] = React.useState<
+    'idle' | 'checking' | 'available' | 'taken'
+  >('idle');
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -92,10 +101,19 @@ export const EditProfile = () => {
         newPhotoURL = await uploadProfilePicture(user.uid, selectedFile);
       }
 
-      await updateUserProfile(user.uid, { userName: finalUserName, displayName }, originalUserName);
+      await updateUserProfile(
+        user.uid,
+        { userName: finalUserName, displayName },
+        originalUserName
+      );
 
       if (userData) {
-        setUserData({ ...userData, userName: finalUserName, displayName, photoURL: newPhotoURL });
+        setUserData({
+          ...userData,
+          userName: finalUserName,
+          displayName,
+          photoURL: newPhotoURL,
+        });
       }
       void navigate(`/${finalUserName}`);
     } catch (err: unknown) {
@@ -104,18 +122,27 @@ export const EditProfile = () => {
     }
   };
 
-  const isFormValid = userName.length >= 3 && usernameStatus !== 'taken' && usernameStatus !== 'checking';
+  const isFormValid =
+    userName.length >= 3 &&
+    usernameStatus !== 'taken' &&
+    usernameStatus !== 'checking';
 
-  const inputClass = "w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors";
-  const labelClass = "block text-white/70 text-sm mb-2";
+  const inputClass =
+    'w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40 transition-colors';
+  const labelClass = 'block text-white/70 text-sm mb-2';
 
   return (
     <PageContainer className="flex flex-col items-center justify-center relative">
       <NavBar />
       <Card className="w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">Edit Profile</h1>
+        <h1 className="text-2xl font-bold text-white mb-6 text-center">
+          Edit Profile
+        </h1>
 
-        <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-4">
+        <form
+          onSubmit={(e) => void handleSubmit(e)}
+          className="flex flex-col gap-4"
+        >
           {/* Profile Picture */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
@@ -151,7 +178,9 @@ export const EditProfile = () => {
           </div>
 
           <div>
-            <label htmlFor="displayName" className={labelClass}>Display Name</label>
+            <label htmlFor="displayName" className={labelClass}>
+              Display Name
+            </label>
             <input
               id="displayName"
               type="text"
@@ -164,13 +193,23 @@ export const EditProfile = () => {
           </div>
 
           <div>
-            <label htmlFor="userName" className={labelClass}>Username</label>
+            <label htmlFor="userName" className={labelClass}>
+              Username
+            </label>
             <div className="relative">
               <input
                 id="userName"
                 type="text"
                 value={userName}
-                onChange={(e) => setUserName(e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, '').replace(/^\./, '').replace(/\.{2,}/g, '.'))}
+                onChange={(e) =>
+                  setUserName(
+                    e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9._-]/g, '')
+                      .replace(/^\./, '')
+                      .replace(/\.{2,}/g, '.')
+                  )
+                }
                 onBlur={(e) => setUserName(sanitizeUsername(e.target.value))}
                 placeholder="your-username"
                 className={`${inputClass} ${usernameStatus === 'taken' ? 'border-red-400' : usernameStatus === 'available' ? 'border-green-400' : ''}`}
@@ -178,21 +217,27 @@ export const EditProfile = () => {
                 minLength={3}
               />
               {usernameStatus === 'checking' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">Checking...</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">
+                  Checking...
+                </span>
               )}
               {usernameStatus === 'available' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400 text-sm">✓ Available</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400 text-sm">
+                  ✓ Available
+                </span>
               )}
               {usernameStatus === 'taken' && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400 text-sm">✗ Taken</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400 text-sm">
+                  ✗ Taken
+                </span>
               )}
             </div>
-            <p className="text-white/50 text-xs mt-1">Letters, numbers, periods, hyphens, and underscores only.</p>
+            <p className="text-white/50 text-xs mt-1">
+              Letters, numbers, periods, hyphens, and underscores only.
+            </p>
           </div>
 
-          {error && (
-            <p className="text-red-400 text-sm">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-sm">{error}</p>}
 
           <div className="flex gap-3 mt-4">
             <LinkButton
@@ -215,4 +260,3 @@ export const EditProfile = () => {
     </PageContainer>
   );
 };
-

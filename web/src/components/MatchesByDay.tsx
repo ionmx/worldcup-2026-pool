@@ -1,4 +1,8 @@
-import { type Match, type MatchesData, type UserPredictions } from '../services';
+import {
+  type Match,
+  type MatchesData,
+  type UserPredictions,
+} from '../services';
 import { MatchCard } from './MatchCard';
 
 type MatchesByDayProps = {
@@ -8,23 +12,31 @@ type MatchesByDayProps = {
   predictions?: UserPredictions;
 };
 
-export const MatchesByDay = ({ matches, isOwnProfile, userId, predictions }: MatchesByDayProps) => {
+export const MatchesByDay = ({
+  matches,
+  isOwnProfile,
+  userId,
+  predictions,
+}: MatchesByDayProps) => {
   // Group matches by date (day)
-  const groupedByDay = Object.values(matches).reduce<Record<string, Match[]>>((acc, match) => {
-    const date = new Date(match.date);
-    const dayKey = date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
+  const groupedByDay = Object.values(matches).reduce<Record<string, Match[]>>(
+    (acc, match) => {
+      const date = new Date(match.date);
+      const dayKey = date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
 
-    if (!acc[dayKey]) {
-      acc[dayKey] = [];
-    }
-    acc[dayKey].push(match);
-    return acc;
-  }, {});
+      if (!acc[dayKey]) {
+        acc[dayKey] = [];
+      }
+      acc[dayKey].push(match);
+      return acc;
+    },
+    {}
+  );
 
   // Sort days chronologically
   const sortedDays = Object.keys(groupedByDay).sort((a, b) => {
@@ -37,10 +49,10 @@ export const MatchesByDay = ({ matches, isOwnProfile, userId, predictions }: Mat
     <div className="flex flex-col gap-6">
       {sortedDays.map((day) => (
         <div key={day}>
-          <h3 className="text-lg font-semibold mb-3 text-white/80 border-b border-white/10 pb-2">
+          <h3 className="text-lg font-semibold mb-3 text-white/80 pb-2">
             {day}
           </h3>
-          <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {groupedByDay[day]
               .sort((a, b) => a.timestamp - b.timestamp)
               .map((match) => (
@@ -58,4 +70,3 @@ export const MatchesByDay = ({ matches, isOwnProfile, userId, predictions }: Mat
     </div>
   );
 };
-

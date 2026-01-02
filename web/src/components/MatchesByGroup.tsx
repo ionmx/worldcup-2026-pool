@@ -1,4 +1,8 @@
-import { type Match, type MatchesData, type UserPredictions } from '../services';
+import {
+  type Match,
+  type MatchesData,
+  type UserPredictions,
+} from '../services';
 import { MatchCard } from './MatchCard';
 
 type MatchesByGroupProps = {
@@ -8,17 +12,25 @@ type MatchesByGroupProps = {
   predictions?: UserPredictions;
 };
 
-export const MatchesByGroup = ({ matches, isOwnProfile, userId, predictions }: MatchesByGroupProps) => {
+export const MatchesByGroup = ({
+  matches,
+  isOwnProfile,
+  userId,
+  predictions,
+}: MatchesByGroupProps) => {
   // Group matches by group (or round if group is null)
-  const groupedMatches = Object.values(matches).reduce<Record<string, Match[]>>((acc, match) => {
-    const groupKey = match.group ? `Group ${match.group}` : match.round;
+  const groupedMatches = Object.values(matches).reduce<Record<string, Match[]>>(
+    (acc, match) => {
+      const groupKey = match.group ? `Group ${match.group}` : match.round;
 
-    if (!acc[groupKey]) {
-      acc[groupKey] = [];
-    }
-    acc[groupKey].push(match);
-    return acc;
-  }, {});
+      if (!acc[groupKey]) {
+        acc[groupKey] = [];
+      }
+      acc[groupKey].push(match);
+      return acc;
+    },
+    {}
+  );
 
   // Sort groups: A-L first, then knockout rounds
   const sortedGroups = Object.keys(groupedMatches).sort((a, b) => {
@@ -41,10 +53,10 @@ export const MatchesByGroup = ({ matches, isOwnProfile, userId, predictions }: M
     <div className="flex flex-col gap-6">
       {sortedGroups.map((group) => (
         <div key={group}>
-          <h3 className="text-lg font-semibold mb-3 text-white/80 border-b border-white/10 pb-2">
+          <h3 className="text-lg font-semibold mb-3 text-white/80 pb-2">
             {group}
           </h3>
-          <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {groupedMatches[group]
               .sort((a, b) => a.timestamp - b.timestamp)
               .map((match) => (
@@ -62,4 +74,3 @@ export const MatchesByGroup = ({ matches, isOwnProfile, userId, predictions }: M
     </div>
   );
 };
-

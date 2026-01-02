@@ -1,6 +1,18 @@
 import { db, storage } from '../firebase';
-import { ref, get, set, update, remove, query, limitToFirst } from 'firebase/database';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import {
+  ref,
+  get,
+  set,
+  update,
+  remove,
+  query,
+  limitToFirst,
+} from 'firebase/database';
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from 'firebase/storage';
 import type { User } from 'firebase/auth';
 
 export interface UserData {
@@ -28,9 +40,9 @@ export const sanitizeUsername = (input: string): string => {
   return input
     .toLowerCase()
     .replace(/[^a-z0-9._-]/g, '') // Allow dots
-    .replace(/\.{2,}/g, '.')      // Replace consecutive dots with single dot
-    .replace(/^\./, '')           // Remove leading dot
-    .replace(/\.$/, '');          // Remove trailing dot
+    .replace(/\.{2,}/g, '.') // Replace consecutive dots with single dot
+    .replace(/^\./, '') // Remove leading dot
+    .replace(/\.$/, ''); // Remove trailing dot
 };
 
 export const handleUserLogin = async (user: User) => {
@@ -94,7 +106,9 @@ export const checkUsernameAvailable = async (
 /**
  * Generate a unique username by appending numbers if needed
  */
-const generateUniqueUsername = async (baseUserName: string): Promise<string> => {
+const generateUniqueUsername = async (
+  baseUserName: string
+): Promise<string> => {
   let userName = sanitizeUsername(baseUserName);
   let suffix = 0;
 
@@ -168,12 +182,18 @@ export const getUserByUsername = async (
  * @param file - Image file to upload
  * @returns Download URL of the uploaded image
  */
-export const uploadProfilePicture = async (uid: string, file: File): Promise<string> => {
+export const uploadProfilePicture = async (
+  uid: string,
+  file: File
+): Promise<string> => {
   // Get file extension from the original file
   const extension = file.name.split('.').pop() ?? 'jpg';
 
   // Create a reference to the file location
-  const fileRef = storageRef(storage, `profile-pictures/${uid}/profile.${extension}`);
+  const fileRef = storageRef(
+    storage,
+    `profile-pictures/${uid}/profile.${extension}`
+  );
 
   // Upload the file
   await uploadBytes(fileRef, file);

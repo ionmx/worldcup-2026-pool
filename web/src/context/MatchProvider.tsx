@@ -4,7 +4,9 @@ import { db } from '../firebase';
 import { fetchMatches, type MatchesData } from '../services/matchService';
 import { MatchContext } from './MatchContext';
 
-export const MatchProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const MatchProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [matches, setMatches] = React.useState<MatchesData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -27,7 +29,9 @@ export const MatchProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             })
             .catch((err: unknown) => {
               console.error('Error fetching matches:', err);
-              setError(err instanceof Error ? err.message : 'Failed to load matches');
+              setError(
+                err instanceof Error ? err.message : 'Failed to load matches'
+              );
             })
             .finally(() => {
               setLoading(false);
@@ -50,10 +54,5 @@ export const MatchProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     error,
   };
 
-  return (
-    <MatchContext value={value}>
-      {children}
-    </MatchContext>
-  );
+  return <MatchContext value={value}>{children}</MatchContext>;
 };
-

@@ -14,7 +14,14 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/" element={<Navigate to="/signin" replace />} />
             <Route path="/signin" element={<SignIn />} />
-            <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+            <Route
+              path="/edit-profile"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/:userName" element={<UserProfile />} />
           </Routes>
         </BrowserRouter>

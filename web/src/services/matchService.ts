@@ -69,7 +69,7 @@ const fetchFromFifaApi = async (): Promise<MatchesData> => {
     throw new Error(`FIFA API error: ${response.status}`);
   }
 
-  const data = await response.json() as FifaApiResponse;
+  const data = (await response.json()) as FifaApiResponse;
   return transformFifaData(data.Results);
 };
 
@@ -82,7 +82,8 @@ const transformFifaData = (results: FifaApiMatch[]): MatchesData => {
   results.forEach((item, index) => {
     const game = index + 1;
     const round = item.StageName?.[0]?.Description ?? '';
-    const group = item.GroupName?.[0]?.Description?.replace('Group ', '') ?? null;
+    const group =
+      item.GroupName?.[0]?.Description?.replace('Group ', '') ?? null;
     const home = item.Home?.Abbreviation ?? item.PlaceHolderA;
     const homeName = item.Home?.ShortClubName ?? item.PlaceHolderA;
     const away = item.Away?.Abbreviation ?? item.PlaceHolderB;
@@ -152,4 +153,3 @@ export const getMatch = async (gameNumber: string): Promise<Match | null> => {
 
   return snapshot.val() as Match;
 };
-

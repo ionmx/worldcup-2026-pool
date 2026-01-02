@@ -12,4 +12,3 @@ export const MatchContext = createContext<MatchContextType>({
   loading: true,
   error: null,
 });
-

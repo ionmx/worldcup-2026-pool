@@ -4,7 +4,9 @@ import { auth } from '../firebase';
 import { handleUserLogin, type UserData } from '../services';
 import { AuthContext } from './AuthContext';
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = React.useState<User | null>(null);
   const [userData, setUserData] = React.useState<UserData | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -37,12 +39,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     userData,
     loading,
-    setUserData
+    setUserData,
   };
 
-  return (
-    <AuthContext value={value}>
-      {!loading && children}
-    </AuthContext>
-  );
+  return <AuthContext value={value}>{!loading && children}</AuthContext>;
 };

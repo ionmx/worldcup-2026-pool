@@ -1,8 +1,18 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { PageContainer, NavBar, MatchesByDay, MatchesByGroup, Button } from '../components';
+import {
+  PageContainer,
+  NavBar,
+  MatchesByDay,
+  MatchesByGroup,
+  Button,
+} from '../components';
 import { useMatches, useAuth } from '../hooks';
-import { type UserPredictions, subscribeToPredictions, getUserByUsername } from '../services';
+import {
+  type UserPredictions,
+  subscribeToPredictions,
+  getUserByUsername,
+} from '../services';
 
 type ViewMode = 'day' | 'group';
 
@@ -10,7 +20,7 @@ export const UserProfile = () => {
   const { userName } = useParams();
   const { matches, loading, error } = useMatches();
   const { user, userData } = useAuth();
-  const [viewMode, setViewMode] = React.useState<ViewMode>('group');
+  const [viewMode, setViewMode] = React.useState<ViewMode>('day');
   const [predictions, setPredictions] = React.useState<UserPredictions>({});
   const [profileUserId, setProfileUserId] = React.useState<string | null>(null);
 
@@ -43,32 +53,32 @@ export const UserProfile = () => {
     <PageContainer className="relative">
       <NavBar />
       <div className="pt-20 px-4 pb-8 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          {isOwnProfile ? `Welcome, ${userData?.displayName?.split(' ')[0]}!` : `${userName}'s Predictions`}
-        </h1>
+        <div className="flex justify-between items-center mt-2">
+          <h1 className="text-3xl font-bold mb-6 text-center">Matches</h1>
 
-        {/* View Toggle */}
-        <div className="flex justify-center gap-2 mb-6">
-          <Button
-            onClick={() => setViewMode('group')}
-            className={`px-4 py-2 rounded-full transition-colors ${
-              viewMode === 'group'
-                ? 'bg-white text-black!'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-          >
-            By Group
-          </Button>
-          <Button
-            onClick={() => setViewMode('day')}
-            className={`px-4 py-2 rounded-full transition-colors ${
-              viewMode === 'day'
-                ? 'bg-white text-black!'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-          >
-            By Day
-          </Button>
+          {/* View Toggle */}
+          <div className="flex justify-center gap-2 mb-6">
+            <Button
+              onClick={() => setViewMode('day')}
+              className={`px-4 py-2 rounded-full transition-colors ${
+                viewMode === 'day'
+                  ? 'bg-white text-black!'
+                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+              }`}
+            >
+              By Day
+            </Button>
+            <Button
+              onClick={() => setViewMode('group')}
+              className={`px-4 py-2 rounded-full transition-colors ${
+                viewMode === 'group'
+                  ? 'bg-white text-black!'
+                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+              }`}
+            >
+              By Group
+            </Button>
+          </div>
         </div>
 
         {/* Content */}
@@ -80,8 +90,8 @@ export const UserProfile = () => {
           <div className="text-center text-red-400">Error: {error}</div>
         )}
 
-        {matches && (
-          viewMode === 'day' ? (
+        {matches &&
+          (viewMode === 'day' ? (
             <MatchesByDay
               matches={matches}
               isOwnProfile={isOwnProfile}
@@ -95,10 +105,8 @@ export const UserProfile = () => {
               userId={profileUserId ?? undefined}
               predictions={predictions}
             />
-          )
-        )}
+          ))}
       </div>
     </PageContainer>
   );
-}
-
+};

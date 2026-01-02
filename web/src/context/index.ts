@@ -5,4 +5,3 @@ export { AuthProvider } from './AuthProvider';
 export { MatchContext } from './MatchContext';
 export type { MatchContextType } from './MatchContext';
 export { MatchProvider } from './MatchProvider';
-

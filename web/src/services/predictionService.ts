@@ -15,7 +15,9 @@ export interface UserPredictions {
 /**
  * Get all predictions for a user
  */
-export const getUserPredictions = async (userId: string): Promise<UserPredictions> => {
+export const getUserPredictions = async (
+  userId: string
+): Promise<UserPredictions> => {
   const predictionsRef = ref(db, `predictions/${userId}`);
   const snapshot = await get(predictionsRef);
 
@@ -81,4 +83,3 @@ export const subscribeToPredictions = (
     }
   });
 };
-

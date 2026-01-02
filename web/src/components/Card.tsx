@@ -12,4 +12,3 @@ export const Card = ({ children, className = '' }: CardProps) => {
     </div>
   );
 };
-

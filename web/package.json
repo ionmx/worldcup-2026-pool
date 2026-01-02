@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "prettier": "^3.3.0",
     "@poupe/eslint-plugin-tailwindcss": "^0.2.4",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^24.10.1",
