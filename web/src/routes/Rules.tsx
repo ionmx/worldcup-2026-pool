@@ -57,19 +57,19 @@ export const Rules = () => {
           <div className="space-y-6">
             {/* Example 1: Exact score */}
             <div className="border-b border-white/10 pb-4">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <span className="text-white/60 text-sm">Actual Result</span>
                 <span className="text-white font-mono">
                   Mexico 2 - 1 South Africa
                 </span>
               </div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <span className="text-white/60 text-sm">Your Prediction</span>
                 <span className="text-white font-mono">
                   Mexico 2 - 1 South Africa
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                 <span className="text-white/60 text-sm">Points Earned</span>
                 <span className="text-green-400 font-bold">
                   🥳 15 points (Exact!)
@@ -79,63 +79,69 @@ export const Rules = () => {
 
             {/* Example 2: Correct winner */}
             <div className="border-b border-white/10 pb-4">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <span className="text-white/60 text-sm">Actual Result</span>
                 <span className="text-white font-mono">
                   Brazil 2 - 1 Morocco
                 </span>
               </div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <span className="text-white/60 text-sm">Your Prediction</span>
                 <span className="text-white font-mono">
                   Brazil 3 - 0 Morocco
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                 <span className="text-white/60 text-sm">Points Earned</span>
-                <span className="text-yellow-400 font-bold">
-                  😄 8 points (10 - |3-2| - |0-1| = 8)
-                </span>
+                <div className="md:text-right">
+                  <span className="text-yellow-400 font-bold">😄 8 points</span>
+                  <div className="text-white/40 text-xs font-mono">
+                    10 - |3-2| - |0-1| = 8
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Example 3: Correct draw */}
             <div className="border-b border-white/10 pb-4">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <span className="text-white/60 text-sm">Actual Result</span>
                 <span className="text-white font-mono">
                   Netherlands 2 - 2 Japan
                 </span>
               </div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <span className="text-white/60 text-sm">Your Prediction</span>
                 <span className="text-white font-mono">
                   Netherlands 0 - 0 Japan
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                 <span className="text-white/60 text-sm">Points Earned</span>
-                <span className="text-yellow-400 font-bold">
-                  😄 6 points (10 - |0-2| - |0-2| = 6)
-                </span>
+                <div className="md:text-right">
+                  <span className="text-yellow-400 font-bold">😄 6 points</span>
+                  <div className="text-white/40 text-xs font-mono">
+                    10 - |0-2| - |0-2| = 6
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Example 4: Wrong result */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <span className="text-white/60 text-sm">Actual Result</span>
                 <span className="text-white font-mono">
                   England 2 - 1 Croatia
                 </span>
               </div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
                 <span className="text-white/60 text-sm">Your Prediction</span>
                 <span className="text-white font-mono">
                   England 0 - 2 Croatia
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                 <span className="text-white/60 text-sm">Points Earned</span>
                 <span className="text-red-400 font-bold">
                   😔 0 points (Wrong winner)
