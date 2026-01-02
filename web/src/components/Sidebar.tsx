@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { worldcupLogo } from '../assets';
 import { Card } from './Card';
 import { Leaderboard } from './Leaderboard';
@@ -7,12 +8,15 @@ export const Sidebar = () => {
   return (
     <aside className="w-80 shrink-0 p-4 h-screen sticky top-0">
       <Card className="h-full max-h-[calc(100vh-2rem)] p-4 flex flex-col rounded-xl after:hidden overflow-hidden">
-        <div className="flex items-center gap-3 mb-4 shrink-0">
+        <Link
+          to="/"
+          className="flex items-center gap-3 mb-4 shrink-0 hover:opacity-80 transition-opacity"
+        >
           <img src={worldcupLogo} alt="World Cup 2026" className="h-10" />
           <span className="text-white font-light text-sm">
             FIFA WORLD CUP 2026 POOL
           </span>
-        </div>
+        </Link>
         <div className="shrink-0">
           <UserMenu />
         </div>

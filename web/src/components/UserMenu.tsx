@@ -93,7 +93,7 @@ export const UserMenu = () => {
     return (
       <Button
         onClick={handleSignIn}
-        className="w-full bg-white/10 hover:bg-white/20 rounded-lg px-4 py-3"
+        className="w-full"
       >
         Sign In with Google
       </Button>
@@ -104,16 +104,16 @@ export const UserMenu = () => {
     <div ref={buttonRef}>
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-start gap-3 bg-white/5 hover:bg-white/10 rounded-lg py-3 px-3 transition-colors cursor-pointer"
+        className="w-full flex items-center justify-start gap-3"
       >
         {userData?.photoURL ? (
           <img
             src={userData.photoURL}
             alt={userData.displayName}
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-8 h-8 rounded-full object-cover"
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold">
+          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold">
             {userData?.displayName?.charAt(0) ?? '?'}
           </div>
         )}
