@@ -138,6 +138,31 @@ export const updateUserProfile = async (
 };
 
 /**
+ * Get a user by their username
+ * Returns the user data and their ID
+ */
+export const getUserByUsername = async (
+  userName: string
+): Promise<{ id: string; data: UserData } | null> => {
+  const normalized = normalizeUsername(userName);
+  const usernameRef = ref(db, `usernames/${normalized}`);
+  const snapshot = await get(usernameRef);
+
+  if (!snapshot.exists()) return null;
+
+  const userId = snapshot.val() as string;
+  const userRef = ref(db, `users/${userId}`);
+  const userSnapshot = await get(userRef);
+
+  if (!userSnapshot.exists()) return null;
+
+  return {
+    id: userId,
+    data: userSnapshot.val() as UserData,
+  };
+};
+
+/**
  * Upload a profile picture to Firebase Storage
  * @param uid - User's UID
  * @param file - Image file to upload

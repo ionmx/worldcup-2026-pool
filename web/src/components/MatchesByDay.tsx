@@ -1,11 +1,14 @@
-import { type Match, type MatchesData } from '../services';
+import { type Match, type MatchesData, type UserPredictions } from '../services';
 import { MatchCard } from './MatchCard';
 
 type MatchesByDayProps = {
   matches: MatchesData;
+  isOwnProfile?: boolean;
+  userId?: string;
+  predictions?: UserPredictions;
 };
 
-export const MatchesByDay = ({ matches }: MatchesByDayProps) => {
+export const MatchesByDay = ({ matches, isOwnProfile, userId, predictions }: MatchesByDayProps) => {
   // Group matches by date (day)
   const groupedByDay = Object.values(matches).reduce<Record<string, Match[]>>((acc, match) => {
     const date = new Date(match.date);
@@ -41,7 +44,13 @@ export const MatchesByDay = ({ matches }: MatchesByDayProps) => {
             {groupedByDay[day]
               .sort((a, b) => a.timestamp - b.timestamp)
               .map((match) => (
-                <MatchCard key={match.game} match={match} />
+                <MatchCard
+                  key={match.game}
+                  match={match}
+                  isOwnProfile={isOwnProfile}
+                  userId={userId}
+                  prediction={predictions?.[match.game]}
+                />
               ))}
           </div>
         </div>

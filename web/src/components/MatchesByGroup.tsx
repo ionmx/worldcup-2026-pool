@@ -1,11 +1,14 @@
-import { type Match, type MatchesData } from '../services';
+import { type Match, type MatchesData, type UserPredictions } from '../services';
 import { MatchCard } from './MatchCard';
 
 type MatchesByGroupProps = {
   matches: MatchesData;
+  isOwnProfile?: boolean;
+  userId?: string;
+  predictions?: UserPredictions;
 };
 
-export const MatchesByGroup = ({ matches }: MatchesByGroupProps) => {
+export const MatchesByGroup = ({ matches, isOwnProfile, userId, predictions }: MatchesByGroupProps) => {
   // Group matches by group (or round if group is null)
   const groupedMatches = Object.values(matches).reduce<Record<string, Match[]>>((acc, match) => {
     const groupKey = match.group ? `Group ${match.group}` : match.round;
@@ -45,7 +48,13 @@ export const MatchesByGroup = ({ matches }: MatchesByGroupProps) => {
             {groupedMatches[group]
               .sort((a, b) => a.timestamp - b.timestamp)
               .map((match) => (
-                <MatchCard key={match.game} match={match} />
+                <MatchCard
+                  key={match.game}
+                  match={match}
+                  isOwnProfile={isOwnProfile}
+                  userId={userId}
+                  prediction={predictions?.[match.game]}
+                />
               ))}
           </div>
         </div>

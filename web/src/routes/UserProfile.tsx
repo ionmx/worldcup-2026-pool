@@ -1,20 +1,51 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { PageContainer, NavBar, MatchesByDay, MatchesByGroup, Button } from '../components';
-import { useMatches } from '../hooks';
+import { useMatches, useAuth } from '../hooks';
+import { type UserPredictions, subscribeToPredictions, getUserByUsername } from '../services';
 
 type ViewMode = 'day' | 'group';
 
 export const UserProfile = () => {
   const { userName } = useParams();
   const { matches, loading, error } = useMatches();
+  const { user, userData } = useAuth();
   const [viewMode, setViewMode] = React.useState<ViewMode>('group');
+  const [predictions, setPredictions] = React.useState<UserPredictions>({});
+  const [profileUserId, setProfileUserId] = React.useState<string | null>(null);
+
+  // Determine if viewing own profile
+  const isOwnProfile = userData?.userName === userName;
+
+  // Get the user ID for the profile being viewed
+  React.useEffect(() => {
+    if (isOwnProfile && user) {
+      setProfileUserId(user.uid);
+    } else if (userName) {
+      // Fetch the user ID by username for viewing others' profiles
+      getUserByUsername(userName)
+        .then((profileUser) => {
+          setProfileUserId(profileUser?.id ?? null);
+        })
+        .catch(console.error);
+    }
+  }, [userName, isOwnProfile, user]);
+
+  // Subscribe to predictions for the profile being viewed
+  React.useEffect(() => {
+    if (!profileUserId) return;
+
+    const unsubscribe = subscribeToPredictions(profileUserId, setPredictions);
+    return () => unsubscribe();
+  }, [profileUserId]);
 
   return (
     <PageContainer className="relative">
       <NavBar />
       <div className="pt-20 px-4 pb-8 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-center">Welcome, {userName}!</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          {isOwnProfile ? `Welcome, ${userData?.displayName?.split(' ')[0]}!` : `${userName}'s Predictions`}
+        </h1>
 
         {/* View Toggle */}
         <div className="flex justify-center gap-2 mb-6">
@@ -51,9 +82,19 @@ export const UserProfile = () => {
 
         {matches && (
           viewMode === 'day' ? (
-            <MatchesByDay matches={matches} />
+            <MatchesByDay
+              matches={matches}
+              isOwnProfile={isOwnProfile}
+              userId={profileUserId ?? undefined}
+              predictions={predictions}
+            />
           ) : (
-            <MatchesByGroup matches={matches} />
+            <MatchesByGroup
+              matches={matches}
+              isOwnProfile={isOwnProfile}
+              userId={profileUserId ?? undefined}
+              predictions={predictions}
+            />
           )
         )}
       </div>

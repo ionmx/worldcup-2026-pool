@@ -1,0 +1,64 @@
+{
+  "rules": {
+    // Matches - anyone can read, only admins can write
+    "matches": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
+    },
+
+    // Users - anyone can read, users can only write their own profile
+    "users": {
+      ".read": true,
+      "$userId": {
+        ".write": "auth != null && auth.uid === $userId",
+        // Prevent users from making themselves admin
+        "admin": {
+          ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
+        }
+      }
+    },
+
+    // Usernames index - authenticated users can read, special write rules
+    "usernames": {
+      ".read": "auth != null",
+      "$normalizedUsername": {
+        // Can write if: claiming for yourself OR admin
+        ".write": "auth != null && (newData.val() === auth.uid || !data.exists() || data.val() === auth.uid)"
+      }
+    },
+
+    // Predictions - users can only read/write their own predictions
+    "predictions": {
+      "$userId": {
+        // Anyone authenticated can read predictions
+        ".read": "auth != null",
+        "$gameId": {
+          // Users can write their own predictions (but not points)
+          ".write": "auth != null && auth.uid === $userId",
+          // Validate prediction structure
+          ".validate": "newData.hasChildren(['homePrediction', 'awayPrediction', 'points', 'updatedAt'])",
+          "homePrediction": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 99"
+          },
+          "awayPrediction": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 99"
+          },
+          "points": {
+            // Users can only set points to 0, admins/functions can set any value
+            ".validate": "newData.isNumber() && newData.val() >= 0 && (newData.val() === 0 || root.child('users').child(auth.uid).child('admin').val() === true)"
+          },
+          "updatedAt": {
+            ".validate": "newData.isNumber()"
+          }
+        }
+      }
+    },
+
+    // Default deny all other paths
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}
+
