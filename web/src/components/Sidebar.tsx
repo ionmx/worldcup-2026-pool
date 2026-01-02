@@ -11,7 +11,7 @@ export const Sidebar = () => {
       <Card className="h-full max-h-[calc(100vh-2rem)] flex flex-col rounded-xl after:hidden overflow-hidden">
         <Link
           to="/"
-          className="flex items-center gap-3 p-4 pb-0 shrink-0 hover:opacity-80 transition-opacity"
+          className="flex items-center justify-center gap-3 p-4 pb-0 shrink-0 hover:opacity-80 transition-opacity"
         >
           <img src={worldcupLogo} alt="World Cup 2026" className="h-10" />
           <span className="text-white font-light text-sm">

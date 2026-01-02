@@ -2,7 +2,6 @@ import React from 'react';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, googleProvider } from '../firebase';
-import { editProfileIcon, predictionsIcon, signOutIcon } from '../assets';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './Button';
 
@@ -42,21 +41,17 @@ export const UserMenu = () => {
     {
       label: 'My Predictions',
       to: `/${userData?.userName}`,
-      icon: (
-        <img src={predictionsIcon} alt="My Predictions" className="w-5 h-5" />
-      ),
+      icon: <span>⚽</span>,
     },
     {
       label: 'Edit Profile',
       to: '/edit-profile',
-      icon: (
-        <img src={editProfileIcon} alt="Edit Profile" className="w-5 h-5" />
-      ),
+      icon: <span>✏️</span>,
     },
     {
       label: 'Sign Out',
       onClick: handleSignOut,
-      icon: <img src={signOutIcon} alt="Sign Out" className="w-5 h-5" />,
+      icon: <span>👋</span>,
     },
   ];
 
