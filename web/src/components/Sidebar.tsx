@@ -3,6 +3,7 @@ import { worldcupLogo } from '../assets';
 import { Card } from './Card';
 import { Leaderboard } from './Leaderboard';
 import { UserMenu } from './UserMenu';
+import { LinkButton } from './LinkButton';
 
 export const Sidebar = () => {
   return (
@@ -22,6 +23,14 @@ export const Sidebar = () => {
         </div>
         <div className="mt-4 pt-4 border-t border-white/10 flex-1 min-h-0 flex flex-col">
           <Leaderboard />
+        </div>
+        <div className="mt-auto">
+          <LinkButton to="/rules" variant="secondary">
+            Rules
+          </LinkButton>
+          <LinkButton to="/" variant="secondary">
+            About
+          </LinkButton>
         </div>
       </Card>
     </aside>

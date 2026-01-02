@@ -91,10 +91,7 @@ export const UserMenu = () => {
   // Show sign in button if not authenticated
   if (!user) {
     return (
-      <Button
-        onClick={handleSignIn}
-        className="w-full"
-      >
+      <Button onClick={handleSignIn} className="w-full">
         Sign In with Google
       </Button>
     );

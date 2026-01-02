@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import { ProtectedRoute } from './components';
 import { AuthProvider, MatchProvider } from './context';
-import { EditProfile, Home, UserProfile } from './routes';
+import { EditProfile, Home, Rules, UserProfile } from './routes';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -13,6 +13,7 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/rules" element={<Rules />} />
             <Route
               path="/edit-profile"
               element={
