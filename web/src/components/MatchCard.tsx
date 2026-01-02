@@ -102,7 +102,7 @@ export const MatchCard = ({
             <img
               src={getFlag(match.home)}
               alt={match.home}
-              className="h-6 w-9 md:h-8 md:w-12 object-contain"
+              className="h-6 w-9 md:h-8 md:w-12 object-contain rounded-sm"
             />
             <span className="flex-1 font-medium text-sm md:text-base">
               {match.homeName}
@@ -143,7 +143,7 @@ export const MatchCard = ({
             <img
               src={getFlag(match.away)}
               alt={match.away}
-              className="h-6 w-9 md:h-8 md:w-12 object-contain"
+              className="h-6 w-9 md:h-8 md:w-12 object-contain rounded-sm"
             />
             <span className="flex-1 font-medium text-sm md:text-base">
               {match.awayName}
