@@ -110,15 +110,25 @@ export const MatchCard = ({
             {isPlayed && <span className={scoreClass}>{match.homeScore}</span>}
             {canPredict && (
               <input
-                type="number"
-                min="0"
-                max="99"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={2}
                 value={homePrediction}
-                onChange={(e) => setHomePrediction(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                  setHomePrediction(val);
+                }}
+                onFocus={(e) => e.target.select()}
                 onBlur={handleBlur}
                 className={inputClass}
                 disabled={saving}
                 placeholder="-"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                data-form-type="other"
               />
             )}
             {!canPredict && prediction && (
@@ -141,15 +151,25 @@ export const MatchCard = ({
             {isPlayed && <span className={scoreClass}>{match.awayScore}</span>}
             {canPredict && (
               <input
-                type="number"
-                min="0"
-                max="99"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={2}
                 value={awayPrediction}
-                onChange={(e) => setAwayPrediction(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '').slice(0, 2);
+                  setAwayPrediction(val);
+                }}
+                onFocus={(e) => e.target.select()}
                 onBlur={handleBlur}
                 className={inputClass}
                 disabled={saving}
                 placeholder="-"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                data-form-type="other"
               />
             )}
             {!canPredict && prediction && (
