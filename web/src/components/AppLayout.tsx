@@ -1,10 +1,19 @@
-import { bgImage } from '../assets';
+import { Link, NavLink } from 'react-router-dom';
+import { bgImage, worldcupLogo } from '../assets';
 import { Sidebar } from './Sidebar';
+import { UserMenu } from './UserMenu';
 
 type AppLayoutProps = {
   children: React.ReactNode;
   className?: string;
 };
+
+const mobileNavItems = [
+  { to: '/', icon: '⚽', label: 'Matches' },
+  { to: '/leaderboard', icon: '🏆', label: 'Leaderboard' },
+  { to: '/rules', icon: '📋', label: 'Rules' },
+  { to: '/about', icon: 'ℹ️', label: 'About' },
+];
 
 export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
   return (
@@ -18,8 +27,55 @@ export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
       />
       {/* Layout container */}
       <div className="flex min-h-screen text-white">
-        <Sidebar />
-        <main className={`flex-1 ${className}`}>{children}</main>
+        {/* Desktop sidebar */}
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
+
+        {/* Mobile header + content */}
+        <div className="flex-1 flex flex-col md:block">
+          {/* Mobile header */}
+          <header className="md:hidden sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-white/10 px-4 py-3">
+            <div className="flex items-center justify-between">
+              <Link to="/" className="flex items-center gap-2">
+                <img src={worldcupLogo} alt="World Cup 2026" className="h-8" />
+                <span className="text-white font-light text-xs">
+                  FIFA WC 2026 POOL
+                </span>
+              </Link>
+              <div className="w-40">
+                <UserMenu compact />
+              </div>
+            </div>
+          </header>
+
+          <main className={`flex-1 pb-20 md:pb-0 ${className}`}>
+            {children}
+          </main>
+
+          {/* Mobile bottom navigation */}
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-black/90 backdrop-blur-lg border-t border-white/10">
+            <div className="flex justify-around items-center py-2">
+              {mobileNavItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === '/'}
+                  className={({ isActive }) =>
+                    `flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
+                      isActive
+                        ? 'text-white'
+                        : 'text-white/50 hover:text-white/70'
+                    }`
+                  }
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-[10px]">{item.label}</span>
+                </NavLink>
+              ))}
+            </div>
+          </nav>
+        </div>
       </div>
     </>
   );

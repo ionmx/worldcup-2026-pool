@@ -14,7 +14,11 @@ type MenuItem = {
 const menuItemClass =
   'w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2';
 
-export const UserMenu = () => {
+type UserMenuProps = {
+  compact?: boolean;
+};
+
+export const UserMenu = ({ compact = false }: UserMenuProps) => {
   const navigate = useNavigate();
   const { user, userData } = useAuth();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -87,31 +91,36 @@ export const UserMenu = () => {
   // Show sign in button if not authenticated
   if (!user) {
     return (
-      <Button onClick={handleSignIn} className="w-full">
-        Sign In with Google
+      <Button onClick={handleSignIn} className={compact ? 'text-xs' : 'w-full'}>
+        {compact ? 'Sign In' : 'Sign In with Google'}
       </Button>
     );
   }
 
   return (
-    <div ref={buttonRef}>
+    <div ref={buttonRef} className="relative">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-start gap-3"
+        className={`flex items-center ${compact ? 'gap-2 justify-end' : 'w-full gap-3 justify-start'}`}
       >
         <ProfilePicture
           src={userData?.photoURL}
           name={userData?.displayName}
-          size="sm"
+          size={compact ? 'xs' : 'sm'}
         />
-        <div className="flex flex-col items-start text-left">
-          <span className="text-white font-medium text-sm">
-            {userData?.displayName?.split(' ')[0]}
-          </span>
-        </div>
+        {!compact && (
+          <div className="flex flex-col items-start text-left">
+            <span className="text-white font-medium text-sm">
+              {userData?.displayName?.split(' ')[0]}
+            </span>
+          </div>
+        )}
       </Button>
       {isOpen && (
-        <ul ref={dropdownRef} className="w-full mt-2 p-0">
+        <ul
+          ref={dropdownRef}
+          className={`p-0 ${compact ? 'absolute right-0 top-full mt-2 w-48 bg-black/90 backdrop-blur-lg rounded-lg border border-white/10 shadow-xl z-50' : 'w-full mt-2'}`}
+        >
           {menuItems.map((item) => (
             <li key={item.label}>
               {'to' in item ? (
