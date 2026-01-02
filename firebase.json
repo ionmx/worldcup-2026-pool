@@ -4,6 +4,7 @@
     "source": "functions"
   },
   "hosting": {
+    "site": "worldcup-2026",
     "public": "web/dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [

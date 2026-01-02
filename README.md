@@ -79,6 +79,36 @@ VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
 You can find these values in your [Firebase Console](https://console.firebase.google.com/) under **Project Settings > General > Your apps**.
 
+5. Update Firebase project configuration (if forking):
+
+Update `.firebaserc` with your project ID:
+
+```json
+{
+  "projects": {
+    "default": "your-project-id"
+  }
+}
+```
+
+Update the `site` in `firebase.json` (must match your Firebase Hosting site name):
+
+```json
+{
+  "hosting": {
+    "site": "your-project-id",
+    ...
+  }
+}
+```
+
+Alternatively, you can skip editing these files and use the CLI:
+
+```bash
+firebase use your-project-id
+firebase deploy --project your-project-id
+```
+
 ## Development
 
 ### Web Application
