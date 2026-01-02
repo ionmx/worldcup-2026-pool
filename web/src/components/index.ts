@@ -1,11 +1,13 @@
 export { AppLayout } from './AppLayout';
 export { Button } from './Button';
 export { Card } from './Card';
+export { Chip } from './Chip';
 export { Leaderboard } from './Leaderboard';
 export { LinkButton } from './LinkButton';
 export { MatchCard } from './MatchCard';
 export { MatchesByDay } from './MatchesByDay';
 export { MatchesByGroup } from './MatchesByGroup';
+export { MatchesHeader } from './MatchesHeader';
 export { ProfilePicture } from './ProfilePicture';
 export { ProtectedRoute } from './ProtectedRoute';
 export { Sidebar } from './Sidebar';

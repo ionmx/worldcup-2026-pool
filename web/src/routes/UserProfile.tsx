@@ -4,7 +4,7 @@ import {
   AppLayout,
   MatchesByDay,
   MatchesByGroup,
-  Button,
+  MatchesHeader,
   ProfilePicture,
 } from '../components';
 import { useMatches, useAuth } from '../hooks';
@@ -81,7 +81,7 @@ export const UserProfile = () => {
       <div className="pt-8 px-4 pb-8 max-w-4xl mx-auto">
         {/* User Header */}
         {profileData && (
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4 mb-8 border-b border-white/10 pb-8">
             <ProfilePicture
               src={profileData.photoURL}
               name={profileData.displayName}
@@ -109,33 +109,7 @@ export const UserProfile = () => {
           </div>
         )}
 
-        <div className="flex justify-between items-center mt-2">
-          <h2 className="text-xl font-semibold text-white/80">Matches</h2>
-
-          {/* View Toggle */}
-          <div className="flex justify-center gap-2">
-            <Button
-              onClick={() => setViewMode('day')}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                viewMode === 'day'
-                  ? 'bg-white text-black!'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
-              }`}
-            >
-              By Day
-            </Button>
-            <Button
-              onClick={() => setViewMode('group')}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                viewMode === 'group'
-                  ? 'bg-white text-black!'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
-              }`}
-            >
-              By Group
-            </Button>
-          </div>
-        </div>
+        <MatchesHeader viewMode={viewMode} onViewModeChange={setViewMode} />
 
         {/* Content */}
         {loading && (
