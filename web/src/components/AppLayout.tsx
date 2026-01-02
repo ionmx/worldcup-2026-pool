@@ -35,7 +35,10 @@ export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
         {/* Mobile header + content */}
         <div className="flex-1 flex flex-col md:block">
           {/* Mobile header */}
-          <header className="md:hidden sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-white/10 px-4 py-3">
+          <header
+            className="md:hidden sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-white/10 px-4 py-3"
+            style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+          >
             <div className="flex items-center justify-between">
               <Link to="/" className="flex items-center gap-2">
                 <img src={worldcupLogo} alt="World Cup 2026" className="h-8" />
@@ -52,7 +55,10 @@ export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
           </main>
 
           {/* Mobile bottom navigation */}
-          <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-black/90 backdrop-blur-lg border-t border-white/10">
+          <nav
+            className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-black/90 backdrop-blur-lg border-t border-white/10"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+          >
             <div className="flex justify-around items-center py-2">
               {mobileNavItems.map((item) => (
                 <NavLink
