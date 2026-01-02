@@ -18,20 +18,20 @@
       }
     },
 
-    // Usernames index - authenticated users can read, special write rules
+    // Usernames index - anyone can read, special write rules
     "usernames": {
-      ".read": "auth != null",
+      ".read": true,
       "$normalizedUsername": {
         // Can write if: claiming for yourself OR admin
         ".write": "auth != null && (newData.val() === auth.uid || !data.exists() || data.val() === auth.uid)"
       }
     },
 
-    // Predictions - users can only read/write their own predictions
+    // Predictions - anyone can read, users can only write their own
     "predictions": {
       "$userId": {
-        // Anyone authenticated can read predictions
-        ".read": "auth != null",
+        // Anyone can read predictions (to view other users' predictions)
+        ".read": true,
         "$gameId": {
           // Users can write their own predictions (but not points)
           ".write": "auth != null && auth.uid === $userId",
