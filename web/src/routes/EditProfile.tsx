@@ -28,6 +28,12 @@ export const EditProfile = () => {
 
   const originalUserName = userData?.userName ?? '';
 
+  // Sync form state when userData changes (e.g., new user signs in)
+  React.useEffect(() => {
+    setUserName(userData?.userName ?? '');
+    setDisplayName(userData?.displayName ?? '');
+  }, [userData?.userName, userData?.displayName]);
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
