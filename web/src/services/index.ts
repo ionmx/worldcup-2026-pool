@@ -5,6 +5,7 @@ export {
   checkUsernameAvailable,
   getUserByUsername,
   handleUserLogin,
+  isReservedUsername,
   sanitizeUsername,
   subscribeToLeaderboard,
   updateUserProfile,

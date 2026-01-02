@@ -25,12 +25,41 @@ export interface UserData {
   admin: boolean;
 }
 
+export const RESERVED_USERNAMES = [
+  'about',
+  'leaderboard',
+  'rules',
+  'edit-profile',
+  'editprofile',
+  'admin',
+  'api',
+  'settings',
+  'login',
+  'signin',
+  'signup',
+  'register',
+  'logout',
+  'signout',
+  'profile',
+  'user',
+  'users',
+  'club',
+  'clubs',
+];
+
 /**
  * Normalize username for uniqueness checking (Gmail-style)
  * Removes all dots since they're ignored for uniqueness
  */
 export const normalizeUsername = (userName: string): string => {
   return userName.toLowerCase().replace(/\./g, '');
+};
+
+/**
+ * Check if a username is reserved (route names, system words)
+ */
+export const isReservedUsername = (userName: string): boolean => {
+  return RESERVED_USERNAMES.includes(normalizeUsername(userName));
 };
 
 /**
@@ -93,6 +122,9 @@ export const checkUsernameAvailable = async (
   const normalized = normalizeUsername(userName);
   if (!normalized || normalized.length < 3) return false;
 
+  // Check if username is reserved
+  if (RESERVED_USERNAMES.includes(normalized)) return false;
+
   const usernameRef = ref(db, `usernames/${normalized}`);
   const snapshot = await get(usernameRef);
 
@@ -132,6 +164,9 @@ export const updateUserProfile = async (
 
   // If normalized username is changing, verify it's available and update the index
   if (normalizedOld && normalizedOld !== normalizedNew) {
+    if (isReservedUsername(newUserName)) {
+      throw new Error('Username is reserved');
+    }
     const isAvailable = await checkUsernameAvailable(newUserName, uid);
     if (!isAvailable) {
       throw new Error('Username is already taken');

@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import {
   checkUsernameAvailable,
+  isReservedUsername,
   sanitizeUsername,
   updateUserProfile,
   uploadProfilePicture,
@@ -25,7 +26,7 @@ export const EditProfile = () => {
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [usernameStatus, setUsernameStatus] = React.useState<
-    'idle' | 'checking' | 'available' | 'taken'
+    'idle' | 'checking' | 'available' | 'taken' | 'reserved'
   >('idle');
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
@@ -78,6 +79,12 @@ export const EditProfile = () => {
       return;
     }
 
+    // Check reserved immediately (no network call needed)
+    if (isReservedUsername(userName)) {
+      setUsernameStatus('reserved');
+      return;
+    }
+
     setUsernameStatus('checking');
 
     const timeoutId = setTimeout(() => {
@@ -96,7 +103,7 @@ export const EditProfile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (usernameStatus === 'taken') return;
+    if (usernameStatus === 'taken' || usernameStatus === 'reserved') return;
 
     // Sanitize username before saving (removes trailing dots)
     const finalUserName = sanitizeUsername(userName);
@@ -136,6 +143,7 @@ export const EditProfile = () => {
   const isFormValid =
     userName.length >= 3 &&
     usernameStatus !== 'taken' &&
+    usernameStatus !== 'reserved' &&
     usernameStatus !== 'checking';
 
   const inputClass =
@@ -227,7 +235,7 @@ export const EditProfile = () => {
                       setUserName(sanitizeUsername(e.target.value))
                     }
                     placeholder="your-username"
-                    className={`${inputClass} ${usernameStatus === 'taken' ? 'border-red-400' : usernameStatus === 'available' ? 'border-green-400' : ''}`}
+                    className={`${inputClass} ${usernameStatus === 'taken' || usernameStatus === 'reserved' ? 'border-red-400' : usernameStatus === 'available' ? 'border-green-400' : ''}`}
                     required
                     minLength={3}
                   />
@@ -244,6 +252,11 @@ export const EditProfile = () => {
                   {usernameStatus === 'taken' && (
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400 text-sm">
                       ✗ Taken
+                    </span>
+                  )}
+                  {usernameStatus === 'reserved' && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400 text-sm">
+                      ✗ Reserved
                     </span>
                   )}
                 </div>
