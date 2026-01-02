@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { auth, googleProvider } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './Button';
+import { ProfilePicture } from './ProfilePicture';
 
 type MenuItem = {
   label: string;
@@ -98,17 +99,11 @@ export const UserMenu = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-start gap-3"
       >
-        {userData?.photoURL ? (
-          <img
-            src={userData.photoURL}
-            alt={userData.displayName}
-            className="w-8 h-8 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold">
-            {userData?.displayName?.charAt(0) ?? '?'}
-          </div>
-        )}
+        <ProfilePicture
+          src={userData?.photoURL}
+          name={userData?.displayName}
+          size="sm"
+        />
         <div className="flex flex-col items-start text-left">
           <span className="text-white font-medium text-sm">
             {userData?.displayName?.split(' ')[0]}

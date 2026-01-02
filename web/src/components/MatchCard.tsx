@@ -183,7 +183,9 @@ export const MatchCard = ({
       <div className="flex items-center gap-2 text-xs text-white/50">
         {match.group && <span>Group: {match.group}</span>}
         {match.group && <span>·</span>}
-        <span className="truncate">{match.locationCity}, {match.locationCountry}</span>
+        <span className="truncate">
+          {match.locationCity}, {match.locationCountry}
+        </span>
         <span>·</span>
         <span>
           {dateString}, {timeString}

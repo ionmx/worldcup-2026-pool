@@ -1,6 +1,12 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { AppLayout, MatchesByDay, MatchesByGroup, Button } from '../components';
+import {
+  AppLayout,
+  MatchesByDay,
+  MatchesByGroup,
+  Button,
+  ProfilePicture,
+} from '../components';
 import { useMatches, useAuth } from '../hooks';
 import {
   type UserData,
@@ -76,17 +82,12 @@ export const UserProfile = () => {
         {/* User Header */}
         {profileData && (
           <div className="flex items-center gap-4 mb-8">
-            {profileData.photoURL ? (
-              <img
-                src={profileData.photoURL}
-                alt={profileData.displayName}
-                className="w-16 h-16 rounded-full object-cover border-2 border-white/20"
-              />
-            ) : (
-              <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold border-2 border-white/20">
-                {profileData.displayName?.charAt(0) ?? '?'}
-              </div>
-            )}
+            <ProfilePicture
+              src={profileData.photoURL}
+              name={profileData.displayName}
+              size="md"
+              className="border-2 border-white/20"
+            />
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-white">
                 {profileData.displayName}

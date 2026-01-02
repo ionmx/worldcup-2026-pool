@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { subscribeToLeaderboard, type UserWithId } from '../services';
 import { getPositionCompact } from '../utils';
+import { ProfilePicture } from './ProfilePicture';
 
 export const Leaderboard = () => {
   const [users, setUsers] = React.useState<UserWithId[]>([]);
@@ -35,17 +36,11 @@ export const Leaderboard = () => {
               <span className="w-6 text-center text-sm">
                 {getPositionCompact(index + 1)}
               </span>
-              {user.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt={user.displayName}
-                  className="w-6 h-6 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">
-                  {user.displayName?.charAt(0) ?? '?'}
-                </div>
-              )}
+              <ProfilePicture
+                src={user.photoURL}
+                name={user.displayName}
+                size="xs"
+              />
               <span className="flex-1 text-sm text-white truncate">
                 {user.displayName}
               </span>

@@ -6,6 +6,7 @@ export { LinkButton } from './LinkButton';
 export { MatchCard } from './MatchCard';
 export { MatchesByDay } from './MatchesByDay';
 export { MatchesByGroup } from './MatchesByGroup';
+export { ProfilePicture } from './ProfilePicture';
 export { ProtectedRoute } from './ProtectedRoute';
 export { Sidebar } from './Sidebar';
 export { UserMenu } from './UserMenu';

@@ -1,8 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppLayout, Card, Button, LinkButton } from '../components';
+import {
+  AppLayout,
+  Card,
+  Button,
+  LinkButton,
+  ProfilePicture,
+} from '../components';
 import { useAuth } from '../hooks/useAuth';
-import { undoIcon } from '../assets';
 import {
   checkUsernameAvailable,
   sanitizeUsername,
@@ -151,18 +156,19 @@ export const EditProfile = () => {
           {/* Profile Picture */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
-              <img
+              <ProfilePicture
                 src={previewUrl ?? userData?.photoURL}
-                alt="Profile"
-                className="w-24 h-24 rounded-full object-cover border-2 border-white/20"
+                name={userData?.displayName}
+                size="xl"
+                className="border-2 border-white/20"
               />
               {previewUrl && (
                 <Button
                   onClick={handleRemovePhoto}
-                  className="absolute px-0! -top-1 -right-1 rounded-full w-8 h-8 backdrop-blur-lg"
+                  className="absolute px-0! -top-1 -right-1 rounded-full w-8 h-8 backdrop-blur-lg border-none opacity-70 hover:opacity-100"
                   title="Undo"
                 >
-                  <img src={undoIcon} alt="Undo" className="w-3 h-3" />
+                  <span className="text-sm">↩️</span>
                 </Button>
               )}
             </div>
