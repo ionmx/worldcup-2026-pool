@@ -122,7 +122,8 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
           createPortal(
             <ul
               ref={dropdownRef}
-              className="p-0 fixed left-0 right-0 top-[57px] bg-black/80 backdrop-blur-lg border-b border-white/10 shadow-xl z-50"
+              className="p-0 fixed left-0 right-0 bg-black/80 backdrop-blur-lg border-b border-white/10 shadow-xl z-50"
+              style={{ top: 'calc(env(safe-area-inset-top) + 57px)' }}
             >
               {menuItems.map((item) => (
                 <li key={item.label}>
