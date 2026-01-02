@@ -104,7 +104,7 @@ export const About = () => {
             </div>
           </Card>
 
-          <p className="text-white/50 text-sm text-center mt-8">
+          <p className="text-white/50 text-sm text-center my-8">
             Made with 🫶 for the fans
           </p>
         </div>
