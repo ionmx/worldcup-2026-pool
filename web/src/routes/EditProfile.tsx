@@ -280,7 +280,14 @@ export const EditProfile = () => {
                   disabled={saving || !isFormValid}
                   className="flex-1"
                 >
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? (
+                    'Saving...'
+                  ) : (
+                    <>
+                      <span className="sm:hidden">Save</span>
+                      <span className="hidden sm:inline">Save Changes</span>
+                    </>
+                  )}
                 </Button>
               </div>
             </form>
