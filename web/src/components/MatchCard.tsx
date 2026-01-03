@@ -107,7 +107,9 @@ export const MatchCard = ({
             <span className="flex-1 font-medium text-sm md:text-base">
               {match.homeName}
             </span>
-            {isPlayed && <span className={scoreClass}>{match.homeScore}</span>}
+            <span className={scoreClass}>
+              {isPlayed ? match.homeScore : '-'}
+            </span>
             {canPredict && (
               <input
                 type="text"
@@ -148,7 +150,9 @@ export const MatchCard = ({
             <span className="flex-1 font-medium text-sm md:text-base">
               {match.awayName}
             </span>
-            {isPlayed && <span className={scoreClass}>{match.awayScore}</span>}
+            <span className={scoreClass}>
+              {isPlayed ? match.awayScore : '-'}
+            </span>
             {canPredict && (
               <input
                 type="text"
@@ -183,7 +187,7 @@ export const MatchCard = ({
         {/* Points Column */}
         {showPoints && (
           <div
-            className={`flex flex-col items-center border rounded-lg ${
+            className={`flex flex-col items-center border rounded-lg w-14 ${
               prediction.points > 0
                 ? 'border-green-500/20 bg-green-600/10'
                 : 'border-red-500/20 bg-red-600/10'
@@ -197,7 +201,7 @@ export const MatchCard = ({
                   : '😔'}
             </span>
             <span
-              className={`text-xs px-2 py-0.5 rounded-b ${
+              className={`flex items-center justify-center text-xs px-1 py-0.5 w-14 rounded-b ${
                 prediction.points > 0
                   ? 'bg-green-800 text-white'
                   : 'bg-red-800 text-white'

@@ -11,4 +11,5 @@ export { MatchesHeader } from './MatchesHeader';
 export { ProfilePicture } from './ProfilePicture';
 export { ProtectedRoute } from './ProtectedRoute';
 export { Sidebar } from './Sidebar';
+export { UserHeader } from './UserHeader';
 export { UserMenu } from './UserMenu';

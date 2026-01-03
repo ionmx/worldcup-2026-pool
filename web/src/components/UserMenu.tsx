@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { auth, googleProvider } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './Button';
-import { ProfilePicture } from './ProfilePicture';
+import { UserHeader } from './UserHeader';
 
 type MenuItem = {
   label: string;
@@ -104,21 +104,13 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center ${mobile ? 'p-0!' : 'w-full gap-3 justify-start p-2! border-none rounded-lg bg-transparent hover:bg-white/10'}`}
       >
-        <ProfilePicture
-          src={userData?.photoURL}
-          name={userData?.displayName}
-          size="sm"
-        />
-        {!mobile && (
+        {!mobile && user && (
           <>
-            <div className="flex flex-col items-start text-left flex-1 min-w-0">
-              <span className="text-white font-medium text-sm truncate max-w-full">
-                {userData?.displayName}
-              </span>
-              <span className="text-white/50 text-xs truncate max-w-full">
-                @{userData?.userName}
-              </span>
-            </div>
+            <UserHeader
+              userId={user.uid}
+              variant="compact"
+              className="flex-1 min-w-0"
+            />
             <span
               className={`text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             >

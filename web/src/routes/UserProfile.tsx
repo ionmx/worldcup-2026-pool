@@ -5,17 +5,14 @@ import {
   MatchesByDay,
   MatchesByGroup,
   MatchesHeader,
-  ProfilePicture,
+  UserHeader,
 } from '../components';
 import { useMatches, useAuth } from '../hooks';
 import {
-  type UserData,
   type UserPredictions,
   subscribeToPredictions,
-  subscribeToLeaderboard,
   getUserByUsername,
 } from '../services';
-import { getMedalOrPosition, getPositionColor } from '../utils';
 
 type ViewMode = 'day' | 'group';
 
@@ -26,11 +23,7 @@ export const UserProfile = () => {
   const [viewMode, setViewMode] = React.useState<ViewMode>('day');
   const [predictions, setPredictions] = React.useState<UserPredictions>({});
   const [profileUserId, setProfileUserId] = React.useState<string | null>(null);
-  const [profileData, setProfileData] = React.useState<UserData | null>(null);
   const [profileLoading, setProfileLoading] = React.useState(true);
-  const [leaderboardPosition, setLeaderboardPosition] = React.useState<
-    number | null
-  >(null);
 
   // Determine if viewing own profile
   const isOwnProfile = userData?.userName === userName;
@@ -39,28 +32,24 @@ export const UserProfile = () => {
   React.useEffect(() => {
     setProfileLoading(true);
     setProfileUserId(null);
-    setProfileData(null);
     setPredictions({});
-    setLeaderboardPosition(null);
   }, [userName]);
 
-  // Get the user ID and data for the profile being viewed
+  // Get the user ID for the profile being viewed
   React.useEffect(() => {
-    if (isOwnProfile && user && userData) {
+    if (isOwnProfile && user) {
       setProfileUserId(user.uid);
-      setProfileData(userData);
       setProfileLoading(false);
     } else if (userName) {
       // Fetch the user ID by username for viewing others' profiles
       getUserByUsername(userName)
         .then((profileUser) => {
           setProfileUserId(profileUser?.id ?? null);
-          setProfileData(profileUser?.data ?? null);
         })
         .catch(console.error)
         .finally(() => setProfileLoading(false));
     }
-  }, [userName, isOwnProfile, user, userData]);
+  }, [userName, isOwnProfile, user]);
 
   // Subscribe to predictions for the profile being viewed
   React.useEffect(() => {
@@ -70,29 +59,7 @@ export const UserProfile = () => {
     return () => unsubscribe();
   }, [profileUserId]);
 
-  // Subscribe to leaderboard to get position
-  React.useEffect(() => {
-    if (!profileUserId) return;
-
-    const unsubscribe = subscribeToLeaderboard((users) => {
-      const position = users.findIndex((u) => u.id === profileUserId);
-      setLeaderboardPosition(position >= 0 ? position + 1 : null);
-      // Also update profileData with latest score
-      const currentUser = users.find((u) => u.id === profileUserId);
-      if (currentUser) {
-        setProfileData((prev) =>
-          prev ? { ...prev, score: currentUser.score } : null
-        );
-      }
-    });
-    return () => unsubscribe();
-  }, [profileUserId]);
-
   const loading = profileLoading || matchesLoading;
-  const positionColor = getPositionColor(leaderboardPosition ?? 0) || '';
-  const positionText = getMedalOrPosition(leaderboardPosition ?? 0)
-    ? `${leaderboardPosition} place`
-    : '';
 
   return (
     <AppLayout>
@@ -101,32 +68,11 @@ export const UserProfile = () => {
           <div className="text-center text-white/70 py-20">Loading...</div>
         ) : (
           <>
-            {/* User Header */}
-            {profileData && (
-              <div className="flex items-center gap-4 mb-8 border-b border-white/10 pb-8">
-                <ProfilePicture
-                  src={profileData.photoURL}
-                  name={profileData.displayName}
-                  size="md"
-                  className="border-2 border-white/20"
-                />
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-white">
-                    {profileData.displayName}
-                  </h1>
-                  <div className="flex items-center gap-3 text-white/70 text-sm">
-                    <span>@{profileData.userName}</span>
-                    <span>·</span>
-                    <span>{profileData.score} pts</span>
-                    {leaderboardPosition && (
-                      <>
-                        <span>·</span>
-                        <span className={positionColor}>{positionText}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+            {profileUserId && (
+              <UserHeader
+                userId={profileUserId}
+                className="mb-8 border-b border-white/10 pb-8"
+              />
             )}
 
             <MatchesHeader viewMode={viewMode} onViewModeChange={setViewMode} />
