@@ -9,7 +9,7 @@ type ProfilePictureProps = {
 
 const sizeClasses: Record<Size, { container: string; text: string }> = {
   xs: { container: 'w-6 h-6', text: 'text-xs' },
-  sm: { container: 'w-8 h-8', text: 'text-sm' },
+  sm: { container: 'w-10 h-10', text: 'text-sm' },
   md: { container: 'w-16 h-16', text: 'text-2xl' },
   lg: { container: 'w-20 h-20', text: 'text-3xl' },
   xl: { container: 'w-24 h-24', text: 'text-3xl' },

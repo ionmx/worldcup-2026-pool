@@ -13,7 +13,7 @@ type MenuItem = {
 } & ({ to: string } | { onClick: () => void });
 
 const menuItemClass =
-  'w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2';
+  'w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2 rounded-lg text-sm';
 
 type UserMenuProps = {
   mobile?: boolean;
@@ -102,7 +102,7 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
     <div ref={buttonRef} className="relative">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center ${mobile ? 'p-0!' : 'w-full gap-3 justify-start'}`}
+        className={`flex items-center ${mobile ? 'p-0!' : 'w-full gap-3 justify-start p-2! border-none rounded-lg bg-transparent hover:bg-white/10'}`}
       >
         <ProfilePicture
           src={userData?.photoURL}
@@ -110,11 +110,21 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
           size="sm"
         />
         {!mobile && (
-          <div className="flex flex-col items-start text-left">
-            <span className="text-white font-medium text-sm">
-              {userData?.displayName?.split(' ')[0]}
+          <>
+            <div className="flex flex-col items-start text-left flex-1 min-w-0">
+              <span className="text-white font-medium text-sm truncate max-w-full">
+                {userData?.displayName}
+              </span>
+              <span className="text-white/50 text-xs truncate max-w-full">
+                @{userData?.userName}
+              </span>
+            </div>
+            <span
+              className={`text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            >
+              ▾
             </span>
-          </div>
+          </>
         )}
       </Button>
       {isOpen &&
