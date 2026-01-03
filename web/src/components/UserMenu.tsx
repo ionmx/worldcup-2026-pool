@@ -6,6 +6,7 @@ import { auth, googleProvider } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './Button';
 import { UserHeader } from './UserHeader';
+import { ProfilePicture } from './ProfilePicture';
 
 type MenuItem = {
   label: string;
@@ -97,7 +98,7 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
       </Button>
     );
   }
-
+  console.log({ user });
   return (
     <div ref={buttonRef} className="relative">
       <Button
@@ -117,6 +118,14 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
               ▾
             </span>
           </>
+        )}
+        {mobile && userData && (
+          <ProfilePicture
+            src={userData.photoURL}
+            name={userData.displayName}
+            size="sm"
+            className="border-2 border-white/20"
+          />
         )}
       </Button>
       {isOpen &&
