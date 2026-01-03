@@ -25,6 +25,13 @@ export const Sidebar = () => {
         </div>
         {/* Footer Links */}
         <div className="mt-auto pt-4 border-t border-white/10 px-4 pb-4">
+          <Link
+            to="/leagues"
+            className="flex items-center justify-center gap-2 text-white/70 hover:text-white transition-colors mb-3 py-2 rounded-lg hover:bg-white/5"
+          >
+            <span>🏅</span>
+            <span>My Leagues</span>
+          </Link>
           <div className="flex gap-4 justify-center text-sm">
             <Link
               to="/rules"

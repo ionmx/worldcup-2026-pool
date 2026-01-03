@@ -45,6 +45,8 @@ export const RESERVED_USERNAMES = [
   'users',
   'club',
   'clubs',
+  'league',
+  'leagues',
 ];
 
 /**

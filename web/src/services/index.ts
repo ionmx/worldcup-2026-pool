@@ -20,3 +20,16 @@ export {
   subscribeToPredictions,
 } from './predictionService';
 export type { Prediction, UserPredictions } from './predictionService';
+
+export {
+  createLeague,
+  getLeagueBySlug,
+  getLeagueByInviteCode,
+  getLeagueMembers,
+  isLeagueMember,
+  joinLeague,
+  leaveLeague,
+  regenerateInviteCode,
+  subscribeToUserLeagues,
+} from './leagueService';
+export type { League, LeagueWithId } from './leagueService';

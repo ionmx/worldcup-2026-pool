@@ -9,6 +9,8 @@ import {
   EditProfile,
   Home,
   Leaderboard,
+  LeagueDetail,
+  Leagues,
   Rules,
   UserProfile,
 } from './routes';
@@ -39,6 +41,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/about" element={<About />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/rules" element={<Rules />} />
+            <Route path="/leagues" element={<Leagues />} />
+            <Route path="/league/:slug" element={<LeagueDetail />} />
             <Route
               path="/edit-profile"
               element={

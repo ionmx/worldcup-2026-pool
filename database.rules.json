@@ -55,6 +55,44 @@
       }
     },
 
+    // Leagues - anyone can read, owner can write
+    "leagues": {
+      ".read": true,
+      "$leagueId": {
+        // Only owner can update league settings
+        ".write": "auth != null && (data.child('ownerId').val() === auth.uid || !data.exists())"
+      }
+    },
+
+    // League slugs index - maps slug to leagueId
+    "leagueSlugs": {
+      ".read": true,
+      "$slug": {
+        ".write": "auth != null && (!data.exists() || root.child('leagues').child(data.val()).child('ownerId').val() === auth.uid)"
+      }
+    },
+
+    // League members - who is in each league
+    "leagueMembers": {
+      ".read": true,
+      "$leagueId": {
+        "$userId": {
+          // Users can add/remove themselves
+          ".write": "auth != null && auth.uid === $userId"
+        }
+      }
+    },
+
+    // User leagues - reverse index for quick lookup of user's leagues
+    "userLeagues": {
+      "$userId": {
+        ".read": "auth != null && auth.uid === $userId",
+        "$leagueId": {
+          ".write": "auth != null && auth.uid === $userId"
+        }
+      }
+    },
+
     // Default deny all other paths
     "$other": {
       ".read": false,

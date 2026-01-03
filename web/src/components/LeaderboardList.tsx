@@ -6,21 +6,30 @@ import { ProfilePicture } from './ProfilePicture';
 
 type LeaderboardProps = {
   variant?: 'compact' | 'full';
+  users?: UserWithId[];
 };
 
-export const LeaderboardList = ({ variant = 'compact' }: LeaderboardProps) => {
-  const [users, setUsers] = React.useState<UserWithId[]>([]);
-  const [loading, setLoading] = React.useState(true);
+export const LeaderboardList = ({
+  variant = 'compact',
+  users: externalUsers,
+}: LeaderboardProps) => {
+  const [internalUsers, setInternalUsers] = React.useState<UserWithId[]>([]);
+  const [loading, setLoading] = React.useState(!externalUsers);
   const [showTopFade, setShowTopFade] = React.useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
+  // Only subscribe if no external users provided
   React.useEffect(() => {
+    if (externalUsers) return;
+
     const unsubscribe = subscribeToLeaderboard((data) => {
-      setUsers(data);
+      setInternalUsers(data);
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [externalUsers]);
+
+  const users = externalUsers ?? internalUsers;
 
   const handleScroll = () => {
     if (scrollRef.current) {
