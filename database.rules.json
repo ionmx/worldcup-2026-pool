@@ -33,8 +33,9 @@
         // Anyone can read predictions (to view other users' predictions)
         ".read": true,
         "$gameId": {
-          // Users can write their own predictions (but not points)
-          ".write": "auth != null && auth.uid === $userId",
+          // Users can write their own predictions at least 10 mins before kickoff
+          // Match timestamp is in seconds, now is in milliseconds
+          ".write": "auth != null && auth.uid === $userId && (now < root.child('matches').child($gameId).child('timestamp').val() * 1000 - 600000)",
           // Validate prediction structure
           ".validate": "newData.hasChildren(['homePrediction', 'awayPrediction', 'points', 'updatedAt'])",
           "homePrediction": {
@@ -61,4 +62,3 @@
     }
   }
 }
-

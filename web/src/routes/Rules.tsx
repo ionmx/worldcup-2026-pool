@@ -4,7 +4,23 @@ export const Rules = () => {
   return (
     <AppLayout>
       <div className="pt-8 px-4 pb-8 max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-8">Scoring Rules</h1>
+        <h1 className="text-3xl font-bold text-white mb-8">Rules</h1>
+
+        <Card className="p-6 mb-6">
+          <h2 className="text-xl font-semibold text-white mb-4">
+            Prediction Deadline
+          </h2>
+          <div className="flex items-start gap-3 text-white/80">
+            <span className="text-2xl">⏰</span>
+            <p>
+              Predictions must be submitted{' '}
+              <span className="text-white font-semibold">
+                at least 10 minutes before kickoff
+              </span>
+              . After that, predictions are locked and cannot be changed.
+            </p>
+          </div>
+        </Card>
 
         <Card className="p-6 mb-6">
           <h2 className="text-xl font-semibold text-white mb-4">
@@ -49,10 +65,10 @@ export const Rules = () => {
               </div>
             </div>
           </div>
-        </Card>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Examples</h2>
+          <h2 className="mt-8 text-xl font-semibold text-white mb-4">
+            Examples
+          </h2>
 
           <div className="space-y-6">
             {/* Example 1: Exact score */}

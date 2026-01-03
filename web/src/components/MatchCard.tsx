@@ -34,8 +34,9 @@ export const MatchCard = ({
     minute: '2-digit',
   });
   const isPlayed = match.homeScore >= 0 && match.awayScore >= 0;
-  const hasStarted = Date.now() > match.timestamp * 1000;
-  const canPredict = isOwnProfile && userId && !hasStarted;
+  const cutoffTime = match.timestamp * 1000 - 10 * 60 * 1000; // 10 mins before kickoff
+  const predictionsClosed = Date.now() > cutoffTime;
+  const canPredict = isOwnProfile && userId && !predictionsClosed;
 
   const [homePrediction, setHomePrediction] = React.useState<string>(
     prediction?.homePrediction?.toString() ?? ''

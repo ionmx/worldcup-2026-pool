@@ -30,7 +30,7 @@ export const Sidebar = () => {
               to="/rules"
               className="text-white/50 hover:text-white transition-colors flex items-center gap-1"
             >
-              Scoring Rules
+              Rules
             </Link>
             <span className="text-white/20">•</span>
             <Link

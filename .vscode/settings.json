@@ -9,6 +9,9 @@
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.associations": {
+    "database.rules.json": "jsonc"
   }
 }
 
