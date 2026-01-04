@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { worldcupLogo } from '../assets';
 import { Card } from './Card';
 import { LeaderboardList } from './LeaderboardList';
+import { LeagueSelector } from './LeagueSelector';
 import { UserMenu } from './UserMenu';
 
 export const Sidebar = () => {
@@ -20,18 +21,14 @@ export const Sidebar = () => {
         <div className="shrink-0 p-4 pb-0">
           <UserMenu />
         </div>
+        <div className="shrink-0 px-4 pt-4">
+          <LeagueSelector />
+        </div>
         <div className="mt-4 pt-4 border-t border-white/10 flex-1 min-h-0 flex flex-col">
           <LeaderboardList />
         </div>
         {/* Footer Links */}
         <div className="mt-auto pt-4 border-t border-white/10 px-4 pb-4">
-          <Link
-            to="/leagues"
-            className="flex items-center justify-center gap-2 text-white/70 hover:text-white transition-colors mb-3 py-2 rounded-lg hover:bg-white/5"
-          >
-            <span>🏅</span>
-            <span>My Leagues</span>
-          </Link>
           <div className="flex gap-4 justify-center text-sm">
             <Link
               to="/rules"

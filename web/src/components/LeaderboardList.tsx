@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLeague } from '../hooks';
 import { subscribeToLeaderboard, type UserWithId } from '../services';
 import { getPositionCompact } from '../utils';
 import { ProfilePicture } from './ProfilePicture';
@@ -13,23 +14,29 @@ export const LeaderboardList = ({
   variant = 'compact',
   users: externalUsers,
 }: LeaderboardProps) => {
-  const [internalUsers, setInternalUsers] = React.useState<UserWithId[]>([]);
+  const { selectedLeague, leagueMemberIds } = useLeague();
+  const [allUsers, setAllUsers] = React.useState<UserWithId[]>([]);
   const [loading, setLoading] = React.useState(!externalUsers);
   const [showTopFade, setShowTopFade] = React.useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
-  // Only subscribe if no external users provided
+  // Subscribe to global leaderboard
   React.useEffect(() => {
     if (externalUsers) return;
 
     const unsubscribe = subscribeToLeaderboard((data) => {
-      setInternalUsers(data);
+      setAllUsers(data);
       setLoading(false);
     });
     return () => unsubscribe();
   }, [externalUsers]);
 
-  const users = externalUsers ?? internalUsers;
+  // Filter users by league if selected
+  const users = React.useMemo(() => {
+    if (externalUsers) return externalUsers;
+    if (!selectedLeague || leagueMemberIds.length === 0) return allUsers;
+    return allUsers.filter((user) => leagueMemberIds.includes(user.id));
+  }, [externalUsers, selectedLeague, leagueMemberIds, allUsers]);
 
   const handleScroll = () => {
     if (scrollRef.current) {

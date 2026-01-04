@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import { ProtectedRoute } from './components';
-import { AuthProvider, MatchProvider } from './context';
+import { AuthProvider, MatchProvider, LeagueProvider } from './context';
 import {
   About,
   EditProfile,
@@ -34,27 +34,29 @@ declare global {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <MatchProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/rules" element={<Rules />} />
-            <Route path="/leagues" element={<Leagues />} />
-            <Route path="/league/:slug" element={<LeagueDetail />} />
-            <Route
-              path="/edit-profile"
-              element={
-                <ProtectedRoute>
-                  <EditProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/:userName" element={<UserProfile />} />
-          </Routes>
-        </BrowserRouter>
-      </MatchProvider>
+      <LeagueProvider>
+        <MatchProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/rules" element={<Rules />} />
+              <Route path="/leagues" element={<Leagues />} />
+              <Route path="/league/:slug" element={<LeagueDetail />} />
+              <Route
+                path="/edit-profile"
+                element={
+                  <ProtectedRoute>
+                    <EditProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/:userName" element={<UserProfile />} />
+            </Routes>
+          </BrowserRouter>
+        </MatchProvider>
+      </LeagueProvider>
     </AuthProvider>
   </StrictMode>
 );
