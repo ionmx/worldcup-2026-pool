@@ -40,7 +40,7 @@ export const LeaguePicture = ({
       className={`${container} rounded-xl bg-white/10 flex flex-col items-center justify-center gap-0.5 ${className}`}
     >
       <span className={emoji}>🏆</span>
-      {name && (
+      {name && (size === 'lg' || size === 'xl') && (
         <span
           className={`${text} text-white/70 text-center leading-tight line-clamp-2 px-1`}
         >

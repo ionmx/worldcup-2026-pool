@@ -8,6 +8,7 @@ import {
   LeaguePicture,
 } from '../components';
 import { useAuth, useLeague } from '../hooks';
+import appIcon from '/app-icon.png';
 import {
   subscribeToUserLeagues,
   joinLeague,
@@ -144,6 +145,33 @@ export const Leagues = () => {
           </Card>
         ) : (
           <div className="space-y-3">
+            {/* Global League */}
+            <button
+              onClick={() => {
+                void setSelectedLeague(null);
+                void navigate('/');
+              }}
+              className="w-full text-left"
+            >
+              <Card className="p-4 hover:bg-white/10 transition-colors">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={appIcon}
+                    alt="Global"
+                    className="w-16 h-16 rounded-xl object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-white truncate">
+                      FIFA WC 2026 POOL
+                    </h3>
+                    <p className="text-white/50 text-sm">Global Leaderboard</p>
+                  </div>
+                  <span className="text-white/30">→</span>
+                </div>
+              </Card>
+            </button>
+
+            {/* User Leagues */}
             {leagues.map((league) => (
               <button
                 key={league.id}

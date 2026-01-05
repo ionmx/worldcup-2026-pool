@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { useLeague } from '../hooks';
 import { subscribeToLeaderboard, type UserWithId } from '../services';
 import { getPositionCompact } from '../utils';
+import { LeaguePicture } from './LeaguePicture';
 import { ProfilePicture } from './ProfilePicture';
+import appIcon from '/app-icon.png';
 
 type LeaderboardProps = {
   variant?: 'compact' | 'full';
@@ -94,7 +96,7 @@ export const LeaderboardList = ({
               </span>
             </button>
             {dropdownOpen && (
-              <ul className="absolute top-full left-2 right-2 mt-1 bg-black/90 backdrop-blur-lg border border-white/10 rounded-lg overflow-hidden z-20">
+              <ul className="absolute top-full left-2 right-2 mt-1 bg-black/80 backdrop-blur-lg border border-white/10 rounded-lg overflow-hidden z-20">
                 <li>
                   <button
                     onClick={() => {
@@ -103,7 +105,12 @@ export const LeaderboardList = ({
                     }}
                     className={`w-full px-3 py-2 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2 ${!selectedLeague ? 'text-white bg-white/5' : 'text-white/70'}`}
                   >
-                    🌍 Global
+                    <img
+                      src={appIcon}
+                      alt="Global"
+                      className="w-10 h-10 rounded-xl object-cover"
+                    />
+                    <span className="flex-1 truncate">FIFA WC 2026 POOL</span>
                     {!selectedLeague && <span className="ml-auto">✓</span>}
                   </button>
                 </li>
@@ -116,7 +123,13 @@ export const LeaderboardList = ({
                       }}
                       className={`w-full px-3 py-2 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2 ${selectedLeague?.id === league.id ? 'text-white bg-white/5' : 'text-white/70'}`}
                     >
-                      🏆 {league.name}
+                      <LeaguePicture
+                        src={league.imageURL}
+                        name={league.name}
+                        size="sm"
+                        className="w-6 h-6"
+                      />
+                      <span className="flex-1 truncate">{league.name}</span>
                       {selectedLeague?.id === league.id && (
                         <span className="ml-auto">✓</span>
                       )}
