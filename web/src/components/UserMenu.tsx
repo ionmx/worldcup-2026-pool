@@ -23,8 +23,7 @@ type UserMenuProps = {
 export const UserMenu = ({ mobile = false }: UserMenuProps) => {
   const navigate = useNavigate();
   const { user, userData } = useAuth();
-  const { leagues, selectedLeague, setSelectedLeague, leagueMemberIds } =
-    useLeague();
+  const { selectedLeague, leagueMemberIds } = useLeague();
   const [isOpen, setIsOpen] = React.useState(false);
   const [allUsers, setAllUsers] = React.useState<UserWithId[]>([]);
   const buttonRef = React.useRef<HTMLDivElement>(null);
@@ -210,49 +209,6 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
         (() => {
           const menuContent = (
             <>
-              {/* League Options */}
-              {leagues.length > 0 && (
-                <>
-                  <li>
-                    <button
-                      onClick={() => {
-                        setSelectedLeague(null);
-                        closeMenu();
-                      }}
-                      className={`${menuItemClass} ${!selectedLeague ? 'bg-white/10' : ''}`}
-                    >
-                      <span>🌍</span> Global Leaderboard
-                      {!selectedLeague && <span className="ml-auto">✓</span>}
-                    </button>
-                  </li>
-                  {leagues.map((league) => (
-                    <li key={league.id}>
-                      <button
-                        onClick={() => {
-                          setSelectedLeague(league);
-                          closeMenu();
-                        }}
-                        className={`${menuItemClass} ${selectedLeague?.id === league.id ? 'bg-white/10' : ''}`}
-                      >
-                        <span>🏆</span> {league.name}
-                        {selectedLeague?.id === league.id && (
-                          <span className="ml-auto">✓</span>
-                        )}
-                      </button>
-                    </li>
-                  ))}
-                  <li>
-                    <Link
-                      to="/leagues"
-                      onClick={closeMenu}
-                      className={`${menuItemClass} text-white/50`}
-                    >
-                      <span>➕</span> Manage Leagues
-                    </Link>
-                  </li>
-                  <li className={dividerClass} />
-                </>
-              )}
               {/* Navigation Items */}
               <li>
                 <Link
@@ -272,17 +228,15 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
                   <span>✏️</span> Edit Profile
                 </Link>
               </li>
-              {leagues.length === 0 && (
-                <li>
-                  <Link
-                    to="/leagues"
-                    onClick={closeMenu}
-                    className={menuItemClass}
-                  >
-                    <span>🏆</span> Leagues
-                  </Link>
-                </li>
-              )}
+              <li>
+                <Link
+                  to="/leagues"
+                  onClick={closeMenu}
+                  className={menuItemClass}
+                >
+                  <span>🏆</span> My Leagues
+                </Link>
+              </li>
               <li className={dividerClass} />
               {/* Sign Out */}
               <li>
