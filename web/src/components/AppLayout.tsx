@@ -12,8 +12,8 @@ type AppLayoutProps = {
 const mobileNavItems = [
   { to: '/', icon: '⚽', label: 'Matches' },
   { to: '/leaderboard', icon: '🏆', label: 'Leaderboard' },
-  { to: '/leagues', icon: '🏅', label: 'Leagues' },
   { to: '/rules', icon: '📋', label: 'Rules' },
+  { to: '/about', icon: 'ℹ️', label: 'About' },
 ];
 
 export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
