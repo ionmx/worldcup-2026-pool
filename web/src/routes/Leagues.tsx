@@ -1,7 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { AppLayout, Card, Button, LinkButton } from '../components';
-import { useAuth } from '../hooks';
+import { useNavigate } from 'react-router-dom';
+import {
+  AppLayout,
+  Card,
+  Button,
+  LinkButton,
+  LeaguePicture,
+} from '../components';
+import { useAuth, useLeague } from '../hooks';
 import {
   subscribeToUserLeagues,
   joinLeague,
@@ -10,7 +16,9 @@ import {
 } from '../services';
 
 export const Leagues = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const { setSelectedLeague } = useLeague();
   const [leagues, setLeagues] = React.useState<LeagueWithId[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [showJoin, setShowJoin] = React.useState(false);
@@ -137,11 +145,23 @@ export const Leagues = () => {
         ) : (
           <div className="space-y-3">
             {leagues.map((league) => (
-              <Link key={league.id} to={`/league/${league.slug}`}>
+              <button
+                key={league.id}
+                onClick={() => {
+                  void setSelectedLeague(league);
+                  void navigate(`/league/${league.slug}`);
+                }}
+                className="w-full text-left"
+              >
                 <Card className="p-4 hover:bg-white/10 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">
+                  <div className="flex items-center gap-4">
+                    <LeaguePicture
+                      src={league.imageURL}
+                      name={league.name}
+                      size="md"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-white truncate">
                         {league.name}
                       </h3>
                       <p className="text-white/50 text-sm">
@@ -152,7 +172,7 @@ export const Leagues = () => {
                     <span className="text-white/30">→</span>
                   </div>
                 </Card>
-              </Link>
+              </button>
             ))}
           </div>
         )}
