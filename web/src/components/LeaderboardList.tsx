@@ -14,11 +14,28 @@ export const LeaderboardList = ({
   variant = 'compact',
   users: externalUsers,
 }: LeaderboardProps) => {
-  const { selectedLeague, leagueMemberIds } = useLeague();
+  const { leagues, selectedLeague, setSelectedLeague, leagueMemberIds } =
+    useLeague();
   const [allUsers, setAllUsers] = React.useState<UserWithId[]>([]);
   const [loading, setLoading] = React.useState(!externalUsers);
   const [showTopFade, setShowTopFade] = React.useState(false);
+  const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Subscribe to global leaderboard
   React.useEffect(() => {
@@ -62,11 +79,58 @@ export const LeaderboardList = ({
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
-      {isCompact && (
-        <h3 className="text-white/70 text-xs font-medium uppercase tracking-wider mb-2 px-4">
-          Leaderboard
-        </h3>
-      )}
+      {isCompact &&
+        (leagues.length > 0 ? (
+          <div ref={dropdownRef} className="relative px-4 mb-2">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="w-full flex items-center justify-between text-white/70 text-xs font-medium uppercase tracking-wider hover:text-white transition-colors"
+            >
+              {selectedLeague ? selectedLeague.name : 'Leaderboard'}
+              <span
+                className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+              >
+                ▼
+              </span>
+            </button>
+            {dropdownOpen && (
+              <ul className="absolute top-full left-2 right-2 mt-1 bg-black/90 backdrop-blur-lg border border-white/10 rounded-lg overflow-hidden z-20">
+                <li>
+                  <button
+                    onClick={() => {
+                      setSelectedLeague(null);
+                      setDropdownOpen(false);
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2 ${!selectedLeague ? 'text-white bg-white/5' : 'text-white/70'}`}
+                  >
+                    🌍 Global
+                    {!selectedLeague && <span className="ml-auto">✓</span>}
+                  </button>
+                </li>
+                {leagues.map((league) => (
+                  <li key={league.id}>
+                    <button
+                      onClick={() => {
+                        setSelectedLeague(league);
+                        setDropdownOpen(false);
+                      }}
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2 ${selectedLeague?.id === league.id ? 'text-white bg-white/5' : 'text-white/70'}`}
+                    >
+                      🏆 {league.name}
+                      {selectedLeague?.id === league.id && (
+                        <span className="ml-auto">✓</span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <h3 className="text-white/70 text-xs font-medium uppercase tracking-wider mb-2 px-4">
+            Leaderboard
+          </h3>
+        ))}
       <div className="relative flex-1 min-h-0">
         {/* Top fade gradient (compact only) */}
         {isCompact && (
