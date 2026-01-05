@@ -11,13 +11,10 @@ import { getPositionCompact } from '../utils';
 import { Button } from './Button';
 import { ProfilePicture } from './ProfilePicture';
 
-type MenuItem = {
-  label: string;
-  icon: React.ReactNode;
-} & ({ to: string } | { onClick: () => void });
-
 const menuItemClass =
   'w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2 rounded-lg text-sm';
+
+const dividerClass = 'border-t border-white/10 my-1';
 
 type UserMenuProps = {
   mobile?: boolean;
@@ -26,7 +23,8 @@ type UserMenuProps = {
 export const UserMenu = ({ mobile = false }: UserMenuProps) => {
   const navigate = useNavigate();
   const { user, userData } = useAuth();
-  const { selectedLeague, leagueMemberIds } = useLeague();
+  const { leagues, selectedLeague, setSelectedLeague, leagueMemberIds } =
+    useLeague();
   const [isOpen, setIsOpen] = React.useState(false);
   const [allUsers, setAllUsers] = React.useState<UserWithId[]>([]);
   const buttonRef = React.useRef<HTMLDivElement>(null);
@@ -74,24 +72,6 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
       .catch(console.error);
   };
 
-  const menuItems: MenuItem[] = [
-    {
-      label: 'My Predictions',
-      to: `/${userData?.userName}`,
-      icon: <span>⚽</span>,
-    },
-    {
-      label: 'Edit Profile',
-      to: '/edit-profile',
-      icon: <span>✏️</span>,
-    },
-    {
-      label: 'Sign Out',
-      onClick: handleSignOut,
-      icon: <span>👋</span>,
-    },
-  ];
-
   // Close dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -133,7 +113,7 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
     <div ref={buttonRef} className="relative">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center ${mobile ? 'p-0!' : `w-full gap-3 justify-start px-3! p-2! border border-white/10 bg-black/20 backdrop-blur-sm ${isOpen ? 'rounded-t-xl rounded-b-none' : 'rounded-xl'}`}`}
+        className={`flex items-center ${mobile ? 'gap-x-2 gap-y-0 p-0! pl-4! border-l border-0 border-white/10 rounded-none' : `w-full gap-3 justify-start px-3! p-2! border border-white/10 bg-black/20 backdrop-blur-sm ${isOpen ? 'rounded-t-xl rounded-b-none' : 'rounded-xl'}`}`}
       >
         {!mobile && userData && (
           <>
@@ -181,80 +161,164 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
           </>
         )}
         {mobile && userData && (
-          <ProfilePicture
-            src={userData.photoURL}
-            name={userData.displayName}
-            size="sm"
-            className="border-2 border-white/20"
-          />
+          <>
+            <ProfilePicture
+              src={userData.photoURL}
+              name={userData.displayName}
+              size="sm"
+              className="border-0 rounded-md"
+            />
+            {[
+              { label: 'Score', value: userData.score, show: true },
+              {
+                label: 'Rank',
+                value: getPositionCompact(position!),
+                show: position !== null,
+              },
+            ]
+              .filter((item) => item.show)
+              .map((item) => (
+                <div
+                  key={item.label}
+                  className="relative aspect-square h-10 flex flex-col items-center justify-center rounded-md overflow-hidden"
+                >
+                  <div
+                    className="absolute inset-0 scale-[-1] opacity-70"
+                    style={{
+                      backgroundImage: `url(${sidebarMenuBg})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  />
+                  <span className="relative text-white/60 text-[8px] uppercase tracking-wider">
+                    {item.label}
+                  </span>
+                  <span className="relative text-white font-semibold text-sm">
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            <span
+              className={`ml-auto text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            >
+              ▼
+            </span>
+          </>
         )}
       </Button>
       {isOpen &&
-        (mobile ? (
-          createPortal(
-            <ul
-              ref={dropdownRef}
-              className="p-0 fixed left-0 right-0 bg-black/80 backdrop-blur-lg border-b border-white/10 shadow-xl z-50"
-              style={{ top: 'calc(env(safe-area-inset-top) + 57px)' }}
-            >
-              {menuItems.map((item) => (
-                <li key={item.label}>
-                  {'to' in item ? (
-                    <Link
-                      to={item.to}
-                      onClick={closeMenu}
-                      className={menuItemClass}
-                    >
-                      {item.icon} {item.label}
-                    </Link>
-                  ) : (
+        (() => {
+          const menuContent = (
+            <>
+              {/* League Options */}
+              {leagues.length > 0 && (
+                <>
+                  <li>
                     <button
                       onClick={() => {
-                        item.onClick();
+                        setSelectedLeague(null);
                         closeMenu();
                       }}
-                      className={menuItemClass}
+                      className={`${menuItemClass} ${!selectedLeague ? 'bg-white/10' : ''}`}
                     >
-                      {item.icon}
-                      {item.label}
+                      <span>🌍</span> Global Leaderboard
+                      {!selectedLeague && <span className="ml-auto">✓</span>}
                     </button>
-                  )}
-                </li>
-              ))}
-            </ul>,
-            document.body
-          )
-        ) : (
-          <ul
-            ref={dropdownRef}
-            className="p-0 w-full backdrop-blur-2xl bg-black/20 border border-white/10 border-t-0 rounded-b-xl"
-          >
-            {menuItems.map((item) => (
-              <li key={item.label}>
-                {'to' in item ? (
+                  </li>
+                  {leagues.map((league) => (
+                    <li key={league.id}>
+                      <button
+                        onClick={() => {
+                          setSelectedLeague(league);
+                          closeMenu();
+                        }}
+                        className={`${menuItemClass} ${selectedLeague?.id === league.id ? 'bg-white/10' : ''}`}
+                      >
+                        <span>🏆</span> {league.name}
+                        {selectedLeague?.id === league.id && (
+                          <span className="ml-auto">✓</span>
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                  <li>
+                    <Link
+                      to="/leagues"
+                      onClick={closeMenu}
+                      className={`${menuItemClass} text-white/50`}
+                    >
+                      <span>➕</span> Manage Leagues
+                    </Link>
+                  </li>
+                  <li className={dividerClass} />
+                </>
+              )}
+              {/* Navigation Items */}
+              <li>
+                <Link
+                  to={`/${userData?.userName}`}
+                  onClick={closeMenu}
+                  className={menuItemClass}
+                >
+                  <span>⚽</span> My Predictions
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/edit-profile"
+                  onClick={closeMenu}
+                  className={menuItemClass}
+                >
+                  <span>✏️</span> Edit Profile
+                </Link>
+              </li>
+              {leagues.length === 0 && (
+                <li>
                   <Link
-                    to={item.to}
+                    to="/leagues"
                     onClick={closeMenu}
                     className={menuItemClass}
                   >
-                    {item.icon} {item.label}
+                    <span>🏆</span> Leagues
                   </Link>
-                ) : (
-                  <button
-                    onClick={() => {
-                      item.onClick();
-                      closeMenu();
-                    }}
-                    className={menuItemClass}
-                  >
-                    {item.icon}
-                    {item.label}
-                  </button>
-                )}
+                </li>
+              )}
+              <li className={dividerClass} />
+              {/* Sign Out */}
+              <li>
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    closeMenu();
+                  }}
+                  className={menuItemClass}
+                >
+                  <span>👋</span> Sign Out
+                </button>
               </li>
-            ))}
-          </ul>
-        ))}
+            </>
+          );
+
+          return mobile ? (
+            createPortal(
+              <ul
+                ref={dropdownRef}
+                className="p-0 fixed left-0 right-0 bg-black/80 backdrop-blur-lg border-b border-white/10 shadow-xl z-50"
+                style={{ top: 'calc(env(safe-area-inset-top) + 57px)' }}
+              >
+                {menuContent}
+              </ul>,
+              document.body
+            )
+          ) : (
+            <ul
+              ref={dropdownRef}
+              className="p-0 w-full backdrop-blur-2xl bg-black/20 border border-white/10 border-t-0 rounded-b-xl"
+            >
+              {menuContent}
+            </ul>
+          );
+        })()}
     </div>
   );
 };

@@ -45,10 +45,10 @@ export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
         <div className="flex-1 flex flex-col md:block">
           {/* Mobile header */}
           <header
-            className="md:hidden sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-white/10 px-4 py-3"
+            className="md:hidden sticky top-0 z-20 bg-black/80 backdrop-blur-lg border-b border-white/10 px-4 py-0"
             style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pb-3">
               <Link to="/" className="flex items-center gap-2">
                 <img src={worldcupLogo} alt="World Cup 2026" className="h-8" />
                 <span className="text-white font-light text-xs">
