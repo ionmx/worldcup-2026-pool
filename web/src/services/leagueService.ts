@@ -1,4 +1,4 @@
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import {
   ref,
   get,
@@ -9,6 +9,11 @@ import {
   onValue,
   type Unsubscribe,
 } from 'firebase/database';
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from 'firebase/storage';
 
 export interface League {
   name: string;
@@ -16,6 +21,8 @@ export interface League {
   ownerId: string;
   inviteCode: string;
   createdAt: number;
+  description?: string;
+  imageURL?: string;
 }
 
 export interface LeagueWithId extends League {
@@ -38,7 +45,7 @@ const generateInviteCode = (): string => {
 /**
  * Generate a URL-safe slug from a name
  */
-const generateSlug = (name: string): string => {
+export const generateSlug = (name: string): string => {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -59,19 +66,31 @@ export const checkSlugAvailable = async (slug: string): Promise<boolean> => {
  */
 export const createLeague = async (
   name: string,
-  ownerId: string
+  ownerId: string,
+  options?: {
+    slug?: string;
+    description?: string;
+  }
 ): Promise<LeagueWithId> => {
-  // Generate slug and ensure it's unique
-  let slug = generateSlug(name);
-  let suffix = 0;
-  while (!(await checkSlugAvailable(slug))) {
-    suffix++;
-    slug = `${generateSlug(name)}-${suffix}`;
+  // Use provided slug or generate one from name
+  let slug = options?.slug ? generateSlug(options.slug) : generateSlug(name);
+
+  // Ensure slug is unique
+  if (!(await checkSlugAvailable(slug))) {
+    if (options?.slug) {
+      throw new Error('This URL is already taken');
+    }
+    // Auto-generate unique slug
+    let suffix = 0;
+    while (!(await checkSlugAvailable(slug))) {
+      suffix++;
+      slug = `${generateSlug(name)}-${suffix}`;
+    }
   }
 
   const leaguesRef = ref(db, 'leagues');
   const newLeagueRef = push(leaguesRef);
-  const leagueId = newLeagueRef.key!;
+  const leagueId = newLeagueRef.key;
 
   const league: League = {
     name,
@@ -79,6 +98,7 @@ export const createLeague = async (
     ownerId,
     inviteCode: generateInviteCode(),
     createdAt: Date.now(),
+    ...(options?.description && { description: options.description }),
   };
 
   // Save league, claim slug, and add owner as member
@@ -223,9 +243,69 @@ export const subscribeToUserLeagues = (
 /**
  * Regenerate invite code for a league (owner only)
  */
-export const regenerateInviteCode = async (leagueId: string): Promise<string> => {
+export const regenerateInviteCode = async (
+  leagueId: string
+): Promise<string> => {
   const newCode = generateInviteCode();
   await update(ref(db, `leagues/${leagueId}`), { inviteCode: newCode });
   return newCode;
 };
 
+/**
+ * Update league info (owner only)
+ */
+export const updateLeague = async (
+  leagueId: string,
+  updates: {
+    name?: string;
+    description?: string;
+    imageURL?: string;
+    slug?: string;
+  },
+  oldSlug?: string
+): Promise<void> => {
+  const filteredUpdates: Record<string, string> = {};
+  if (updates.name !== undefined) filteredUpdates.name = updates.name;
+  if (updates.description !== undefined)
+    filteredUpdates.description = updates.description;
+  if (updates.imageURL !== undefined)
+    filteredUpdates.imageURL = updates.imageURL;
+
+  // Handle slug update
+  if (updates.slug !== undefined && oldSlug && updates.slug !== oldSlug) {
+    // Check if new slug is available
+    const isAvailable = await checkSlugAvailable(updates.slug);
+    if (!isAvailable) {
+      throw new Error('This URL is already taken');
+    }
+
+    // Remove old slug and add new one
+    await remove(ref(db, `leagueSlugs/${oldSlug}`));
+    await set(ref(db, `leagueSlugs/${updates.slug}`), leagueId);
+    filteredUpdates.slug = updates.slug;
+  }
+
+  await update(ref(db, `leagues/${leagueId}`), filteredUpdates);
+};
+
+/**
+ * Upload league image
+ */
+export const uploadLeagueImage = async (
+  leagueId: string,
+  file: File
+): Promise<string> => {
+  const extension = file.name.split('.').pop() ?? 'jpg';
+  const fileRef = storageRef(
+    storage,
+    `league-images/${leagueId}/image.${extension}`
+  );
+
+  await uploadBytes(fileRef, file);
+  const downloadURL = await getDownloadURL(fileRef);
+
+  // Update the league's imageURL in the database
+  await update(ref(db, `leagues/${leagueId}`), { imageURL: downloadURL });
+
+  return downloadURL;
+};

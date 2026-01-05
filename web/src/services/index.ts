@@ -22,7 +22,9 @@ export {
 export type { Prediction, UserPredictions } from './predictionService';
 
 export {
+  checkSlugAvailable,
   createLeague,
+  generateSlug,
   getLeagueBySlug,
   getLeagueByInviteCode,
   getLeagueMembers,
@@ -31,5 +33,7 @@ export {
   leaveLeague,
   regenerateInviteCode,
   subscribeToUserLeagues,
+  updateLeague,
+  uploadLeagueImage,
 } from './leagueService';
 export type { League, LeagueWithId } from './leagueService';

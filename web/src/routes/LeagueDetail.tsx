@@ -1,6 +1,13 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { AppLayout, Card, Button, LeaderboardList } from '../components';
+import {
+  AppLayout,
+  Card,
+  Button,
+  LinkButton,
+  LeaderboardList,
+  LeaguePicture,
+} from '../components';
 import { useAuth } from '../hooks';
 import {
   getLeagueBySlug,
@@ -140,21 +147,37 @@ export const LeagueDetail = () => {
           >
             ← My Leagues
           </Link>
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-white">{league.name}</h1>
-            {isMember && !isOwner && (
-              <Button
-                onClick={() => void handleLeave()}
-                disabled={leaving}
-                className="text-sm"
-              >
-                {leaving ? 'Leaving...' : 'Leave'}
-              </Button>
-            )}
+
+          <div className="flex items-start gap-4 mt-2">
+            <LeaguePicture src={league.imageURL} name={league.name} size="lg" />
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold text-white">{league.name}</h1>
+                <div className="flex gap-2">
+                  {isOwner && (
+                    <LinkButton
+                      to={`/league/${league.slug}/edit`}
+                      className="text-sm"
+                    >
+                      Edit
+                    </LinkButton>
+                  )}
+                  {isMember && !isOwner && (
+                    <Button
+                      onClick={() => void handleLeave()}
+                      disabled={leaving}
+                      className="text-sm"
+                    >
+                      {leaving ? 'Leaving...' : 'Leave'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              {league.description && (
+                <p className="text-white/70 mt-2">{league.description}</p>
+              )}
+            </div>
           </div>
-          <p className="text-white/50 mt-1">
-            {members.length} {members.length === 1 ? 'member' : 'members'}
-          </p>
         </div>
 
         {/* Invite Code Section (for members) */}
@@ -196,16 +219,18 @@ export const LeagueDetail = () => {
         )}
 
         {/* Leaderboard */}
-        <Card className="p-4">
-          <h2 className="text-xl font-semibold text-white mb-4">Leaderboard</h2>
-          {members.length === 0 ? (
-            <p className="text-white/50 text-center py-8">No members yet</p>
-          ) : (
-            <LeaderboardList users={members} />
-          )}
-        </Card>
+        {members.length > 0 && (
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-medium">Leaderboard</h3>
+              <span className="text-white/50 text-sm">
+                {members.length} {members.length === 1 ? 'member' : 'members'}
+              </span>
+            </div>
+            <LeaderboardList variant="full" users={members} />
+          </Card>
+        )}
       </div>
     </AppLayout>
   );
 };
-

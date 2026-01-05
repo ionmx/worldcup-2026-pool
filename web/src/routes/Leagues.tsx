@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { AppLayout, Card, Button } from '../components';
+import { AppLayout, Card, Button, LinkButton } from '../components';
 import { useAuth } from '../hooks';
 import {
   subscribeToUserLeagues,
-  createLeague,
   joinLeague,
   getLeagueByInviteCode,
   type LeagueWithId,
@@ -14,12 +13,9 @@ export const Leagues = () => {
   const { user } = useAuth();
   const [leagues, setLeagues] = React.useState<LeagueWithId[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [showCreate, setShowCreate] = React.useState(false);
   const [showJoin, setShowJoin] = React.useState(false);
-  const [newLeagueName, setNewLeagueName] = React.useState('');
   const [inviteCode, setInviteCode] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
-  const [creating, setCreating] = React.useState(false);
   const [joining, setJoining] = React.useState(false);
 
   React.useEffect(() => {
@@ -35,24 +31,6 @@ export const Leagues = () => {
 
     return () => unsubscribe();
   }, [user]);
-
-  const handleCreateLeague = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !newLeagueName.trim()) return;
-
-    setCreating(true);
-    setError(null);
-
-    try {
-      await createLeague(newLeagueName.trim(), user.uid);
-      setNewLeagueName('');
-      setShowCreate(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create league');
-    } finally {
-      setCreating(false);
-    }
-  };
 
   const handleJoinLeague = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,9 +69,9 @@ export const Leagues = () => {
               <Button onClick={() => setShowJoin(true)} className="text-sm">
                 Join
               </Button>
-              <Button onClick={() => setShowCreate(true)} className="text-sm">
+              <LinkButton to="/leagues/new" className="text-sm">
                 Create
-              </Button>
+              </LinkButton>
             </div>
           )}
         </div>
@@ -101,45 +79,6 @@ export const Leagues = () => {
         {!user && (
           <Card className="p-6 text-center">
             <p className="text-white/70">Sign in to create or join leagues</p>
-          </Card>
-        )}
-
-        {/* Create League Modal */}
-        {showCreate && (
-          <Card className="p-6 mb-6">
-            <h2 className="text-xl font-semibold text-white mb-4">
-              Create New League
-            </h2>
-            <form onSubmit={(e) => void handleCreateLeague(e)}>
-              <input
-                type="text"
-                value={newLeagueName}
-                onChange={(e) => setNewLeagueName(e.target.value)}
-                placeholder="League name"
-                className={inputClass}
-                autoFocus
-              />
-              {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
-              <div className="flex gap-3 mt-4">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setShowCreate(false);
-                    setError(null);
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={creating || !newLeagueName.trim()}
-                  className="flex-1"
-                >
-                  {creating ? 'Creating...' : 'Create'}
-                </Button>
-              </div>
-            </form>
           </Card>
         )}
 

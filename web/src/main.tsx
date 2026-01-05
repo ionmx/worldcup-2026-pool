@@ -6,11 +6,13 @@ import { ProtectedRoute } from './components';
 import { AuthProvider, MatchProvider, LeagueProvider } from './context';
 import {
   About,
+  EditLeague,
   EditProfile,
   Home,
   Leaderboard,
   LeagueDetail,
   Leagues,
+  NewLeague,
   Rules,
   UserProfile,
 } from './routes';
@@ -43,7 +45,23 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/rules" element={<Rules />} />
               <Route path="/leagues" element={<Leagues />} />
+              <Route
+                path="/leagues/new"
+                element={
+                  <ProtectedRoute>
+                    <NewLeague />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/league/:slug" element={<LeagueDetail />} />
+              <Route
+                path="/league/:slug/edit"
+                element={
+                  <ProtectedRoute>
+                    <EditLeague />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/edit-profile"
                 element={
