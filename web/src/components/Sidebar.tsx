@@ -1,10 +1,14 @@
 import { Link } from 'react-router-dom';
 import { worldcupLogo, sidebarMenuBg } from '../assets';
+import { useLeague } from '../hooks';
 import { Card } from './Card';
 import { LeaderboardList } from './LeaderboardList';
+import { LeaguePicture } from './LeaguePicture';
 import { UserMenu } from './UserMenu';
 
 export const Sidebar = () => {
+  const { selectedLeague } = useLeague();
+
   return (
     <aside className="w-80 shrink-0 p-4 h-screen sticky top-0">
       <Card className="h-full max-h-[calc(100vh-2rem)] flex flex-col rounded-xl after:hidden overflow-hidden">
@@ -15,14 +19,23 @@ export const Sidebar = () => {
             className="absolute inset-0 w-full h-full object-cover"
           />
           <Link
-            to="/"
+            to={selectedLeague ? `/league/${selectedLeague.slug}` : '/'}
             className="relative z-10 flex items-center justify-center py-6 hover:opacity-90 transition-opacity"
           >
-            <img
-              src={worldcupLogo}
-              alt="World Cup 2026"
-              className="h-32 drop-shadow-lg"
-            />
+            {selectedLeague ? (
+              <LeaguePicture
+                src={selectedLeague.imageURL}
+                name={selectedLeague.name}
+                size="xl"
+                className="h-32 w-32 drop-shadow-lg"
+              />
+            ) : (
+              <img
+                src={worldcupLogo}
+                alt="World Cup 2026"
+                className="h-32 drop-shadow-lg"
+              />
+            )}
           </Link>
           <div className="relative z-10 px-2 pb-2">
             <UserMenu />
