@@ -54,27 +54,9 @@ export const LeaderboardList = ({
 
   // Filter users by league if selected
   const users = React.useMemo(() => {
-    let baseUsers: UserWithId[];
-    if (externalUsers) {
-      baseUsers = externalUsers;
-    } else if (!selectedLeague || leagueMemberIds.length === 0) {
-      baseUsers = allUsers;
-    } else {
-      baseUsers = allUsers.filter((user) => leagueMemberIds.includes(user.id));
-    }
-
-    // TODO: Remove mock users after testing
-    const mockUsers = Array.from({ length: 20 }, (_, i) => ({
-      id: `mock-${i}`,
-      userName: `testuser${i + 1}`,
-      displayName: `Test User ${i + 1}`,
-      email: `test${i + 1}@example.com`,
-      photoURL: '',
-      score: Math.max(0, 100 - (baseUsers.length + i) * 3),
-      admin: false,
-    })) as UserWithId[];
-
-    return [...baseUsers, ...mockUsers];
+    if (externalUsers) return externalUsers;
+    if (!selectedLeague || leagueMemberIds.length === 0) return allUsers;
+    return allUsers.filter((user) => leagueMemberIds.includes(user.id));
   }, [externalUsers, selectedLeague, leagueMemberIds, allUsers]);
 
   const handleScroll = () => {
