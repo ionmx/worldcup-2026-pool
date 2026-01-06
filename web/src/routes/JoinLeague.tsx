@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
+import { bgImage, worldcupLogo } from '../assets';
 import { AppLayout, Button, Card, LeaguePicture } from '../components';
 import { useAuth, useLeague } from '../hooks';
 import {
@@ -14,33 +15,26 @@ import {
 // Storage key for pending join intent
 const JOIN_INTENT_KEY = 'pendingJoinLeague';
 
-export type JoinIntent = {
+type JoinIntent = {
   leagueId: string;
   slug: string;
   inviteCode: string;
 };
 
 // Helper functions for localStorage
-export const getJoinIntent = (): JoinIntent | null => {
-  const stored = localStorage.getItem(JOIN_INTENT_KEY);
-  if (!stored) return null;
-  try {
-    return JSON.parse(stored) as JoinIntent;
-  } catch {
-    return null;
-  }
-};
-
-export const setJoinIntent = (intent: JoinIntent): void => {
+const setJoinIntent = (intent: JoinIntent): void => {
   localStorage.setItem(JOIN_INTENT_KEY, JSON.stringify(intent));
 };
 
-export const clearJoinIntent = (): void => {
+const clearJoinIntent = (): void => {
   localStorage.removeItem(JOIN_INTENT_KEY);
 };
 
 export const JoinLeague = () => {
-  const { slug, inviteCode } = useParams<{ slug: string; inviteCode: string }>();
+  const { slug, inviteCode } = useParams<{
+    slug: string;
+    inviteCode: string;
+  }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { setSelectedLeague } = useLeague();
@@ -50,6 +44,13 @@ export const JoinLeague = () => {
   const [error, setError] = React.useState<string | null>(null);
   const [joining, setJoining] = React.useState(false);
   const [signingIn, setSigningIn] = React.useState(false);
+
+  // Hide splash screen when ready
+  React.useEffect(() => {
+    if (!loading && !authLoading) {
+      window.hideSplash?.();
+    }
+  }, [loading, authLoading]);
 
   // Fetch league info
   React.useEffect(() => {
@@ -166,12 +167,31 @@ export const JoinLeague = () => {
     );
   }
 
-  // Show sign-in prompt for non-logged-in users
+  // Show sign-in prompt for non-logged-in users (no sidebar/navbar)
   if (!user && league) {
     return (
-      <AppLayout>
-        <div className="pt-8 px-4 pb-8 max-w-md mx-auto">
-          <Card className="p-8 text-center">
+      <>
+        {/* Fixed background */}
+        <div
+          className="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
+          style={{
+            backgroundImage: `linear-gradient(to bottom, black, transparent 30%, transparent 70%, black), url(${bgImage})`,
+          }}
+        />
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          {/* App header */}
+          <div className="flex items-center gap-3 mb-6">
+            <img
+              src={worldcupLogo}
+              alt="FIFA World Cup 2026"
+              className="h-12"
+            />
+            <span className="text-white font-light text-lg">
+              FIFA WC 2026 POOL
+            </span>
+          </div>
+
+          <Card className="p-8 text-center max-w-md w-full">
             <div className="flex justify-center mb-4">
               <LeaguePicture
                 src={league.imageURL}
@@ -197,10 +217,9 @@ export const JoinLeague = () => {
             </Button>
           </Card>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return null;
 };
-
