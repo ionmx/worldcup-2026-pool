@@ -103,10 +103,13 @@ export const LeagueDetail = () => {
     }
   };
 
-  const copyInviteCode = () => {
-    if (league) {
-      void navigator.clipboard.writeText(league.inviteCode);
-    }
+  const getShareableLink = () => {
+    if (!league) return '';
+    return `${window.location.origin}/league/${league.slug}/join/${league.inviteCode}`;
+  };
+
+  const copyShareableLink = () => {
+    void navigator.clipboard.writeText(getShareableLink());
   };
 
   if (loading) {
@@ -180,39 +183,48 @@ export const LeagueDetail = () => {
           </div>
         </div>
 
-        {/* Invite Code Section (for members) */}
-        {isMember && (
+        {/* Invite Section (owner only) */}
+        {isOwner && (
           <Card className="p-4 mb-6">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-white font-medium">Invite Friends</h3>
                 <p className="text-white/50 text-sm">
-                  Share this code to invite others
+                  Share this link to invite others
                 </p>
               </div>
               <Button
                 onClick={() => setShowInviteCode(!showInviteCode)}
                 className="text-sm"
               >
-                {showInviteCode ? 'Hide' : 'Show Code'}
+                {showInviteCode ? 'Hide' : 'Show Link'}
               </Button>
             </div>
             {showInviteCode && (
-              <div className="mt-4 flex items-center gap-3">
-                <code className="flex-1 bg-white/10 px-4 py-3 rounded-lg text-center text-2xl font-mono tracking-widest text-white">
-                  {league.inviteCode}
-                </code>
-                <Button onClick={copyInviteCode} className="text-sm">
-                  Copy
-                </Button>
-                {isOwner && (
-                  <Button
-                    onClick={() => void handleRegenerateCode()}
-                    className="text-sm"
-                  >
-                    New
+              <div className="mt-4 space-y-3">
+                {/* Shareable Link */}
+                <div className="flex items-center gap-3">
+                  <code className="flex-1 bg-white/10 px-4 py-3 rounded-lg text-sm font-mono text-white/70 truncate">
+                    {getShareableLink()}
+                  </code>
+                  <Button onClick={copyShareableLink} className="text-sm">
+                    Copy
                   </Button>
-                )}
+                </div>
+                {/* Invite Code */}
+                <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <span className="text-white/50 text-sm">
+                    Code: <span className="font-mono text-white">{league.inviteCode}</span>
+                  </span>
+                  {isOwner && (
+                    <Button
+                      onClick={() => void handleRegenerateCode()}
+                      className="text-sm"
+                    >
+                      Regenerate
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </Card>

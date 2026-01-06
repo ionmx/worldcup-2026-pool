@@ -1,8 +1,31 @@
 import React from 'react';
 import { type User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
-import { handleUserLogin, type UserData } from '../services';
+import { handleUserLogin, joinLeague, isLeagueMember, type UserData } from '../services';
 import { AuthContext } from './AuthContext';
+
+// Join intent storage key and helpers
+const JOIN_INTENT_KEY = 'pendingJoinLeague';
+
+type JoinIntent = {
+  leagueId: string;
+  slug: string;
+  inviteCode: string;
+};
+
+const getJoinIntent = (): JoinIntent | null => {
+  const stored = localStorage.getItem(JOIN_INTENT_KEY);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored) as JoinIntent;
+  } catch {
+    return null;
+  }
+};
+
+const clearJoinIntent = (): void => {
+  localStorage.removeItem(JOIN_INTENT_KEY);
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -16,8 +39,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(currentUser);
       if (currentUser) {
         handleUserLogin(currentUser)
-          .then((data) => {
+          .then(async (data) => {
             setUserData(data);
+
+            // Check for pending join intent
+            const joinIntent = getJoinIntent();
+            if (joinIntent) {
+              try {
+                const alreadyMember = await isLeagueMember(
+                  joinIntent.leagueId,
+                  currentUser.uid
+                );
+                if (!alreadyMember) {
+                  await joinLeague(joinIntent.leagueId, currentUser.uid);
+                }
+                // Redirect to the league page
+                window.location.href = `/league/${joinIntent.slug}`;
+              } catch (err) {
+                console.error('Error processing join intent:', err);
+              } finally {
+                clearJoinIntent();
+              }
+            }
           })
           .catch((error: unknown) => {
             console.error('Error fetching user data:', error);

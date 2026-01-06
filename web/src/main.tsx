@@ -9,6 +9,7 @@ import {
   EditLeague,
   EditProfile,
   Home,
+  JoinLeague,
   Leaderboard,
   LeagueDetail,
   Leagues,
@@ -54,6 +55,10 @@ createRoot(document.getElementById('root')!).render(
                 }
               />
               <Route path="/league/:slug" element={<LeagueDetail />} />
+              <Route
+                path="/league/:slug/join/:inviteCode"
+                element={<JoinLeague />}
+              />
               <Route
                 path="/league/:slug/edit"
                 element={
