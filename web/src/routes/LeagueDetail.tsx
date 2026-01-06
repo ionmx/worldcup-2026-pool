@@ -144,37 +144,37 @@ export const LeagueDetail = () => {
       <div className="pt-8 px-4 pb-8 max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <Link
-            to="/leagues"
-            className="text-white/50 hover:text-white text-sm mb-2 inline-block"
-          >
-            ← My Leagues
-          </Link>
+          <div className="flex items-center justify-between mb-2">
+            <Link
+              to="/leagues"
+              className="text-white/50 hover:text-white text-sm"
+            >
+              ← My Leagues
+            </Link>
+            {isMember && !isOwner && (
+              <Button
+                onClick={() => void handleLeave()}
+                disabled={leaving}
+                className="text-xs"
+              >
+                {leaving ? 'Leaving...' : 'Leave'}
+              </Button>
+            )}
+            {isOwner && (
+              <LinkButton
+                to={`/league/${league.slug}/edit`}
+                className="text-xs"
+              >
+                Edit
+              </LinkButton>
+            )}
+          </div>
 
           <div className="flex items-start gap-4 mt-2">
             <LeaguePicture src={league.imageURL} name={league.name} size="lg" />
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-white">{league.name}</h1>
-                <div className="flex gap-2">
-                  {isOwner && (
-                    <LinkButton
-                      to={`/league/${league.slug}/edit`}
-                      className="text-sm"
-                    >
-                      Edit
-                    </LinkButton>
-                  )}
-                  {isMember && !isOwner && (
-                    <Button
-                      onClick={() => void handleLeave()}
-                      disabled={leaving}
-                      className="text-sm"
-                    >
-                      {leaving ? 'Leaving...' : 'Leave'}
-                    </Button>
-                  )}
-                </div>
               </div>
               {league.description && (
                 <p className="text-white/70 mt-2">{league.description}</p>
@@ -195,9 +195,9 @@ export const LeagueDetail = () => {
               </div>
               <Button
                 onClick={() => setShowInviteCode(!showInviteCode)}
-                className="text-sm"
+                className={`text-xs ${showInviteCode ? 'border-0' : ''}`}
               >
-                {showInviteCode ? 'Hide' : 'Show Link'}
+                {showInviteCode ? '✕' : 'Show Link'}
               </Button>
             </div>
             {showInviteCode && (
@@ -214,7 +214,10 @@ export const LeagueDetail = () => {
                 {/* Invite Code */}
                 <div className="flex items-center justify-between pt-2 border-t border-white/10">
                   <span className="text-white/50 text-sm">
-                    Code: <span className="font-mono text-white">{league.inviteCode}</span>
+                    Code:{' '}
+                    <span className="font-mono text-white">
+                      {league.inviteCode}
+                    </span>
                   </span>
                   {isOwner && (
                     <Button
