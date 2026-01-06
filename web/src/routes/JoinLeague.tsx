@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { AppLayout, Button, Card, LeaguePicture } from '../components';
-import { useAuth } from '../hooks';
+import { useAuth, useLeague } from '../hooks';
 import {
   getLeagueBySlug,
   joinLeague,
@@ -43,6 +43,7 @@ export const JoinLeague = () => {
   const { slug, inviteCode } = useParams<{ slug: string; inviteCode: string }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { setSelectedLeague } = useLeague();
 
   const [league, setLeague] = React.useState<LeagueWithId | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -88,12 +89,14 @@ export const JoinLeague = () => {
         const alreadyMember = await isLeagueMember(league.id, user.uid);
         if (alreadyMember) {
           // Already a member, just redirect
+          setSelectedLeague(league);
           navigate(`/league/${league.slug}`, { replace: true });
           return;
         }
 
         // Join the league
         await joinLeague(league.id, user.uid);
+        setSelectedLeague(league);
         navigate(`/league/${league.slug}`, { replace: true });
       } catch (err) {
         console.error('Error joining league:', err);

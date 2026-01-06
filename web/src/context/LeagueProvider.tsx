@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../hooks';
 import { subscribeToUserLeagues, subscribeToLeagueMembers } from '../services';
 import { LeagueContext, type LeagueContextType } from './LeagueContext';
+import { getPendingSelectedLeague, clearPendingSelectedLeague } from './AuthProvider';
 
 export const LeagueProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -25,6 +26,16 @@ export const LeagueProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribe = subscribeToUserLeagues(user.uid, (userLeagues) => {
       setLeagues(userLeagues);
       setLoading(false);
+
+      // Check for pending selected league (from join flow)
+      const pendingLeagueId = getPendingSelectedLeague();
+      if (pendingLeagueId) {
+        const pendingLeague = userLeagues.find((l) => l.id === pendingLeagueId);
+        if (pendingLeague) {
+          setSelectedLeague(pendingLeague);
+        }
+        clearPendingSelectedLeague();
+      }
 
       // If selected league no longer exists, reset to global
       if (

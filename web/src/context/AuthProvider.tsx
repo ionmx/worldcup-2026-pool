@@ -27,6 +27,21 @@ const clearJoinIntent = (): void => {
   localStorage.removeItem(JOIN_INTENT_KEY);
 };
 
+// Store league ID to select after join
+const PENDING_LEAGUE_KEY = 'pendingSelectedLeague';
+
+export const setPendingSelectedLeague = (leagueId: string): void => {
+  localStorage.setItem(PENDING_LEAGUE_KEY, leagueId);
+};
+
+export const getPendingSelectedLeague = (): string | null => {
+  return localStorage.getItem(PENDING_LEAGUE_KEY);
+};
+
+export const clearPendingSelectedLeague = (): void => {
+  localStorage.removeItem(PENDING_LEAGUE_KEY);
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -53,6 +68,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 if (!alreadyMember) {
                   await joinLeague(joinIntent.leagueId, currentUser.uid);
                 }
+                // Store league ID to be selected after redirect
+                setPendingSelectedLeague(joinIntent.leagueId);
                 // Redirect to the league page
                 window.location.href = `/league/${joinIntent.slug}`;
               } catch (err) {

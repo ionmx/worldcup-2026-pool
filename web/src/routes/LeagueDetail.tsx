@@ -8,7 +8,7 @@ import {
   LeaderboardList,
   LeaguePicture,
 } from '../components';
-import { useAuth } from '../hooks';
+import { useAuth, useLeague } from '../hooks';
 import {
   getLeagueBySlug,
   isLeagueMember,
@@ -23,6 +23,7 @@ import {
 export const LeagueDetail = () => {
   const { slug } = useParams();
   const { user } = useAuth();
+  const { setSelectedLeague } = useLeague();
   const [league, setLeague] = React.useState<LeagueWithId | null>(null);
   const [members, setMembers] = React.useState<UserWithId[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -94,6 +95,7 @@ export const LeagueDetail = () => {
     setLeaving(true);
     try {
       await leaveLeague(league.id, user.uid);
+      setSelectedLeague(null);
       window.location.href = '/leagues';
     } catch (err) {
       console.error(err);

@@ -56,6 +56,7 @@ export const Leagues = () => {
       }
 
       await joinLeague(league.id, user.uid);
+      setSelectedLeague(league);
       setInviteCode('');
       setShowJoin(false);
       void navigate(`/league/${league.slug}`);
