@@ -45,8 +45,8 @@ export const Sidebar = () => {
           <LeaderboardList />
         </div>
         {/* Footer Links */}
-        <div className="mt-auto pt-4 border-t border-white/10 px-4 pb-4">
-          <div className="flex gap-4 justify-center text-sm">
+        <div className="mt-auto p-3 border-t border-white/10">
+          <div className="flex gap-4 justify-center text-xs">
             <Link
               to="/rules"
               className="text-white/50 hover:text-white transition-colors flex items-center gap-1"

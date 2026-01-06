@@ -69,7 +69,7 @@ export const UserHeader = ({ userId, className = '' }: UserHeaderProps) => {
         <div className="flex items-center gap-3 text-white/70 text-sm flex-wrap">
           <span>@{user.userName}</span>
           <span>·</span>
-          <span>{user.score} pts!!!</span>
+          <span>{user.score} pts</span>
           {position !== null && (
             <>
               <span>·</span>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { bgImage, worldcupLogo } from '../assets';
-import { useLeague } from '../hooks';
+import { useAuth, useLeague } from '../hooks';
 import { LeaguePicture } from './LeaguePicture';
 import { Sidebar } from './Sidebar';
 import { UserMenu } from './UserMenu';
@@ -11,15 +11,19 @@ type AppLayoutProps = {
   className?: string;
 };
 
-const mobileNavItems = [
-  { to: '/', icon: '⚽', label: 'Matches' },
-  { to: '/leaderboard', icon: '🏆', label: 'Leaderboard' },
-  { to: '/rules', icon: '📋', label: 'Rules' },
-  { to: '/about', icon: 'ℹ️', label: 'About' },
-];
-
 export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
+  const { userData } = useAuth();
   const { selectedLeague } = useLeague();
+
+  const mobileNavItems = [
+    {
+      to: userData ? `/${userData.userName}` : '/',
+      icon: '⚽',
+      label: userData ? 'My Predictions' : 'All Matches',
+    },
+    { to: '/leaderboard', icon: '🥇', label: 'Leaderboard' },
+    { to: '/leagues', icon: '🏆', label: 'Leagues' },
+  ];
 
   // Fallback: hide splash after 1 second (for pages without data loading)
   React.useEffect(() => {
@@ -64,7 +68,7 @@ export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
                       name={selectedLeague.name}
                       size="sm"
                     />
-                    <span className="text-white font-medium text-sm truncate max-w-32">
+                    <span className="text-white font-medium text-sm truncate max-w-48">
                       {selectedLeague.name}
                     </span>
                   </>
@@ -99,7 +103,7 @@ export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  end={item.to === '/'}
+                  end
                   className={({ isActive }) =>
                     `flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
                       isActive

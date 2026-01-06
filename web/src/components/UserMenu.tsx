@@ -112,7 +112,7 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
     <div ref={buttonRef} className="relative">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center ${mobile ? 'gap-x-2 gap-y-0 p-0! pl-4! border-l border-0 border-white/10 rounded-none' : `w-full gap-3 justify-start px-3! p-2! border border-white/10 bg-black/20 backdrop-blur-sm ${isOpen ? 'rounded-t-xl rounded-b-none' : 'rounded-xl'}`}`}
+        className={`flex items-center ${mobile ? 'gap-x-2 p-0! pr-2! border border-black/10 rounded-lg bg-white/10' : `w-full gap-3 justify-start px-3! p-2! border border-white/10 bg-black/20 backdrop-blur-sm ${isOpen ? 'rounded-t-xl rounded-b-none' : 'rounded-xl'}`}`}
       >
         {!mobile && userData && (
           <>
@@ -165,42 +165,23 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
               src={userData.photoURL}
               name={userData.displayName}
               size="sm"
-              className="border-0 rounded-md"
+              className="border-0 rounded-lg rounded-r-none"
             />
-            {[
-              { label: 'Score', value: userData.score, show: true },
-              {
-                label: 'Rank',
-                value: getPositionCompact(position!),
-                show: position !== null,
-              },
-            ]
-              .filter((item) => item.show)
-              .map((item) => (
-                <div
-                  key={item.label}
-                  className="relative aspect-square h-10 flex flex-col items-center justify-center rounded-md overflow-hidden"
-                >
-                  <div
-                    className="absolute inset-0 scale-[-1] opacity-70"
-                    style={{
-                      backgroundImage: `url(${sidebarMenuBg})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                    }}
-                  />
-                  <span className="relative text-white/60 text-[8px] uppercase tracking-wider">
-                    {item.label}
-                  </span>
-                  <span className="relative text-white font-semibold text-sm">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
+            {position !== null && (
+              <div className="relative aspect-square h-10 flex flex-col items-center justify-center overflow-hidden border-r border-white/10 pr-2">
+                <div className="absolute inset-0 scale-[-1] opacity-70" />
+                <span className="relative text-white/60 text-[8px] uppercase tracking-wider">
+                  Rank
+                </span>
+                <span className="relative text-white font-semibold text-sm">
+                  {getPositionCompact(position)}
+                </span>
+              </div>
+            )}
             <span
               className={`ml-auto text-white/50 transition-transform ${isOpen ? 'rotate-180' : ''}`}
             >
-              ▼
+              ▾
             </span>
           </>
         )}
@@ -209,16 +190,29 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
         (() => {
           const menuContent = (
             <>
-              {/* Navigation Items */}
-              <li>
-                <Link
-                  to={`/${userData?.userName}`}
-                  onClick={closeMenu}
-                  className={menuItemClass}
-                >
-                  <span>⚽</span> My Predictions
-                </Link>
-              </li>
+              {/* Navigation Items (desktop only) */}
+              {!mobile && (
+                <>
+                  <li>
+                    <Link
+                      to={`/${userData?.userName}`}
+                      onClick={closeMenu}
+                      className={menuItemClass}
+                    >
+                      <span>⚽</span> My Predictions
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/leagues"
+                      onClick={closeMenu}
+                      className={menuItemClass}
+                    >
+                      <span>🏆</span> My Leagues
+                    </Link>
+                  </li>
+                </>
+              )}
               <li>
                 <Link
                   to="/edit-profile"
@@ -228,16 +222,31 @@ export const UserMenu = ({ mobile = false }: UserMenuProps) => {
                   <span>✏️</span> Edit Profile
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/leagues"
-                  onClick={closeMenu}
-                  className={menuItemClass}
-                >
-                  <span>🏆</span> My Leagues
-                </Link>
-              </li>
               <li className={dividerClass} />
+              {/* Info Links (mobile only) */}
+              {mobile && (
+                <>
+                  <li>
+                    <Link
+                      to="/rules"
+                      onClick={closeMenu}
+                      className={menuItemClass}
+                    >
+                      <span>📋</span> Rules
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/about"
+                      onClick={closeMenu}
+                      className={menuItemClass}
+                    >
+                      <span>ℹ️</span> About
+                    </Link>
+                  </li>
+                  <li className={dividerClass} />
+                </>
+              )}
               {/* Sign Out */}
               <li>
                 <button
