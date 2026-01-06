@@ -17,30 +17,37 @@ const PodiumItem = ({
     className="flex flex-col items-center group border-b border-b-black/20"
   >
     <div className="relative mb-2">
+      {/* User info */}
       <ProfilePicture
         src={user.photoURL}
         name={user.displayName}
         size={position === 1 ? 'lg' : 'md'}
         className={`ring-4 ${
           position === 1
-            ? 'ring-yellow-400/80'
+            ? 'ring-yellow-400/80 w-16! h-16! sm:w-20 sm:h-20'
             : position === 2
-              ? 'ring-slate-300/80'
-              : 'ring-amber-600/80'
+              ? 'ring-slate-300/80 w-10! h-10! sm:w-16! sm:h-16!'
+              : 'ring-amber-600/80 w-10! h-10! sm:w-16! sm:h-16!'
         }`}
       />
-      <span className="absolute -bottom-1 -right-2 text-3xl">
+      <span className="absolute -bottom-1 -right-2 text-2xl sm:text-3xl">
         {position === 1 ? '🥇' : position === 2 ? '🥈' : '🥉'}
       </span>
     </div>
-    <span className="text-white font-medium text-sm truncate max-w-24 text-center">
-      {user.displayName}
-    </span>
-    <span className="text-white/60 text-xs">@{user.userName}</span>
-    <span className="text-white font-bold mt-2">{user.score} pts</span>
+    <div className="w-22 sm:w-32 flex flex-col items-center overflow-hidden">
+      <span className="text-white font-medium text-sm truncate w-full text-center">
+        {user.displayName?.split(' ')[0]}
+      </span>
+      <span className="text-white/60 text-xs truncate w-full text-center">
+        @{user.userName}
+      </span>
+      <span className="text-white font-bold mt-2 text-sm sm:text-lg">
+        {user.score} pts
+      </span>
+    </div>
     {/* Elliptical shadow from object above */}
     <div className="w-10 h-2 rounded-full -mt-1 mb-1 z-20 blur-sm bg-black/80" />
-    <div className="relative w-32 opacity-80 group-hover:opacity-70 transition-opacity backdrop-blur-sm">
+    <div className="relative w-22 sm:w-32 opacity-80 group-hover:opacity-70 transition-opacity backdrop-blur-sm">
       {/* 3D top face */}
       <div
         className="absolute -top-4 inset-x-0 h-4 bg-white/25 backdrop-blur-sm"
@@ -64,7 +71,7 @@ const PodiumItem = ({
         }}
       >
         <span
-          className={`font-bold text-white/70 ${position === 1 ? 'text-6xl' : position === 2 ? 'text-5xl' : 'text-4xl'}`}
+          className={`font-bold bg-linear-to-b from-white/70 to-white/10 bg-clip-text text-transparent ${position === 1 ? 'text-6xl' : position === 2 ? 'text-5xl' : 'text-4xl'}`}
         >
           {position}
         </span>
@@ -78,22 +85,23 @@ export const Podium = ({ users }: { users: UserWithId[] }) => {
   if (users.length < 3) return null;
 
   const [first, second, third] = [users[0], users[1], users[2]];
-
   return (
     <div className="relative p-0!">
       <div className="relative z-10 flex items-end justify-center gap-0">
-        <PodiumItem user={second} position={2} height="h-20" />
-        <PodiumItem user={first} position={1} height="h-28" />
-        <PodiumItem user={third} position={3} height="h-16" />
+        <PodiumItem user={second} position={2} height="h-18 sm:h-20" />
+        <PodiumItem user={first} position={1} height="h-24 sm:h-28" />
+        <PodiumItem user={third} position={3} height="h-12 sm:h-16" />
       </div>
-      <div className="w-99 sm:w-102 mx-auto h-4 rounded-full bg-black/30 sm:bg-black/50 blur-xs backdrop-blur-sm -mt-3 z-0" />
+
       {/* 3D floor beneath podium */}
       <div
-        className="w-[98%] mx-auto h-10 bg-white/5 backdrop-blur-sm -mt-7 z-0"
+        className="w-full mx-auto h-10 bg-white/5 backdrop-blur-sm -mt-7 z-0"
         style={{
           clipPath: 'polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%)',
         }}
       />
+      {/* Shadow under podium */}
+      <div className="w-70 sm:w-100 mx-auto h-4 rounded-full bg-black/20 blur-xs backdrop-blur-sm -mt-5 z-0" />
     </div>
   );
 };
