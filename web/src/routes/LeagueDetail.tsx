@@ -11,11 +11,11 @@ import {
 import { useAuth } from '../hooks';
 import {
   getLeagueBySlug,
-  getLeagueMembers,
   isLeagueMember,
   leaveLeague,
   regenerateInviteCode,
   subscribeToLeaderboard,
+  subscribeToLeagueMembers,
   type LeagueWithId,
   type UserWithId,
 } from '../services';
@@ -52,28 +52,39 @@ export const LeagueDetail = () => {
     void loadLeague();
   }, [slug, user]);
 
-  // Subscribe to leaderboard filtered by league members
+  // Subscribe to league members and leaderboard (real-time updates)
   React.useEffect(() => {
     if (!league) return;
 
-    let unsubscribe: (() => void) | null = null;
+    let memberIds: string[] = [];
+    let allUsers: UserWithId[] = [];
 
-    const setup = async () => {
-      const memberIds = await getLeagueMembers(league.id);
-
-      unsubscribe = subscribeToLeaderboard((allUsers) => {
-        // Filter to only league members
-        const leagueMembers = allUsers.filter((u) => memberIds.includes(u.id));
-        setMembers(leagueMembers);
-      });
+    const updateMembers = () => {
+      const leagueMembers = allUsers.filter((u) => memberIds.includes(u.id));
+      setMembers(leagueMembers);
+      // Update isMember status reactively
+      if (user) {
+        setIsMember(memberIds.includes(user.uid));
+      }
     };
 
-    void setup();
+    // Subscribe to league members
+    const unsubscribeMembers = subscribeToLeagueMembers(league.id, (ids) => {
+      memberIds = ids;
+      updateMembers();
+    });
+
+    // Subscribe to leaderboard
+    const unsubscribeLeaderboard = subscribeToLeaderboard((users) => {
+      allUsers = users;
+      updateMembers();
+    });
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      unsubscribeMembers();
+      unsubscribeLeaderboard();
     };
-  }, [league]);
+  }, [league, user]);
 
   const handleLeave = async () => {
     if (!league || !user || isOwner) return;

@@ -32,6 +32,7 @@ export {
   joinLeague,
   leaveLeague,
   regenerateInviteCode,
+  subscribeToLeagueMembers,
   subscribeToUserLeagues,
   updateLeague,
   uploadLeagueImage,

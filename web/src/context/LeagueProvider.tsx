@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../hooks';
-import { subscribeToUserLeagues, getLeagueMembers } from '../services';
+import { subscribeToUserLeagues, subscribeToLeagueMembers } from '../services';
 import { LeagueContext, type LeagueContextType } from './LeagueContext';
 
 export const LeagueProvider = ({ children }: { children: React.ReactNode }) => {
@@ -38,19 +38,18 @@ export const LeagueProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, [user, selectedLeague]);
 
-  // Load league members when league is selected
+  // Subscribe to league members when league is selected
   React.useEffect(() => {
     if (!selectedLeague) {
       setLeagueMemberIds([]);
       return;
     }
 
-    const loadMembers = async () => {
-      const members = await getLeagueMembers(selectedLeague.id);
+    const unsubscribe = subscribeToLeagueMembers(selectedLeague.id, (members) => {
       setLeagueMemberIds(members);
-    };
+    });
 
-    void loadMembers();
+    return () => unsubscribe();
   }, [selectedLeague]);
 
   return (

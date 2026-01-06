@@ -189,6 +189,24 @@ export const getLeagueMembers = async (leagueId: string): Promise<string[]> => {
 };
 
 /**
+ * Subscribe to league members (real-time updates)
+ */
+export const subscribeToLeagueMembers = (
+  leagueId: string,
+  callback: (memberIds: string[]) => void
+): Unsubscribe => {
+  const membersRef = ref(db, `leagueMembers/${leagueId}`);
+
+  return onValue(membersRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      callback([]);
+      return;
+    }
+    callback(Object.keys(snapshot.val() as Record<string, boolean>));
+  });
+};
+
+/**
  * Check if user is a member of a league
  */
 export const isLeagueMember = async (
