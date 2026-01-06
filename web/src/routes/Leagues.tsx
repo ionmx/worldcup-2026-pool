@@ -58,6 +58,7 @@ export const Leagues = () => {
       await joinLeague(league.id, user.uid);
       setInviteCode('');
       setShowJoin(false);
+      void navigate(`/league/${league.slug}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to join league');
     } finally {
@@ -134,15 +135,6 @@ export const Leagues = () => {
         {/* Leagues List */}
         {loading ? (
           <div className="text-center text-white/70 py-20">Loading...</div>
-        ) : leagues.length === 0 && user ? (
-          <Card className="p-6 text-center">
-            <p className="text-white/70 mb-4">
-              You haven't joined any leagues yet
-            </p>
-            <p className="text-white/50 text-sm">
-              Create your own league or join one with an invite code
-            </p>
-          </Card>
         ) : (
           <div className="space-y-3">
             {/* Global League */}
@@ -170,6 +162,19 @@ export const Leagues = () => {
                 </div>
               </Card>
             </button>
+
+            {/* No leagues message */}
+            {leagues.length === 0 && user && (
+              <Card className="p-6 text-center">
+                <p className="text-white/70 mb-4">
+                  You haven't joined any leagues yet
+                </p>
+                <p className="text-white/50 text-sm">
+                  Create your own league or join one with an invite code
+                </p>
+              </Card>
+            )}
+
             {/* User's Leagues */}
             {leagues.map((league) => (
               <button
