@@ -112,6 +112,7 @@ export const Leagues = () => {
               <div className="flex gap-3 mt-4">
                 <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => {
                     setShowJoin(false);
                     setError(null);
