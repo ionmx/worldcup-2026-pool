@@ -1,4 +1,4 @@
-import { AppLayout, Card, LeaderboardList } from '../components';
+import { AppLayout, LeaderboardList } from '../components';
 
 export const Leaderboard = () => {
   return (
