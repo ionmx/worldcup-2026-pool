@@ -91,14 +91,14 @@ export const JoinLeague = () => {
         if (alreadyMember) {
           // Already a member, just redirect
           setSelectedLeague(league);
-          navigate(`/league/${league.slug}`, { replace: true });
+          void navigate(`/league/${league.slug}`, { replace: true });
           return;
         }
 
         // Join the league
         await joinLeague(league.id, user.uid);
         setSelectedLeague(league);
-        navigate(`/league/${league.slug}`, { replace: true });
+        void navigate(`/league/${league.slug}`, { replace: true });
       } catch (err) {
         console.error('Error joining league:', err);
         setError('Failed to join league');
@@ -149,7 +149,9 @@ export const JoinLeague = () => {
             <p className="text-white/60 mb-6">
               This invite link may be invalid or expired.
             </p>
-            <Button onClick={() => navigate('/leagues')}>Go to Leagues</Button>
+            <Button onClick={() => void navigate('/leagues')}>
+              Go to Leagues
+            </Button>
           </Card>
         </div>
       </AppLayout>
