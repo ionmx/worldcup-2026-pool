@@ -86,7 +86,7 @@ export const Leagues = () => {
         </div>
 
         {!user && (
-          <Card className="p-6 text-center">
+          <Card className="mb-6 p-6 text-center">
             <p className="text-white/70">Sign in to create or join leagues</p>
           </Card>
         )}
@@ -151,7 +151,7 @@ export const Leagues = () => {
                 void setSelectedLeague(null);
                 void navigate('/');
               }}
-              className="w-full text-left"
+              className="w-full text-left hover:cursor-pointer"
             >
               <Card className="p-4 hover:bg-white/10 transition-colors">
                 <div className="flex items-center gap-4">
@@ -170,8 +170,7 @@ export const Leagues = () => {
                 </div>
               </Card>
             </button>
-
-            {/* User Leagues */}
+            {/* User's Leagues */}
             {leagues.map((league) => (
               <button
                 key={league.id}
@@ -179,7 +178,7 @@ export const Leagues = () => {
                   void setSelectedLeague(league);
                   void navigate(`/league/${league.slug}`);
                 }}
-                className="w-full text-left"
+                className="w-full text-left hover:cursor-pointer"
               >
                 <Card className="p-4 hover:bg-white/10 transition-colors">
                   <div className="flex items-center gap-4">
@@ -187,9 +186,10 @@ export const Leagues = () => {
                       src={league.imageURL}
                       name={league.name}
                       size="md"
+                      className="shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-white truncate">
+                      <h3 className="text-lg font-semibold text-white line-clamp-2">
                         {league.name}
                       </h3>
                       <p className="text-white/50 text-sm">
