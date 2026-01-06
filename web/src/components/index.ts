@@ -9,6 +9,7 @@ export { MatchCard } from './MatchCard';
 export { MatchesByDay } from './MatchesByDay';
 export { MatchesByGroup } from './MatchesByGroup';
 export { MatchesHeader } from './MatchesHeader';
+export { Podium } from './Podium';
 export { ProfilePicture } from './ProfilePicture';
 export { ProtectedRoute } from './ProtectedRoute';
 export { Sidebar } from './Sidebar';

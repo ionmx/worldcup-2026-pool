@@ -248,15 +248,9 @@ export const LeagueDetail = () => {
 
         {/* Leaderboard */}
         {members.length > 0 && (
-          <Card className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-medium">Leaderboard</h3>
-              <span className="text-white/50 text-sm">
-                {members.length} {members.length === 1 ? 'member' : 'members'}
-              </span>
-            </div>
+          <div className="mt-10">
             <LeaderboardList variant="full" users={members} />
-          </Card>
+          </div>
         )}
       </div>
     </AppLayout>
