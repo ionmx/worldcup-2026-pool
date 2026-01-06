@@ -4,7 +4,6 @@ export { Card } from './Card';
 export { Chip } from './Chip';
 export { LeaderboardList } from './LeaderboardList';
 export { LeaguePicture } from './LeaguePicture';
-export { LeagueSelector } from './LeagueSelector';
 export { LinkButton } from './LinkButton';
 export { MatchCard } from './MatchCard';
 export { MatchesByDay } from './MatchesByDay';

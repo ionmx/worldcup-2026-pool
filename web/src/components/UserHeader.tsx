@@ -10,15 +10,10 @@ import {
 
 type UserHeaderProps = {
   userId: string;
-  variant?: 'full' | 'compact';
   className?: string;
 };
 
-export const UserHeader = ({
-  userId,
-  variant = 'full',
-  className = '',
-}: UserHeaderProps) => {
+export const UserHeader = ({ userId, className = '' }: UserHeaderProps) => {
   const { selectedLeague, leagueMemberIds } = useLeague();
   const [user, setUser] = React.useState<UserData | null>(null);
   const [allUsers, setAllUsers] = React.useState<UserWithId[]>([]);
@@ -59,62 +54,39 @@ export const UserHeader = ({
 
   if (!user) return null;
 
-  const isCompact = variant === 'compact';
   const isInLeague = !selectedLeague || leagueMemberIds.includes(userId);
 
   return (
-    <div
-      className={`flex items-center ${isCompact ? 'gap-3' : 'gap-4'} ${className}`}
-    >
+    <div className={`flex items-center gap-4 ${className}`}>
       <ProfilePicture
         src={user.photoURL}
         name={user.displayName}
-        size={isCompact ? 'sm' : 'md'}
-        className={isCompact ? '' : 'border-2 border-white/20'}
+        size="md"
+        className="border-2 border-white/20"
       />
-      <div
-        className={`flex flex-col items-start text-left ${isCompact ? 'flex-1 min-w-0' : 'flex-1'}`}
-      >
-        {isCompact ? (
-          <span className="text-white font-medium text-sm truncate max-w-full pb-1">
-            {user.displayName}
-          </span>
-        ) : (
-          <h1 className="text-2xl font-bold text-white">{user.displayName}</h1>
-        )}
-        {isCompact ? (
-          <div className="flex items-center gap-1.5 text-white/50 text-xs">
-            <span>{user.score} pts</span>
-            {position !== null && (
-              <>
-                <span>·</span>
-                <span className={positionColor}>{positionText}</span>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 text-white/70 text-sm flex-wrap">
-            <span>@{user.userName}</span>
-            <span>·</span>
-            <span>{user.score} pts</span>
-            {position !== null && (
-              <>
-                <span>·</span>
-                <span className={positionColor}>{positionText}</span>
-                {selectedLeague && (
-                  <span className="text-white/40 text-xs">
-                    in {selectedLeague.name}
-                  </span>
-                )}
-              </>
-            )}
-            {selectedLeague && !isInLeague && (
-              <span className="text-white/40 text-xs italic">
-                (not in {selectedLeague.name})
-              </span>
-            )}
-          </div>
-        )}
+      <div className="flex flex-col items-start text-left flex-1">
+        <h1 className="text-2xl font-bold text-white">{user.displayName}</h1>
+        <div className="flex items-center gap-3 text-white/70 text-sm flex-wrap">
+          <span>@{user.userName}</span>
+          <span>·</span>
+          <span>{user.score} pts!!!</span>
+          {position !== null && (
+            <>
+              <span>·</span>
+              <span className={positionColor}>{positionText}</span>
+              {selectedLeague && (
+                <span className="text-white/40 text-xs">
+                  in {selectedLeague.name}
+                </span>
+              )}
+            </>
+          )}
+          {selectedLeague && !isInLeague && (
+            <span className="text-white/40 text-xs italic">
+              (not in {selectedLeague.name})
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
