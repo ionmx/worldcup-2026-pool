@@ -14,7 +14,7 @@ const PodiumItem = ({
 }) => (
   <Link
     to={`/${user.userName}`}
-    className="flex flex-col items-center group border-b border-b-black/40"
+    className="flex flex-col items-center group border-b border-b-black/20"
   >
     <div className="relative mb-2">
       <ProfilePicture
@@ -49,8 +49,8 @@ const PodiumItem = ({
             position === 1
               ? 'polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%)'
               : position === 2
-                ? 'polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%)'
-                : 'polygon(0% 0%, 90% 0%, 100% 100%, 0% 100%)',
+                ? 'polygon(15% 0%, 100% 0%, 100% 100%, 0% 100%)'
+                : 'polygon(0% 0%, 85% 0%, 100% 100%, 0% 100%)',
         }}
       />
       {/* Front face */}
@@ -86,7 +86,7 @@ export const Podium = ({ users }: { users: UserWithId[] }) => {
         <PodiumItem user={first} position={1} height="h-28" />
         <PodiumItem user={third} position={3} height="h-16" />
       </div>
-      <div className="w-102 mx-auto h-4 rounded-full bg-black/90 blur-xs backdrop-blur-sm -mt-3 z-0" />
+      <div className="w-99 sm:w-102 mx-auto h-4 rounded-full bg-black/30 sm:bg-black/50 blur-xs backdrop-blur-sm -mt-3 z-0" />
       {/* 3D floor beneath podium */}
       <div
         className="w-[98%] mx-auto h-10 bg-white/5 backdrop-blur-sm -mt-7 z-0"
