@@ -135,7 +135,7 @@ export const DevToolsPanel = () => {
             )}
 
             {/* Warning */}
-            <div className="text-xs text-yellow-500/70 mt-2">
+            <div className="text-xs text-yellow-500/70 mt-4 mb-2 text-center">
               ⚠️ Only visible in dev mode for admins
             </div>
           </div>
