@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { bgImage, worldcupLogo } from '../assets';
 import { useAuth, useLeague } from '../hooks';
+import { DevToolsPanel } from './DevToolsPanel';
 import { LeaguePicture } from './LeaguePicture';
 import { Sidebar } from './Sidebar';
 import { UserMenu } from './UserMenu';
@@ -120,6 +121,9 @@ export const AppLayout = ({ children, className = '' }: AppLayoutProps) => {
           </nav>
         </div>
       </div>
+
+      {/* Dev Tools (only in dev mode for admins) */}
+      <DevToolsPanel />
     </>
   );
 };

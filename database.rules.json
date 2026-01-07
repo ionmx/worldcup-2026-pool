@@ -6,12 +6,12 @@
       ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
     },
 
-    // Users - anyone can read, users can only write their own profile
+    // Users - anyone can read, users can write their own profile, admins can write any
     "users": {
       ".read": true,
       "$userId": {
-        ".write": "auth != null && auth.uid === $userId",
-        // Prevent users from making themselves admin
+        ".write": "auth != null && (auth.uid === $userId || root.child('users').child(auth.uid).child('admin').val() === true)",
+        // Prevent non-admins from setting admin flag
         "admin": {
           ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
         }
@@ -22,20 +22,23 @@
     "usernames": {
       ".read": true,
       "$normalizedUsername": {
-        // Can write if: claiming for yourself OR admin
-        ".write": "auth != null && (newData.val() === auth.uid || !data.exists() || data.val() === auth.uid)"
+        // Can write if: claiming for yourself OR releasing your own OR admin
+        ".write": "auth != null && (newData.val() === auth.uid || !data.exists() || data.val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)"
       }
     },
 
-    // Predictions - anyone can read, users can only write their own
+    // Predictions - anyone can read, users can only write their own (admins can write any)
     "predictions": {
       "$userId": {
         // Anyone can read predictions (to view other users' predictions)
         ".read": true,
+        // Admins can delete all predictions for a user (for mock data cleanup)
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true && !newData.exists()",
         "$gameId": {
           // Users can write their own predictions at least 10 mins before kickoff
+          // Admins can write any predictions (for mock data)
           // Match timestamp is in seconds, now is in milliseconds
-          ".write": "auth != null && auth.uid === $userId && (now < root.child('matches').child($gameId).child('timestamp').val() * 1000 - 600000)",
+          ".write": "auth != null && ((auth.uid === $userId && now < root.child('matches').child($gameId).child('timestamp').val() * 1000 - 600000) || root.child('users').child(auth.uid).child('admin').val() === true)",
           // Validate prediction structure
           ".validate": "newData.hasChildren(['homePrediction', 'awayPrediction', 'points', 'updatedAt'])",
           "homePrediction": {
