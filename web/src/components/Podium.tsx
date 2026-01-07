@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks';
 import { type UserWithId } from '../services';
 import { ProfilePicture } from './ProfilePicture';
 
@@ -7,16 +8,45 @@ const PodiumItem = ({
   user,
   position,
   height,
+  isCurrentUser,
 }: {
   user: UserWithId;
   position: number;
   height: string;
+  isCurrentUser: boolean;
 }) => (
   <Link
     to={`/${user.userName}`}
     className="flex flex-col items-center group border-b border-b-black/20"
   >
     <div className="relative mb-2">
+      {/* Pulsing ring for current user */}
+      {isCurrentUser && (
+        <div
+          className="absolute inset-0 -m-1.5 rounded-full border-3"
+          style={{
+            animation: 'ringPulse 2s ease-in-out infinite',
+            borderColor:
+              position === 1
+                ? 'rgba(250,204,21,1)'
+                : position === 2
+                  ? 'rgba(203,213,225,1)'
+                  : 'rgba(217,119,6,1)',
+            boxShadow:
+              position === 1
+                ? '0 0 12px rgba(250,204,21,0.6)'
+                : position === 2
+                  ? '0 0 12px rgba(203,213,225,0.6)'
+                  : '0 0 12px rgba(217,119,6,0.6)',
+          }}
+        />
+      )}
+      <style>{`
+        @keyframes ringPulse {
+          0%, 100% { opacity: 0.2; transform: scale(0.98); }
+          50% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
       {/* User info */}
       <ProfilePicture
         src={user.photoURL}
@@ -82,15 +112,32 @@ const PodiumItem = ({
 
 // Podium component for top 3
 export const Podium = ({ users }: { users: UserWithId[] }) => {
+  const { user: currentUser } = useAuth();
+
   if (users.length < 3) return null;
 
   const [first, second, third] = [users[0], users[1], users[2]];
   return (
     <div className="relative p-0!">
       <div className="relative z-10 flex items-end justify-center gap-0">
-        <PodiumItem user={second} position={2} height="h-18 sm:h-20" />
-        <PodiumItem user={first} position={1} height="h-24 sm:h-28" />
-        <PodiumItem user={third} position={3} height="h-12 sm:h-16" />
+        <PodiumItem
+          user={second}
+          position={2}
+          height="h-18 sm:h-20"
+          isCurrentUser={currentUser?.uid === second.id}
+        />
+        <PodiumItem
+          user={first}
+          position={1}
+          height="h-24 sm:h-28"
+          isCurrentUser={currentUser?.uid === first.id}
+        />
+        <PodiumItem
+          user={third}
+          position={3}
+          height="h-12 sm:h-16"
+          isCurrentUser={currentUser?.uid === third.id}
+        />
       </div>
 
       {/* 3D floor beneath podium */}

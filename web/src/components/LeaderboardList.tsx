@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useLeague } from '../hooks';
+import { useAuth, useLeague } from '../hooks';
 import { subscribeToLeaderboard, type UserWithId } from '../services';
 import { getPositionCompact } from '../utils';
 import { Card } from './Card';
@@ -18,6 +18,7 @@ export const LeaderboardList = ({
   variant = 'compact',
   users: externalUsers,
 }: LeaderboardProps) => {
+  const { user: currentUser } = useAuth();
   const { leagues, selectedLeague, setSelectedLeague, leagueMemberIds } =
     useLeague();
   const location = useLocation();
@@ -57,9 +58,27 @@ export const LeaderboardList = ({
 
   // Filter users by league if selected
   const users = React.useMemo(() => {
-    if (externalUsers) return externalUsers;
-    if (!selectedLeague || leagueMemberIds.length === 0) return allUsers;
-    return allUsers.filter((user) => leagueMemberIds.includes(user.id));
+    let baseUsers: UserWithId[];
+    if (externalUsers) {
+      baseUsers = externalUsers;
+    } else if (!selectedLeague || leagueMemberIds.length === 0) {
+      baseUsers = allUsers;
+    } else {
+      baseUsers = allUsers.filter((user) => leagueMemberIds.includes(user.id));
+    }
+
+    // Mock 100 extra users for UI testing
+    const mockUsers: UserWithId[] = Array.from({ length: 100 }, (_, i) => ({
+      id: `mock-${i}`,
+      email: `mock${i}@test.com`,
+      userName: `player${i + 1}`,
+      displayName: `Test Player ${i + 1}`,
+      photoURL: '',
+      score: Math.max(0, 500 - i * 5),
+      admin: false,
+    }));
+
+    return [...baseUsers, ...mockUsers];
   }, [externalUsers, selectedLeague, leagueMemberIds, allUsers]);
 
   const handleScroll = () => {
@@ -175,30 +194,37 @@ export const LeaderboardList = ({
             onScroll={handleScroll}
             className="flex flex-col overflow-y-auto h-full gap-1 px-2 pb-6"
           >
-            {users.map((user, index) => (
-              <Link
-                key={user.id}
-                to={`/${user.userName}`}
-                className="flex items-center gap-2 rounded-lg hover:bg-white/5 transition-colors px-2 py-1.5"
-              >
-                <span className="w-6 text-sm text-center">
-                  {getPositionCompact(index + 1)}
-                </span>
-                <ProfilePicture
-                  src={user.photoURL}
-                  name={user.displayName}
-                  size="xs"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-white truncate text-sm">
-                    {user.displayName}
+            {users.map((user, index) => {
+              const isCurrentUser = currentUser?.uid === user.id;
+              return (
+                <Link
+                  key={user.id}
+                  to={`/${user.userName}`}
+                  className={`flex items-center gap-2 rounded-lg transition-colors px-2 py-1.5 ${
+                    isCurrentUser
+                      ? 'border border-white/20 backdrop-blur-sm bg-white/10 hover:bg-white/15'
+                      : 'hover:bg-white/5'
+                  }`}
+                >
+                  <span className="w-6 text-sm text-center">
+                    {getPositionCompact(index + 1)}
+                  </span>
+                  <ProfilePicture
+                    src={user.photoURL}
+                    name={user.displayName}
+                    size="xs"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white truncate text-sm">
+                      {user.displayName}
+                    </div>
                   </div>
-                </div>
-                <span className="text-white/70 font-medium text-sm">
-                  {user.score}
-                </span>
-              </Link>
-            ))}
+                  <span className="text-white/70 font-medium text-sm">
+                    {user.score}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-black to-transparent pointer-events-none" />
         </div>
@@ -207,11 +233,16 @@ export const LeaderboardList = ({
           <div className="flex flex-col gap-1">
             {restUsers.map((user, index) => {
               const position = users.length >= 3 ? index + 4 : index + 1;
+              const isCurrentUser = currentUser?.uid === user.id;
               return (
                 <Link
                   key={user.id}
                   to={`/${user.userName}`}
-                  className="flex items-center gap-2 rounded-lg hover:bg-white/5 transition-colors px-3 py-3"
+                  className={`flex items-center gap-2 rounded-lg transition-colors px-3 py-3 ${
+                    isCurrentUser
+                      ? 'border border-white/20 backdrop-blur-sm bg-white/10 hover:bg-white/15'
+                      : 'hover:bg-white/5'
+                  }`}
                 >
                   <span className="w-12 text-center">
                     {getPositionCompact(position)}
