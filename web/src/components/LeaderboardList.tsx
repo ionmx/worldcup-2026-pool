@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLeague } from '../hooks';
 import { subscribeToLeaderboard, type UserWithId } from '../services';
 import { getPositionCompact } from '../utils';
@@ -20,6 +20,9 @@ export const LeaderboardList = ({
 }: LeaderboardProps) => {
   const { leagues, selectedLeague, setSelectedLeague, leagueMemberIds } =
     useLeague();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isOnLeaguePage = location.pathname.startsWith('/league/');
   const [allUsers, setAllUsers] = React.useState<UserWithId[]>([]);
   const [loading, setLoading] = React.useState(!externalUsers);
   const [showTopFade, setShowTopFade] = React.useState(false);
@@ -108,6 +111,9 @@ export const LeaderboardList = ({
                     onClick={() => {
                       setSelectedLeague(null);
                       setDropdownOpen(false);
+                      if (isOnLeaguePage) {
+                        void navigate('/leagues');
+                      }
                     }}
                     className={`w-full px-3 py-2 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2 ${!selectedLeague ? 'text-white bg-white/5' : 'text-white/70'}`}
                   >
@@ -126,6 +132,9 @@ export const LeaderboardList = ({
                       onClick={() => {
                         setSelectedLeague(league);
                         setDropdownOpen(false);
+                        if (isOnLeaguePage) {
+                          void navigate(`/league/${league.slug}`);
+                        }
                       }}
                       className={`w-full px-3 py-2 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2 ${selectedLeague?.id === league.id ? 'text-white bg-white/5' : 'text-white/70'}`}
                     >
