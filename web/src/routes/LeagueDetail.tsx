@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   AppLayout,
   Card,
@@ -24,12 +24,14 @@ export const LeagueDetail = () => {
   const { slug } = useParams();
   const { user } = useAuth();
   const { setSelectedLeague } = useLeague();
+  const navigate = useNavigate();
   const [league, setLeague] = React.useState<LeagueWithId | null>(null);
   const [members, setMembers] = React.useState<UserWithId[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [isMember, setIsMember] = React.useState(false);
   const [showInviteCode, setShowInviteCode] = React.useState(false);
   const [leaving, setLeaving] = React.useState(false);
+  const [accessChecked, setAccessChecked] = React.useState(false);
 
   const isOwner = user && league?.ownerId === user.uid;
 
@@ -39,12 +41,20 @@ export const LeagueDetail = () => {
 
     const loadLeague = async () => {
       setLoading(true);
+      setAccessChecked(false);
       const leagueData = await getLeagueBySlug(slug);
       setLeague(leagueData);
 
       if (leagueData && user) {
         const memberStatus = await isLeagueMember(leagueData.id, user.uid);
         setIsMember(memberStatus);
+        setAccessChecked(true);
+      } else if (leagueData && !user) {
+        // Not logged in - mark as checked (will redirect)
+        setAccessChecked(true);
+      } else {
+        // League not found - mark as checked
+        setAccessChecked(true);
       }
 
       setLoading(false);
@@ -52,6 +62,19 @@ export const LeagueDetail = () => {
 
     void loadLeague();
   }, [slug, user]);
+
+  // Redirect non-members to /leagues
+  React.useEffect(() => {
+    if (loading || !accessChecked) return;
+
+    // League not found is handled by the render below
+    if (!league) return;
+
+    // Not logged in or not a member - redirect
+    if (!user || !isMember) {
+      void navigate('/leagues', { replace: true });
+    }
+  }, [loading, accessChecked, league, user, isMember, navigate]);
 
   // Subscribe to league members and leaderboard (real-time updates)
   React.useEffect(() => {
@@ -125,11 +148,22 @@ export const LeagueDetail = () => {
     void navigator.clipboard.writeText(getShareableLink());
   };
 
-  if (loading) {
+  if (loading || !accessChecked) {
     return (
       <AppLayout>
         <div className="pt-8 px-4 pb-8 max-w-2xl mx-auto">
           <div className="text-center text-white/70 py-20">Loading...</div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Don't render if redirecting (not logged in or not a member)
+  if (!user || !isMember) {
+    return (
+      <AppLayout>
+        <div className="pt-8 px-4 pb-8 max-w-2xl mx-auto">
+          <div className="text-center text-white/70 py-20">Redirecting...</div>
         </div>
       </AppLayout>
     );
