@@ -1,12 +1,12 @@
 import React from 'react';
-import { ProfilePicture } from './ProfilePicture';
-import { getMedalOrPosition, getPositionColor } from '../utils';
-import { useLeague } from '../hooks';
+import { ProfilePicture } from '../ui/ProfilePicture';
+import { getMedalOrPosition, getPositionColor } from '../../utils';
+import { useLeague } from '../../hooks';
 import {
   subscribeToLeaderboard,
   type UserData,
   type UserWithId,
-} from '../services';
+} from '../../services';
 
 type UserHeaderProps = {
   userId: string;

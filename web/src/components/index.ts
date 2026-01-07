@@ -1,19 +1,27 @@
-export { AppLayout } from './AppLayout';
-export { Button } from './Button';
-export { Card } from './Card';
-export { Chip } from './Chip';
-export { ConfirmDialog, useConfirm } from './ConfirmDialog';
-export { DevToolsPanel } from './DevToolsPanel';
-export { LeaderboardList } from './LeaderboardList';
-export { LeaguePicture } from './LeaguePicture';
-export { LinkButton } from './LinkButton';
-export { MatchCard } from './MatchCard';
-export { MatchesByDay } from './MatchesByDay';
-export { MatchesByGroup } from './MatchesByGroup';
-export { MatchesHeader } from './MatchesHeader';
-export { Podium } from './Podium';
-export { ProfilePicture } from './ProfilePicture';
-export { ProtectedRoute } from './ProtectedRoute';
-export { Sidebar } from './Sidebar';
-export { UserHeader } from './UserHeader';
-export { UserMenu } from './UserMenu';
+// UI components (generic, reusable)
+export {
+  Button,
+  Card,
+  Chip,
+  ConfirmDialog,
+  useConfirm,
+  LinkButton,
+  ProfilePicture,
+} from './ui';
+
+// Feature components (domain-specific)
+export {
+  AppLayout,
+  DevToolsPanel,
+  LeaderboardList,
+  LeaguePicture,
+  MatchCard,
+  MatchesByDay,
+  MatchesByGroup,
+  MatchesHeader,
+  Podium,
+  ProtectedRoute,
+  Sidebar,
+  UserHeader,
+  UserMenu,
+} from './features';

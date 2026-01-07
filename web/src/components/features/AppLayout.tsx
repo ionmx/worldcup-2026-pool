@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { bgImage, worldcupLogo } from '../assets';
-import { useAuth, useLeague } from '../hooks';
+import { bgImage, worldcupLogo } from '../../assets';
+import { useAuth, useLeague } from '../../hooks';
 import { DevToolsPanel } from './DevToolsPanel';
 import { LeaguePicture } from './LeaguePicture';
 import { Sidebar } from './Sidebar';

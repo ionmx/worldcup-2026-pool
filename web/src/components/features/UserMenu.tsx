@@ -2,14 +2,13 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
-import { auth, googleProvider } from '../firebase';
-import { sidebarMenuBg } from '../assets';
-import { useAuth } from '../hooks/useAuth';
-import { useLeague } from '../hooks/useLeague';
-import { subscribeToLeaderboard, type UserWithId } from '../services';
-import { getPositionCompact } from '../utils';
-import { Button } from './Button';
-import { ProfilePicture } from './ProfilePicture';
+import { auth, googleProvider } from '../../firebase';
+import { sidebarMenuBg } from '../../assets';
+import { useAuth } from '../../hooks/useAuth';
+import { useLeague } from '../../hooks/useLeague';
+import { subscribeToLeaderboard, type UserWithId } from '../../services';
+import { getPositionCompact } from '../../utils';
+import { Button, ProfilePicture } from '../ui';
 
 const menuItemClass =
   'w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-2 rounded-lg text-sm';

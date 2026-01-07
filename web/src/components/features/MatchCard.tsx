@@ -1,17 +1,17 @@
 import React from 'react';
-import { type Match, type Prediction, savePrediction } from '../services';
-import { Card } from './Card';
+import { type Match, type Prediction, savePrediction } from '../../services';
+import { Card } from '../ui/Card';
 
 // Import all flags dynamically
 const flagModules: Record<string, string> = import.meta.glob(
-  '../assets/flags/*.png',
+  '../../assets/flags/*.png',
   { eager: true, import: 'default' }
 );
 
 const getFlag = (code: string): string => {
   return (
-    flagModules[`../assets/flags/${code}.png`] ??
-    flagModules['../assets/flags/UNKNOWN.png']
+    flagModules[`../../assets/flags/${code}.png`] ??
+    flagModules['../../assets/flags/UNKNOWN.png']
   );
 };
 

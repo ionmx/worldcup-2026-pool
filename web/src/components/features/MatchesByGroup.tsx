@@ -2,7 +2,7 @@ import {
   type Match,
   type MatchesData,
   type UserPredictions,
-} from '../services';
+} from '../../services';
 import { MatchCard } from './MatchCard';
 
 type MatchesByGroupProps = {

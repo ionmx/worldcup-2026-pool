@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks';
-import { type UserWithId } from '../services';
-import { ProfilePicture } from './ProfilePicture';
+import { useAuth } from '../../hooks';
+import { type UserWithId } from '../../services';
+import { ProfilePicture } from '../ui/ProfilePicture';
 
 // Podium item component
 const PodiumItem = ({

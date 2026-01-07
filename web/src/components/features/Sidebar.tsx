@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { worldcupLogo, sidebarMenuBg } from '../assets';
-import { useLeague } from '../hooks';
-import { Card } from './Card';
+import { worldcupLogo, sidebarMenuBg } from '../../assets';
+import { useLeague } from '../../hooks';
+import { Card } from '../ui/Card';
 import { LeaderboardList } from './LeaderboardList';
 import { LeaguePicture } from './LeaguePicture';
 import { UserMenu } from './UserMenu';

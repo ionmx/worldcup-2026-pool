@@ -1,4 +1,4 @@
-import { Chip } from './Chip';
+import { Chip } from '../ui/Chip';
 
 type ViewMode = 'day' | 'group';
 

@@ -1,11 +1,11 @@
 import React from 'react';
-import { useAuth } from '../hooks';
+import { useAuth } from '../../hooks';
 import {
   generateMockUsers,
   clearMockUsers,
   getMockUserCount,
-} from '../services/devService';
-import { Button } from './Button';
+} from '../../services/devService';
+import { Button } from '../ui/Button';
 
 export const DevToolsPanel = () => {
   const { userData } = useAuth();

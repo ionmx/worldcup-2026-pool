@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth, useLeague } from '../hooks';
-import { subscribeToLeaderboard, type UserWithId } from '../services';
-import { getPositionCompact } from '../utils';
-import { Card } from './Card';
+import { useAuth, useLeague } from '../../hooks';
+import { subscribeToLeaderboard, type UserWithId } from '../../services';
+import { getPositionCompact } from '../../utils';
+import { Card, ProfilePicture } from '../ui';
 import { LeaguePicture } from './LeaguePicture';
 import { Podium } from './Podium';
-import { ProfilePicture } from './ProfilePicture';
 import appIcon from '/app-icon.png';
 
 type LeaderboardProps = {
