@@ -2,6 +2,15 @@
 
 A betting pool web application for the FIFA World Cup 2026. Built with React, TypeScript, and Firebase.
 
+## Features
+
+- 🔐 Google authentication
+- ⚽ Match predictions with real-time scoring
+- 🏆 Global and private league leaderboards
+- 👥 Create and join private leagues with invite links
+- 📱 PWA support (installable on mobile)
+- 🎯 Points system: exact score (5pts), goal difference (3pts), correct outcome (1pt)
+
 ## Tech Stack
 
 - **Frontend:** React 19, TypeScript, Vite, Tailwind CSS v4
@@ -14,16 +23,19 @@ A betting pool web application for the FIFA World Cup 2026. Built with React, Ty
 worldcup-2026-pool/
 ├── web/                    # React frontend application
 │   ├── src/
-│   │   ├── assets/         # Images and static assets
-│   │   ├── components/     # Reusable UI components
-│   │   ├── context/        # React context providers
+│   │   ├── assets/         # Images, flags, and static assets
+│   │   ├── components/
+│   │   │   ├── ui/         # Generic reusable components (Button, Card, etc.)
+│   │   │   └── features/   # Domain-specific components (Podium, MatchCard, etc.)
+│   │   ├── context/        # React context providers (Auth, League, Match)
 │   │   ├── hooks/          # Custom React hooks
 │   │   ├── routes/         # Page components
-│   │   └── services/       # API and business logic
+│   │   ├── services/       # Firebase services and API logic
+│   │   └── utils/          # Helper functions
 │   └── ...
 ├── functions/              # Firebase Cloud Functions
 │   └── src/
-│       └── index.ts
+│       └── index.ts        # Score calculation, match updates
 └── utils/                  # Utility scripts
 ```
 
