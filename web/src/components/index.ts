@@ -2,6 +2,7 @@ export { AppLayout } from './AppLayout';
 export { Button } from './Button';
 export { Card } from './Card';
 export { Chip } from './Chip';
+export { ConfirmDialog, useConfirm } from './ConfirmDialog';
 export { LeaderboardList } from './LeaderboardList';
 export { LeaguePicture } from './LeaguePicture';
 export { LinkButton } from './LinkButton';

@@ -7,6 +7,7 @@ import {
   LinkButton,
   LeaderboardList,
   LeaguePicture,
+  useConfirm,
 } from '../components';
 import { useAuth, useLeague } from '../hooks';
 import {
@@ -25,6 +26,7 @@ export const LeagueDetail = () => {
   const { user } = useAuth();
   const { setSelectedLeague } = useLeague();
   const navigate = useNavigate();
+  const { showConfirm, ConfirmDialogComponent } = useConfirm();
   const [league, setLeague] = React.useState<LeagueWithId | null>(null);
   const [members, setMembers] = React.useState<UserWithId[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -113,7 +115,13 @@ export const LeagueDetail = () => {
   const handleLeave = async () => {
     if (!league || !user || isOwner) return;
 
-    if (!confirm('Are you sure you want to leave this league?')) return;
+    const confirmed = await showConfirm({
+      title: 'Leave League',
+      message: 'Are you sure you want to leave this league?',
+      confirmText: 'Leave',
+    });
+
+    if (!confirmed) return;
 
     setLeaving(true);
     try {
@@ -129,7 +137,14 @@ export const LeagueDetail = () => {
   const handleRegenerateCode = async () => {
     if (!league || !isOwner) return;
 
-    if (!confirm('This will invalidate the old invite code. Continue?')) return;
+    const confirmed = await showConfirm({
+      title: 'Regenerate Invite Code',
+      message:
+        "This will invalidate the old invite code. Anyone with the old link won't be able to join.",
+      confirmText: 'Regenerate',
+    });
+
+    if (!confirmed) return;
 
     try {
       const newCode = await regenerateInviteCode(league.id);
@@ -188,6 +203,7 @@ export const LeagueDetail = () => {
 
   return (
     <AppLayout>
+      {ConfirmDialogComponent}
       <div className="pt-8 px-4 pb-8 max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-6">
