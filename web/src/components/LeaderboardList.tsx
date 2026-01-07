@@ -14,6 +14,54 @@ type LeaderboardProps = {
   users?: UserWithId[];
 };
 
+const UserRow = ({
+  user,
+  position,
+  isCurrentUser,
+  compact,
+}: {
+  user: UserWithId;
+  position: number;
+  isCurrentUser: boolean;
+  compact: boolean;
+}) => (
+  <Link
+    to={`/${user.userName}`}
+    className={`flex items-center gap-2 rounded-lg transition-colors ${
+      compact ? 'px-2 py-1.5' : 'px-3 py-3'
+    } ${
+      isCurrentUser
+        ? 'border border-white/20 backdrop-blur-lg bg-white/10 hover:bg-white/15'
+        : 'hover:bg-white/5'
+    }`}
+  >
+    <span className={compact ? 'w-6 text-sm text-center' : 'w-12 text-center'}>
+      {getPositionCompact(position)}
+    </span>
+    <ProfilePicture
+      src={user.photoURL}
+      name={user.displayName}
+      size={compact ? 'xs' : 'sm'}
+    />
+    <div className="flex-1 min-w-0">
+      <div
+        className={`text-white truncate ${compact ? 'text-sm' : 'font-medium'}`}
+      >
+        {user.displayName}
+      </div>
+      {!compact && (
+        <div className="text-white/50 text-sm">@{user.userName}</div>
+      )}
+    </div>
+    <span
+      className={`text-white/70 font-medium ${compact ? 'text-sm' : 'text-lg'}`}
+    >
+      {user.score}
+      {!compact && <span className="text-sm font-normal"> pts</span>}
+    </span>
+  </Link>
+);
+
 export const LeaderboardList = ({
   variant = 'compact',
   users: externalUsers,
@@ -58,27 +106,9 @@ export const LeaderboardList = ({
 
   // Filter users by league if selected
   const users = React.useMemo(() => {
-    let baseUsers: UserWithId[];
-    if (externalUsers) {
-      baseUsers = externalUsers;
-    } else if (!selectedLeague || leagueMemberIds.length === 0) {
-      baseUsers = allUsers;
-    } else {
-      baseUsers = allUsers.filter((user) => leagueMemberIds.includes(user.id));
-    }
-
-    // Mock 100 extra users for UI testing
-    const mockUsers: UserWithId[] = Array.from({ length: 100 }, (_, i) => ({
-      id: `mock-${i}`,
-      email: `mock${i}@test.com`,
-      userName: `player${i + 1}`,
-      displayName: `Test Player ${i + 1}`,
-      photoURL: '',
-      score: Math.max(0, 500 - i * 5),
-      admin: false,
-    }));
-
-    return [...baseUsers, ...mockUsers];
+    if (externalUsers) return externalUsers;
+    if (!selectedLeague || leagueMemberIds.length === 0) return allUsers;
+    return allUsers.filter((user) => leagueMemberIds.includes(user.id));
   }, [externalUsers, selectedLeague, leagueMemberIds, allUsers]);
 
   const handleScroll = () => {
@@ -192,81 +222,32 @@ export const LeaderboardList = ({
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="flex flex-col overflow-y-auto h-full gap-1 px-2 pb-6"
+            className="flex flex-col overflow-y-auto h-full gap-y-2 px-2 pb-6"
           >
-            {users.map((user, index) => {
-              const isCurrentUser = currentUser?.uid === user.id;
-              return (
-                <Link
-                  key={user.id}
-                  to={`/${user.userName}`}
-                  className={`flex items-center gap-2 rounded-lg transition-colors px-2 py-1.5 ${
-                    isCurrentUser
-                      ? 'border border-white/20 backdrop-blur-sm bg-white/10 hover:bg-white/15'
-                      : 'hover:bg-white/5'
-                  }`}
-                >
-                  <span className="w-6 text-sm text-center">
-                    {getPositionCompact(index + 1)}
-                  </span>
-                  <ProfilePicture
-                    src={user.photoURL}
-                    name={user.displayName}
-                    size="xs"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white truncate text-sm">
-                      {user.displayName}
-                    </div>
-                  </div>
-                  <span className="text-white/70 font-medium text-sm">
-                    {user.score}
-                  </span>
-                </Link>
-              );
-            })}
+            {users.map((user, index) => (
+              <UserRow
+                key={user.id}
+                user={user}
+                position={index + 1}
+                isCurrentUser={currentUser?.uid === user.id}
+                compact
+              />
+            ))}
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-black to-transparent pointer-events-none" />
         </div>
       ) : (
         <Card className="p-4">
           <div className="flex flex-col gap-1">
-            {restUsers.map((user, index) => {
-              const position = users.length >= 3 ? index + 4 : index + 1;
-              const isCurrentUser = currentUser?.uid === user.id;
-              return (
-                <Link
-                  key={user.id}
-                  to={`/${user.userName}`}
-                  className={`flex items-center gap-2 rounded-lg transition-colors px-3 py-3 ${
-                    isCurrentUser
-                      ? 'border border-white/20 backdrop-blur-sm bg-white/10 hover:bg-white/15'
-                      : 'hover:bg-white/5'
-                  }`}
-                >
-                  <span className="w-12 text-center">
-                    {getPositionCompact(position)}
-                  </span>
-                  <ProfilePicture
-                    src={user.photoURL}
-                    name={user.displayName}
-                    size="sm"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white truncate font-medium">
-                      {user.displayName}
-                    </div>
-                    <div className="text-white/50 text-sm">
-                      @{user.userName}
-                    </div>
-                  </div>
-                  <span className="text-white/70 font-medium text-lg">
-                    {user.score}
-                    <span className="text-sm font-normal"> pts</span>
-                  </span>
-                </Link>
-              );
-            })}
+            {restUsers.map((user, index) => (
+              <UserRow
+                key={user.id}
+                user={user}
+                position={users.length >= 3 ? index + 4 : index + 1}
+                isCurrentUser={currentUser?.uid === user.id}
+                compact={false}
+              />
+            ))}
           </div>
         </Card>
       )}
