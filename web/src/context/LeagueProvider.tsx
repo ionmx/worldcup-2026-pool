@@ -1,6 +1,9 @@
 import React from 'react';
+import { onValue, ref } from 'firebase/database';
+import { db } from '../firebase';
 import { useAuth } from '../hooks';
 import { subscribeToUserLeagues, subscribeToLeagueMembers } from '../services';
+import type { League } from '../services';
 import { LeagueContext, type LeagueContextType } from './LeagueContext';
 import {
   getPendingSelectedLeague,
@@ -90,35 +93,79 @@ export const LeagueProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
 
-      // If selected league no longer exists, reset to global
+      // Update selected league if it was modified, or reset if deleted
       setSelectedLeagueState((current) => {
-        if (current && !userLeagues.find((l) => l.id === current.id)) {
+        if (!current) return current;
+
+        const updatedLeague = userLeagues.find((l) => l.id === current.id);
+        if (!updatedLeague) {
+          // League was deleted, reset to global
           setPreferredLeagueId(null);
           return null;
         }
-        return current;
+
+        // Return updated league data (handles name/slug changes)
+        return updatedLeague;
       });
     });
 
     return () => unsubscribe();
   }, [user, setSelectedLeague]);
 
+  // Store the selected league ID for subscriptions (avoids re-subscribing on name changes)
+  const selectedLeagueId = selectedLeague?.id ?? null;
+
   // Subscribe to league members when league is selected
   React.useEffect(() => {
-    if (!selectedLeague) {
+    if (!selectedLeagueId) {
       setLeagueMemberIds([]);
       return;
     }
 
     const unsubscribe = subscribeToLeagueMembers(
-      selectedLeague.id,
+      selectedLeagueId,
       (members) => {
         setLeagueMemberIds(members);
       }
     );
 
     return () => unsubscribe();
-  }, [selectedLeague]);
+  }, [selectedLeagueId]);
+
+  // Subscribe to selected league's data for real-time updates (name, image, etc.)
+  React.useEffect(() => {
+    if (!selectedLeagueId) return;
+
+    const leagueRef = ref(db, `leagues/${selectedLeagueId}`);
+    const unsubscribe = onValue(leagueRef, (snapshot) => {
+      if (!snapshot.exists()) {
+        // League was deleted
+        setSelectedLeagueState(null);
+        setPreferredLeagueId(null);
+        return;
+      }
+
+      const leagueData = snapshot.val() as League;
+
+      // Update selectedLeague with fresh data
+      setSelectedLeagueState((current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          ...leagueData,
+        };
+      });
+
+      // Also update the leagues array to keep dropdown in sync
+      setLeagues((currentLeagues) =>
+        currentLeagues.map((league) =>
+          league.id === selectedLeagueId ? { ...league, ...leagueData } : league
+        )
+      );
+    });
+
+    return () => unsubscribe();
+  }, [selectedLeagueId]);
 
   return (
     <LeagueContext
