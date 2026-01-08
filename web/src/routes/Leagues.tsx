@@ -143,7 +143,7 @@ export const Leagues = () => {
             <button
               onClick={() => {
                 void setSelectedLeague(null);
-                void navigate('/');
+                void navigate('/leaderboard');
               }}
               className="w-full text-left hover:cursor-pointer"
             >
