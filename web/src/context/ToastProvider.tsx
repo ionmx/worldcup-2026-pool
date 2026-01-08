@@ -44,7 +44,7 @@ const ToastItem = ({
     <div
       className={`
         flex items-center justify-center gap-2 px-4 py-3 rounded-lg
-        border bg-black/10 backdrop-blur-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)]
+        border bg-black/50 backdrop-blur-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)]
         transform transition-all duration-300 ease-out
         w-full sm:w-auto text-white
         ${variantBorders[toast.variant]}

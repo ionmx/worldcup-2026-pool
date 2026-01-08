@@ -26,15 +26,13 @@ const UserRow = ({
 }) => (
   <Link
     to={`/${user.userName}`}
-    className={`flex items-center gap-2 rounded-lg transition-colors ${
-      compact ? 'px-2 py-1.5' : 'px-3 py-3'
-    } ${
+    className={`flex items-center gap-2 rounded-lg transition-colors px-2 py-1.5 ${
       isCurrentUser
         ? 'border border-white/20 backdrop-blur-lg bg-white/10 hover:bg-white/15'
         : 'hover:bg-white/5'
     }`}
   >
-    <span className={compact ? 'w-6 text-sm text-center' : 'w-12 text-center'}>
+    <span className={`text-center ${compact ? 'w-6 text-sm' : 'w-12 text-lg'}`}>
       {getPositionCompact(position)}
     </span>
     <ProfilePicture
