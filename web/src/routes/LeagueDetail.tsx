@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   AppLayout,
   Card,
@@ -294,23 +295,36 @@ export const LeagueDetail = () => {
               </Button>
             </div>
             {showInviteCode && (
-              <div className="mt-4 space-y-3">
-                {/* Shareable Link */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <div className="overflow-hidden bg-white/10 px-4 py-3 rounded-lg sm:flex-1 sm:min-w-0">
-                    <code className="text-sm font-mono text-white/70 block">
-                      {getShareableLink()}
-                    </code>
+              <div className="mt-4 space-y-4">
+                {/* QR Code and Link */}
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  {/* QR Code */}
+                  <div className="bg-white p-3 rounded-xl shrink-0">
+                    <QRCodeSVG
+                      value={getShareableLink()}
+                      size={120}
+                      bgColor="white"
+                      fgColor="black"
+                      level="M"
+                    />
                   </div>
-                  <Button
-                    onClick={copyShareableLink}
-                    className="text-sm w-full sm:w-auto shrink-0"
-                  >
-                    Copy Link
-                  </Button>
+                  {/* Link and Copy */}
+                  <div className="flex-1 w-full space-y-2">
+                    <div className="overflow-hidden bg-white/10 px-4 py-3 rounded-lg">
+                      <code className="text-sm font-mono text-white/70 block truncate">
+                        {getShareableLink()}
+                      </code>
+                    </div>
+                    <Button
+                      onClick={copyShareableLink}
+                      className="text-sm w-full"
+                    >
+                      Copy Link
+                    </Button>
+                  </div>
                 </div>
                 {/* Invite Code */}
-                <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                <div className="flex items-center justify-between pt-3 border-t border-white/10">
                   <span className="text-white/50 text-sm">
                     Code:{' '}
                     <span className="font-mono text-white">
