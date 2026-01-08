@@ -23,7 +23,7 @@ import {
 
 export const LeagueDetail = () => {
   const { slug } = useParams();
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
   const { setSelectedLeague } = useLeague();
   const navigate = useNavigate();
   const { showConfirm, ConfirmDialogComponent } = useConfirm();
@@ -37,6 +37,8 @@ export const LeagueDetail = () => {
   const [accessChecked, setAccessChecked] = React.useState(false);
 
   const isOwner = user && league?.ownerId === user.uid;
+  const isAdmin = userData?.admin === true;
+  const canManageMembers = isOwner || isAdmin;
 
   // Load league data
   React.useEffect(() => {
@@ -152,6 +154,32 @@ export const LeagueDetail = () => {
       setLeague({ ...league, inviteCode: newCode });
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleRemoveMember = async (userId: string, displayName: string) => {
+    if (!league || !canManageMembers) return;
+
+    // Don't allow removing the owner
+    if (userId === league.ownerId) {
+      showToast("Can't remove the league owner", 'error');
+      return;
+    }
+
+    const confirmed = await showConfirm({
+      title: 'Remove Member',
+      message: `Are you sure you want to remove ${displayName} from this league?`,
+      confirmText: 'Remove',
+    });
+
+    if (!confirmed) return;
+
+    try {
+      await leaveLeague(league.id, userId);
+      showToast(`${displayName} has been removed from the league`);
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to remove member', 'error');
     }
   };
 
@@ -306,7 +334,16 @@ export const LeagueDetail = () => {
         {/* Leaderboard */}
         {members.length > 0 && (
           <div className="mt-10">
-            <LeaderboardList variant="full" users={members} />
+            <LeaderboardList
+              variant="full"
+              users={members}
+              onRemoveMember={
+                canManageMembers
+                  ? (userId, displayName) =>
+                      void handleRemoveMember(userId, displayName)
+                  : undefined
+              }
+            />
           </div>
         )}
       </div>

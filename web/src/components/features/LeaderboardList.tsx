@@ -11,6 +11,7 @@ import appIcon from '/app-icon.png';
 type LeaderboardProps = {
   variant?: 'compact' | 'full';
   users?: UserWithId[];
+  onRemoveMember?: (userId: string, displayName: string) => void;
 };
 
 const UserRow = ({
@@ -18,50 +19,68 @@ const UserRow = ({
   position,
   isCurrentUser,
   compact,
+  onRemove,
 }: {
   user: UserWithId;
   position: number;
   isCurrentUser: boolean;
   compact: boolean;
+  onRemove?: () => void;
 }) => (
-  <Link
-    to={`/${user.userName}`}
+  <div
     className={`flex items-center gap-2 rounded-lg transition-colors px-2 py-1.5 ${
       isCurrentUser
         ? 'border border-white/20 backdrop-blur-lg bg-white/10 hover:bg-white/15'
         : 'hover:bg-white/5'
     }`}
   >
-    <span className={`text-center ${compact ? 'w-6 text-sm' : 'w-12 text-lg'}`}>
-      {getPositionCompact(position)}
-    </span>
-    <ProfilePicture
-      src={user.photoURL}
-      name={user.displayName}
-      size={compact ? 'xs' : 'sm'}
-    />
-    <div className="flex-1 min-w-0">
-      <div
-        className={`text-white truncate ${compact ? 'text-sm' : 'font-medium'}`}
-      >
-        {user.displayName}
-      </div>
-      {!compact && (
-        <div className="text-white/50 text-sm">@{user.userName}</div>
-      )}
-    </div>
-    <span
-      className={`text-white/70 font-medium ${compact ? 'text-sm' : 'text-lg'}`}
+    <Link
+      to={`/${user.userName}`}
+      className="flex items-center gap-2 flex-1 min-w-0"
     >
-      {user.score}
-      {!compact && <span className="text-sm font-normal"> pts</span>}
-    </span>
-  </Link>
+      <span
+        className={`text-center ${compact ? 'w-6 text-sm' : 'w-12 text-lg'}`}
+      >
+        {getPositionCompact(position)}
+      </span>
+      <ProfilePicture
+        src={user.photoURL}
+        name={user.displayName}
+        size={compact ? 'xs' : 'sm'}
+      />
+      <div className="flex-1 min-w-0">
+        <div
+          className={`text-white truncate ${compact ? 'text-sm' : 'font-medium'}`}
+        >
+          {user.displayName}
+        </div>
+        {!compact && (
+          <div className="text-white/50 text-sm">@{user.userName}</div>
+        )}
+      </div>
+      <span
+        className={`text-white/70 font-medium ${compact ? 'text-sm' : 'text-lg'}`}
+      >
+        {user.score}
+        {!compact && <span className="text-sm font-normal"> pts</span>}
+      </span>
+    </Link>
+    {onRemove && (
+      <button
+        onClick={onRemove}
+        className="p-1.5 text-white/30 rounded hover:cursor-pointer hover:text-white/80"
+        title="Remove from league"
+      >
+        ✕
+      </button>
+    )}
+  </div>
 );
 
 export const LeaderboardList = ({
   variant = 'compact',
   users: externalUsers,
+  onRemoveMember,
 }: LeaderboardProps) => {
   const { user: currentUser } = useAuth();
   const { leagues, selectedLeague, setSelectedLeague, leagueMemberIds } =
@@ -228,6 +247,11 @@ export const LeaderboardList = ({
                 position={index + 1}
                 isCurrentUser={currentUser?.uid === user.id}
                 compact
+                onRemove={
+                  onRemoveMember
+                    ? () => onRemoveMember(user.id, user.displayName)
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -243,6 +267,11 @@ export const LeaderboardList = ({
                 position={users.length >= 3 ? index + 4 : index + 1}
                 isCurrentUser={currentUser?.uid === user.id}
                 compact={false}
+                onRemove={
+                  onRemoveMember
+                    ? () => onRemoveMember(user.id, user.displayName)
+                    : undefined
+                }
               />
             ))}
           </div>

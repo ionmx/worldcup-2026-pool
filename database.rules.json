@@ -80,8 +80,8 @@
       ".read": true,
       "$leagueId": {
         "$userId": {
-          // Users can add/remove themselves
-          ".write": "auth != null && auth.uid === $userId"
+          // Users can add/remove themselves, league owner can remove members, admin can remove anyone
+          ".write": "auth != null && (auth.uid === $userId || root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)"
         }
       }
     },
@@ -91,7 +91,8 @@
       "$userId": {
         ".read": "auth != null && auth.uid === $userId",
         "$leagueId": {
-          ".write": "auth != null && auth.uid === $userId"
+          // Users can add/remove themselves, league owner can remove members, admin can remove anyone
+          ".write": "auth != null && (auth.uid === $userId || root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)"
         }
       }
     },
