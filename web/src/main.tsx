@@ -2,8 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
-import { ProtectedRoute, ToastProvider } from './components';
-import { AuthProvider, MatchProvider, LeagueProvider } from './context';
+import { ProtectedRoute } from './components';
+import { AuthProvider, MatchProvider, LeagueProvider, ToastProvider } from './context';
 import {
   About,
   EditLeague,

@@ -8,9 +8,8 @@ import {
   LeaderboardList,
   LeaguePicture,
   useConfirm,
-  useToast,
 } from '../components';
-import { useAuth, useLeague } from '../hooks';
+import { useAuth, useLeague, useToast } from '../hooks';
 import {
   getLeagueBySlug,
   isLeagueMember,

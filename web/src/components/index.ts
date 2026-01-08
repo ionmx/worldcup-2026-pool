@@ -7,8 +7,6 @@ export {
   useConfirm,
   LinkButton,
   ProfilePicture,
-  ToastProvider,
-  useToast,
 } from './ui';
 
 // Feature components (domain-specific)

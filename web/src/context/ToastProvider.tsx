@@ -1,34 +1,13 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-
-type ToastVariant = 'success' | 'error' | 'info';
-
-interface Toast {
-  id: string;
-  message: string;
-  variant: ToastVariant;
-}
-
-interface ToastContextValue {
-  showToast: (message: string, variant?: ToastVariant) => void;
-}
-
-const ToastContext = React.createContext<ToastContextValue | null>(null);
-
-export const useToast = () => {
-  const context = React.useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
-};
+import { ToastContext, type Toast, type ToastVariant } from './ToastContext';
 
 const TOAST_DURATION = 3000;
 
-const variantStyles: Record<ToastVariant, string> = {
-  success: 'bg-emerald-500/90 text-white',
-  error: 'bg-red-500/90 text-white',
-  info: 'bg-white/90 text-gray-900',
+const variantBorders: Record<ToastVariant, string> = {
+  success: 'border-emerald-500/70',
+  error: 'border-red-500/70',
+  info: 'border-white/30',
 };
 
 const variantIcons: Record<ToastVariant, string> = {
@@ -64,10 +43,11 @@ const ToastItem = ({
   return (
     <div
       className={`
-        flex items-center justify-center gap-2 px-4 py-3 rounded-xl shadow-lg backdrop-blur-sm
+        flex items-center justify-center gap-2 px-4 py-3 rounded-lg
+        border bg-black/10 backdrop-blur-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)]
         transform transition-all duration-300 ease-out
-        w-full sm:w-auto
-        ${variantStyles[toast.variant]}
+        w-full sm:w-auto text-white
+        ${variantBorders[toast.variant]}
         ${isExiting ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'}
       `}
       style={{
@@ -96,7 +76,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext value={{ showToast }}>
       {children}
       {createPortal(
         <div className="fixed top-0 left-0 right-0 p-3 sm:top-4 sm:right-4 sm:left-auto sm:p-0 z-[200] flex flex-col gap-2 items-stretch sm:items-end pointer-events-none">
@@ -124,7 +104,6 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
         </div>,
         document.body
       )}
-    </ToastContext.Provider>
+    </ToastContext>
   );
 };
-

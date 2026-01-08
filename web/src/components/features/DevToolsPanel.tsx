@@ -6,7 +6,7 @@ import {
   getMockUserCount,
 } from '../../services/devService';
 import { Button } from '../ui/Button';
-import { useToast } from '../ui/Toast';
+import { useToast } from '../../hooks';
 
 export const DevToolsPanel = () => {
   const { userData } = useAuth();
