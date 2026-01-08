@@ -4,65 +4,39 @@ import type { UserData } from './userService';
 import type { MatchesData } from './matchService';
 import type { Prediction } from './predictionService';
 
-const MOCK_FIRST_NAMES = [
-  'James',
-  'Lars',
-  'Kirk',
-  'Cliff',
-  'Dave',
-  'Tom',
-  'Kerry',
-  'Jeff',
-  'Scott',
-  'Chuck',
-  'Gary',
-  'Mille',
-  'Bobby',
-  'Max',
-  'Phil',
-  'Jason',
-  'Rob',
-  'Lemmy',
-  'Ozzy',
-  'Ronnie',
-  'Dimebag',
-  'Vinnie',
-  'Rex',
-  'Zakk',
-];
-
-const MOCK_LAST_NAMES = [
-  'Hetfield',
-  'Mustaine',
-  'Araya',
-  'Hanneman',
-  'Lombardo',
-  'Burton',
-  'Hammett',
-  'Ulrich',
-  'King',
-  'Holt',
-  'Skolnick',
-  'Petrozza',
-  'Cavalera',
-  'Anselmo',
-  'Halford',
-  'Dickinson',
-  'Kilmister',
-  'Osbourne',
-  'Dio',
-  'Iommi',
-  'Butler',
-  'Abbott',
-  'Brown',
-  'Wylde',
+// [firstName, lastName]
+const MOCK_NAMES: [string, string][] = [
+  ['James', 'Hetfield'],
+  ['Dave', 'Mustaine'],
+  ['Tom', 'Araya'],
+  ['Scott', 'Ian'],
+  ['Trent', 'Reznor'],
+  ['Cliff', 'Burton'],
+  ['Kirk', 'Hammett'],
+  ['Lars', 'Ulrich'],
+  ['Les', 'Claypool'],
+  ['Max', 'Cavalera'],
+  ['Lemmy', 'Kilmister'],
+  ['Ozzy', 'Osbourne'],
+  ['Björk', 'Guðmundsdóttir'],
+  ['Cate', 'Blanchett'],
+  ['Nicole', 'Kidman'],
+  ['Charlize', 'Theron'],
+  ['Scarlett', 'Johansson'],
+  ['Natalie', 'Portman'],
+  ['Emma', 'Stone'],
+  ['Margot', 'Robbie'],
+  ['Viola', 'Davis'],
+  ['Sandra', 'Bullock'],
+  ['Julia', 'Roberts'],
+  ['Angelina', 'Jolie'],
 ];
 
 const generateMockUser = (index: number, timestamp: number): UserData => {
-  const firstName =
-    MOCK_FIRST_NAMES[Math.floor(Math.random() * MOCK_FIRST_NAMES.length)];
-  const lastName =
-    MOCK_LAST_NAMES[Math.floor(Math.random() * MOCK_LAST_NAMES.length)];
+  // Scramble: random first name + random last name from different entries
+  const [firstName] = MOCK_NAMES[Math.floor(Math.random() * MOCK_NAMES.length)];
+  const [, lastName] =
+    MOCK_NAMES[Math.floor(Math.random() * MOCK_NAMES.length)];
   const displayName = `${firstName} ${lastName}`;
   const userName = `${firstName.toLowerCase()}${lastName.toLowerCase()}${index}`;
 
