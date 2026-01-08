@@ -6,10 +6,12 @@ import {
   Button,
   LinkButton,
   LeaguePicture,
+  useConfirm,
 } from '../components';
-import { useAuth } from '../hooks';
+import { useAuth, useToast } from '../hooks';
 import {
   checkSlugAvailable,
+  deleteLeague,
   generateSlug,
   getLeagueBySlug,
   updateLeague,
@@ -20,8 +22,11 @@ import {
 export const EditLeague = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, userData } = useAuth();
+  const { showConfirm, ConfirmDialogComponent } = useConfirm();
+  const { showToast } = useToast();
   const [league, setLeague] = React.useState<LeagueWithId | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -38,6 +43,31 @@ export const EditLeague = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const isOwner = user && league?.ownerId === user.uid;
+  const isAdmin = userData?.admin === true;
+  const canDelete = isOwner || isAdmin;
+
+  const handleDelete = async () => {
+    if (!league || !canDelete) return;
+
+    const confirmed = await showConfirm({
+      title: 'Delete League',
+      message: `Are you sure you want to permanently delete "${league.name}"? This will remove all members and cannot be undone.`,
+      confirmText: 'Delete League',
+    });
+
+    if (!confirmed) return;
+
+    setDeleting(true);
+    try {
+      await deleteLeague(league.id, league.slug);
+      showToast('League deleted successfully');
+      void navigate('/leagues', { replace: true });
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to delete league', 'error');
+      setDeleting(false);
+    }
+  };
 
   // Load league data
   React.useEffect(() => {
@@ -344,6 +374,7 @@ export const EditLeague = () => {
                   type="submit"
                   disabled={
                     saving ||
+                    deleting ||
                     !name.trim() ||
                     !slugInput.trim() ||
                     slugStatus === 'taken' ||
@@ -355,8 +386,23 @@ export const EditLeague = () => {
                   {saving ? 'Saving...' : 'Save'}
                 </Button>
               </div>
+
+              {/* Delete option */}
+              {canDelete && (
+                <div className="mt-6 pt-4 border-t border-white/10 text-center">
+                  <button
+                    type="button"
+                    onClick={() => void handleDelete()}
+                    disabled={deleting}
+                    className="text-sm text-red-400/70 hover:text-red-400 transition-colors disabled:opacity-50"
+                  >
+                    {deleting ? 'Deleting...' : 'Delete this league'}
+                  </button>
+                </div>
+              )}
             </form>
           </Card>
+          {ConfirmDialogComponent}
         </div>
       </div>
     </AppLayout>

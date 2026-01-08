@@ -327,3 +327,28 @@ export const uploadLeagueImage = async (
 
   return downloadURL;
 };
+
+/**
+ * Delete a league and all associated data (owner/admin only)
+ */
+export const deleteLeague = async (
+  leagueId: string,
+  slug: string
+): Promise<void> => {
+  // Get all members first so we can clean up userLeagues
+  const memberIds = await getLeagueMembers(leagueId);
+
+  // Remove userLeagues entries for all members
+  for (const memberId of memberIds) {
+    await remove(ref(db, `userLeagues/${memberId}/${leagueId}`));
+  }
+
+  // Remove all league members
+  await remove(ref(db, `leagueMembers/${leagueId}`));
+
+  // Remove the slug
+  await remove(ref(db, `leagueSlugs/${slug}`));
+
+  // Remove the league itself
+  await remove(ref(db, `leagues/${leagueId}`));
+};

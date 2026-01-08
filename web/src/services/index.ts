@@ -24,6 +24,7 @@ export type { Prediction, UserPredictions } from './predictionService';
 export {
   checkSlugAvailable,
   createLeague,
+  deleteLeague,
   generateSlug,
   getLeagueBySlug,
   getLeagueByInviteCode,
