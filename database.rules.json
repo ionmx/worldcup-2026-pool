@@ -32,8 +32,8 @@
       "$userId": {
         // Anyone can read predictions (to view other users' predictions)
         ".read": true,
-        // Admins can delete all predictions for a user (for mock data cleanup)
-        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true && !newData.exists()",
+        // Admins can write/delete all predictions for a user (for mock data)
+        ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true",
         "$gameId": {
           // Users can write their own predictions at least 10 mins before kickoff
           // Admins can write any predictions (for mock data)

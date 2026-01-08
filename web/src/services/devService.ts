@@ -88,25 +88,23 @@ const generatePredictionsForUser = async (
   matches: MatchesData
 ): Promise<number> => {
   const matchIds = Object.keys(matches);
-  let created = 0;
+  const now = Date.now();
 
+  // Build all predictions as a single update object
+  const updates: Record<string, Prediction> = {};
   for (const matchId of matchIds) {
-    // Generate random score predictions (0-5 goals each)
-    const homePrediction = Math.floor(Math.random() * 6);
-    const awayPrediction = Math.floor(Math.random() * 6);
-
-    const prediction: Prediction = {
-      homePrediction,
-      awayPrediction,
+    updates[matchId] = {
+      homePrediction: Math.floor(Math.random() * 6),
+      awayPrediction: Math.floor(Math.random() * 6),
       points: 0, // Cloud function will calculate
-      updatedAt: Date.now(),
+      updatedAt: now,
     };
-
-    await set(ref(db, `predictions/${userId}/${matchId}`), prediction);
-    created++;
   }
 
-  return created;
+  // Single atomic write for all predictions
+  await set(ref(db, `predictions/${userId}`), updates);
+
+  return matchIds.length;
 };
 
 /**
