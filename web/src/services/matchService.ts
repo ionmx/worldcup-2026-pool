@@ -122,7 +122,12 @@ export const fetchMatches = async (): Promise<MatchesData> => {
   if (!snapshot.exists()) {
     // Fetch from FIFA API and initialize
     const matches = await fetchFromFifaApi();
-    await set(matchesRef, matches);
+    // Try to save to database (requires admin), but don't fail if permission denied
+    try {
+      await set(matchesRef, matches);
+    } catch (err) {
+      console.warn('Could not save matches to database (admin required):', err);
+    }
     return matches;
   }
 

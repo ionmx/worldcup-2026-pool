@@ -10,6 +10,7 @@ export const MatchProvider: React.FC<{ children: React.ReactNode }> = ({
   const [matches, setMatches] = React.useState<MatchesData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const fetchAttemptedRef = React.useRef(false);
 
   React.useEffect(() => {
     const matchesRef = ref(db, 'matches');
@@ -21,8 +22,9 @@ export const MatchProvider: React.FC<{ children: React.ReactNode }> = ({
         if (snapshot.exists()) {
           setMatches(snapshot.val() as MatchesData);
           setLoading(false);
-        } else {
-          // No matches exist, fetch from API and initialize
+        } else if (!fetchAttemptedRef.current) {
+          // No matches exist and we haven't tried fetching yet
+          fetchAttemptedRef.current = true;
           fetchMatches()
             .then((data) => {
               setMatches(data);
@@ -36,6 +38,9 @@ export const MatchProvider: React.FC<{ children: React.ReactNode }> = ({
             .finally(() => {
               setLoading(false);
             });
+        } else {
+          // Already attempted fetch, just stop loading
+          setLoading(false);
         }
       },
       (err) => {
