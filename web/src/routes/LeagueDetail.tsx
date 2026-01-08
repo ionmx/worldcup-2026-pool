@@ -8,6 +8,7 @@ import {
   LeaderboardList,
   LeaguePicture,
   useConfirm,
+  useToast,
 } from '../components';
 import { useAuth, useLeague } from '../hooks';
 import {
@@ -27,6 +28,7 @@ export const LeagueDetail = () => {
   const { setSelectedLeague } = useLeague();
   const navigate = useNavigate();
   const { showConfirm, ConfirmDialogComponent } = useConfirm();
+  const { showToast } = useToast();
   const [league, setLeague] = React.useState<LeagueWithId | null>(null);
   const [members, setMembers] = React.useState<UserWithId[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -161,6 +163,7 @@ export const LeagueDetail = () => {
 
   const copyShareableLink = () => {
     void navigator.clipboard.writeText(getShareableLink());
+    showToast('Link copied to clipboard');
   };
 
   if (loading || !accessChecked) {

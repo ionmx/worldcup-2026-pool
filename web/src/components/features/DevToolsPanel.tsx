@@ -6,13 +6,14 @@ import {
   getMockUserCount,
 } from '../../services/devService';
 import { Button } from '../ui/Button';
+import { useToast } from '../ui/Toast';
 
 export const DevToolsPanel = () => {
   const { userData } = useAuth();
+  const { showToast } = useToast();
   const [isOpen, setIsOpen] = React.useState(false);
   const [loading, setLoading] = React.useState<string | null>(null);
   const [mockCount, setMockCount] = React.useState(0);
-  const [message, setMessage] = React.useState<string | null>(null);
 
   // Only show in dev mode AND for admin users
   const shouldShow = import.meta.env.DEV && userData?.admin;
@@ -24,14 +25,6 @@ export const DevToolsPanel = () => {
     }
   }, [isOpen]);
 
-  // Clear message after 3 seconds
-  React.useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => setMessage(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
-
   if (!shouldShow) return null;
 
   const handleAction = async (
@@ -42,13 +35,14 @@ export const DevToolsPanel = () => {
     setLoading(actionName);
     try {
       const count = await action();
-      setMessage(successMessage(count));
+      showToast(successMessage(count), 'success');
       // Refresh mock count
       const newCount = await getMockUserCount();
       setMockCount(newCount);
     } catch (error) {
-      setMessage(
-        `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      showToast(
+        error instanceof Error ? error.message : 'Unknown error',
+        'error'
       );
     } finally {
       setLoading(null);
@@ -120,19 +114,6 @@ export const DevToolsPanel = () => {
                 {loading === 'clear' ? 'Clearing...' : '🗑️ Clear Mock Users'}
               </Button>
             </div>
-
-            {/* Message */}
-            {message && (
-              <div
-                className={`text-sm p-2 rounded ${
-                  message.startsWith('Error')
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'bg-green-500/20 text-green-400'
-                }`}
-              >
-                {message}
-              </div>
-            )}
 
             {/* Warning */}
             <div className="text-xs text-yellow-500/70 mt-4 mb-2 text-center">
