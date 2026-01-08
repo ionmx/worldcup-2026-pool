@@ -250,7 +250,7 @@ export const LeagueDetail = () => {
 
         {/* Invite Section (owner only) */}
         {isOwner && (
-          <Card className="p-4 mb-6">
+          <Card className="p-4 mb-6 overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-white font-medium">Invite Friends</h3>
@@ -268,12 +268,17 @@ export const LeagueDetail = () => {
             {showInviteCode && (
               <div className="mt-4 space-y-3">
                 {/* Shareable Link */}
-                <div className="flex items-center gap-3">
-                  <code className="flex-1 bg-white/10 px-4 py-3 rounded-lg text-sm font-mono text-white/70 truncate">
-                    {getShareableLink()}
-                  </code>
-                  <Button onClick={copyShareableLink} className="text-sm">
-                    Copy
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                  <div className="overflow-hidden bg-white/10 px-4 py-3 rounded-lg sm:flex-1 sm:min-w-0">
+                    <code className="text-sm font-mono text-white/70 block">
+                      {getShareableLink()}
+                    </code>
+                  </div>
+                  <Button
+                    onClick={copyShareableLink}
+                    className="text-sm w-full sm:w-auto shrink-0"
+                  >
+                    Copy Link
                   </Button>
                 </div>
                 {/* Invite Code */}
