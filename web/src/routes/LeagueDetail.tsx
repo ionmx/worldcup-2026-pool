@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import {
   AppLayout,
   Card,
@@ -296,32 +296,52 @@ export const LeagueDetail = () => {
             </div>
             {showInviteCode && (
               <div className="mt-4 space-y-4">
-                {/* QR Code and Link */}
-                <div className="flex flex-col sm:flex-row gap-4 items-center">
-                  {/* QR Code */}
-                  <div className="bg-white p-3 rounded-xl shrink-0">
-                    <QRCodeSVG
+                {/* Link and Copy */}
+                <div className="space-y-2">
+                  <div className="overflow-hidden bg-white/10 px-4 py-3 rounded-lg">
+                    <code className="text-sm font-mono text-white/70 block truncate">
+                      {getShareableLink()}
+                    </code>
+                  </div>
+                  <Button
+                    onClick={copyShareableLink}
+                    className="text-sm w-full"
+                  >
+                    Copy Link
+                  </Button>
+                </div>
+                {/* QR Code */}
+                <div className="flex flex-col items-center gap-3 pt-3 border-t border-white/10">
+                  <p className="text-white/50 text-sm">Scan to join</p>
+                  <div
+                    className="bg-white p-3 rounded-xl"
+                    id="qr-code-container"
+                  >
+                    <QRCodeCanvas
                       value={getShareableLink()}
-                      size={120}
+                      size={160}
                       bgColor="white"
                       fgColor="black"
                       level="M"
+                      id="qr-code"
                     />
                   </div>
-                  {/* Link and Copy */}
-                  <div className="flex-1 w-full space-y-2">
-                    <div className="overflow-hidden bg-white/10 px-4 py-3 rounded-lg">
-                      <code className="text-sm font-mono text-white/70 block truncate">
-                        {getShareableLink()}
-                      </code>
-                    </div>
-                    <Button
-                      onClick={copyShareableLink}
-                      className="text-sm w-full"
-                    >
-                      Copy Link
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => {
+                      const canvas = document.getElementById(
+                        'qr-code'
+                      ) as HTMLCanvasElement;
+                      if (canvas) {
+                        const link = document.createElement('a');
+                        link.download = `${league.slug}-invite-qr.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                      }
+                    }}
+                    className="text-sm"
+                  >
+                    Download QR
+                  </Button>
                 </div>
                 {/* Invite Code */}
                 <div className="flex items-center justify-between pt-3 border-t border-white/10">
