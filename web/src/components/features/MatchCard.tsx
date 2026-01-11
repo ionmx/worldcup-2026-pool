@@ -36,6 +36,13 @@ export const MatchCard = ({
   const isPlayed = match.homeScore >= 0 && match.awayScore >= 0;
   const cutoffTime = match.timestamp * 1000 - 10 * 60 * 1000; // 10 mins before kickoff
   const predictionsClosed = Date.now() > cutoffTime;
+
+  // Match is live if it started but hasn't finished (assume ~2.5 hours for a full match)
+  // TODO: Implement this properly (check FIFA API)
+  const kickoffTime = match.timestamp * 1000;
+  const matchEndEstimate = kickoffTime + 150 * 60 * 1000; // 2.5 hours after kickoff
+  const isLive =
+    !isPlayed && Date.now() >= kickoffTime && Date.now() < matchEndEstimate;
   const canPredict = isOwnProfile && userId && !predictionsClosed;
 
   const [homePrediction, setHomePrediction] = React.useState<string>(
@@ -228,6 +235,12 @@ export const MatchCard = ({
         <span>
           {dateString}, {timeString}
         </span>
+        {isLive && (
+          <span className="ml-auto flex items-center gap-1.5 text-red-500 font-bold animate-pulse">
+            <span className="w-2 h-2 bg-red-500 rounded-full" />
+            LIVE
+          </span>
+        )}
       </div>
     </Card>
   );
