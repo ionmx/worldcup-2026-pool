@@ -16,7 +16,6 @@ type Props = { navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'
 
 const GOOGLE_CONFIGURED = !!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 
-// Componente separado para que el hook solo se monte cuando Google está configurado
 const GoogleSignInButton: React.FC<{ disabled: boolean }> = ({ disabled }) => {
   const [request, response, promptAsync] = useGoogleAuthRequest();
 
@@ -41,6 +40,7 @@ const GoogleSignInButton: React.FC<{ disabled: boolean }> = ({ disabled }) => {
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleEmailLogin = async () => {
@@ -57,19 +57,13 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleResetPassword = async () => {
     if (!identifier) {
-      Alert.alert('Recuperar contraseña', 'Ingresá tu email o usuario primero');
+      Alert.alert('Recuperar contraseña', 'Ingresá tu email primero');
       return;
     }
-
     setLoading(true);
-    try {
-      await resetPassword(identifier.trim());
-      Alert.alert('Listo', 'Te mandamos un email para recuperar tu contraseña');
-    } catch {
-      Alert.alert('Listo', 'Si existe una cuenta con esos datos, te mandamos un email para recuperar tu contraseña');
-    } finally {
-      setLoading(false);
-    }
+    await resetPassword(identifier.trim());
+    setLoading(false);
+    Alert.alert('Listo', 'Si existe una cuenta con ese email, te mandamos un enlace para restablecer tu contraseña.');
   };
 
   return (
@@ -79,21 +73,28 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
       <TextInput
         style={styles.input}
-        placeholder="Email o usuario"
+        placeholder="Email"
         placeholderTextColor="#888"
         value={identifier}
         onChangeText={setIdentifier}
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor="#888"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+
+      <View style={styles.passwordWrapper}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Contraseña"
+          placeholderTextColor="#888"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword(v => !v)}>
+          <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity onPress={handleResetPassword} disabled={loading}>
         <Text style={styles.forgotLink}>¿Olvidaste tu contraseña?</Text>
@@ -120,6 +121,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e293b', color: '#fff', borderRadius: 10, padding: 14,
     marginBottom: 12, fontSize: 16, borderWidth: 1, borderColor: '#334155',
   },
+  passwordWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginBottom: 12,
+  },
+  passwordInput: {
+    flex: 1,
+    color: '#fff',
+    padding: 14,
+    fontSize: 16,
+  },
+  eyeButton: { paddingHorizontal: 14 },
+  eyeIcon: { fontSize: 18 },
   button: {
     backgroundColor: '#22c55e', borderRadius: 10, padding: 14,
     alignItems: 'center', marginBottom: 12,

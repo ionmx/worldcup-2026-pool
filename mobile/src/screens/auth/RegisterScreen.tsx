@@ -14,6 +14,8 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
@@ -32,6 +34,11 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     setLoading(true);
     try {
       await registerWithEmail(email.trim(), password, displayName.trim());
+      Alert.alert(
+        'Cuenta creada',
+        'Te mandamos un email para verificar tu cuenta. Podés seguir usando la app mientras tanto.',
+        [{ text: 'Entendido' }]
+      );
     } catch (e: any) {
       Alert.alert('Error', e.message);
     } finally {
@@ -59,22 +66,36 @@ export const RegisterScreen: React.FC<Props> = ({ navigation }) => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor="#888"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirmar contraseña"
-        placeholderTextColor="#888"
-        value={confirm}
-        onChangeText={setConfirm}
-        secureTextEntry
-      />
+
+      <View style={styles.passwordWrapper}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Contraseña"
+          placeholderTextColor="#888"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword(v => !v)}>
+          <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.passwordWrapper}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Confirmar contraseña"
+          placeholderTextColor="#888"
+          value={confirm}
+          onChangeText={setConfirm}
+          secureTextEntry={!showConfirm}
+          autoCapitalize="none"
+        />
+        <TouchableOpacity style={styles.eyeButton} onPress={() => setShowConfirm(v => !v)}>
+          <Text style={styles.eyeIcon}>{showConfirm ? '🙈' : '👁️'}</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Registrarse</Text>}
@@ -94,6 +115,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e293b', color: '#fff', borderRadius: 10, padding: 14,
     marginBottom: 12, fontSize: 16, borderWidth: 1, borderColor: '#334155',
   },
+  passwordWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginBottom: 12,
+  },
+  passwordInput: {
+    flex: 1,
+    color: '#fff',
+    padding: 14,
+    fontSize: 16,
+  },
+  eyeButton: { paddingHorizontal: 14 },
+  eyeIcon: { fontSize: 18 },
   button: {
     backgroundColor: '#22c55e', borderRadius: 10, padding: 14,
     alignItems: 'center', marginBottom: 12, marginTop: 8,

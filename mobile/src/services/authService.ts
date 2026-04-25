@@ -6,6 +6,7 @@ import {
   signInWithCredential,
   updateProfile,
   sendPasswordResetEmail,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { useAuthRequest, ResponseType } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
@@ -19,8 +20,13 @@ export const loginWithEmail = (email: string, password: string) =>
 export const loginWithIdentifier = (identifier: string, password: string) =>
   signInWithEmailAndPassword(auth, identifier.trim(), password);
 
-export const resetPassword = (identifier: string) =>
-  sendPasswordResetEmail(auth, identifier.trim());
+export const resetPassword = async (identifier: string): Promise<void> => {
+  try {
+    await sendPasswordResetEmail(auth, identifier.trim());
+  } catch {
+    // Silenciar errores para no revelar si el email existe
+  }
+};
 
 export const registerWithEmail = async (
   email: string,
@@ -29,6 +35,7 @@ export const registerWithEmail = async (
 ) => {
   const credential = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(credential.user, { displayName });
+  await sendEmailVerification(credential.user).catch(() => {});
   return credential;
 };
 
