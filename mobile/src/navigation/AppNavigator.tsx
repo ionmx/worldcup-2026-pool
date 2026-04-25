@@ -1,13 +1,16 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { AppTabParamList, RootStackParamList } from './types';
 import { MatchesScreen } from '../screens/app/MatchesScreen';
 import { StandingsScreen } from '../screens/app/StandingsScreen';
 import { LeaguesScreen } from '../screens/app/LeaguesScreen';
 import { ProfileScreen } from '../screens/app/ProfileScreen';
 import { LeagueSelectorScreen } from '../screens/app/LeagueSelectorScreen';
+import { NewLeagueScreen } from '../screens/app/NewLeagueScreen';
+import { JoinLeagueScreen } from '../screens/app/JoinLeagueScreen';
+import { LeagueDetailScreen } from '../screens/app/LeagueDetailScreen';
 import { useLeague } from '../context/LeagueContext';
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
@@ -77,13 +80,8 @@ export const AppNavigator: React.FC = () => (
   <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#0f172a' }, headerTintColor: '#fff' }}>
     <Stack.Screen name="App" component={MainTabs} options={{ headerShown: false }} />
     <Stack.Screen name="LeagueSelector" component={LeagueSelectorScreen} options={{ title: 'Elegir liga', presentation: 'modal' }} />
-    <Stack.Screen name="NewLeague" component={PlaceholderScreen('Nueva liga')} options={{ title: 'Nueva liga' }} />
-    <Stack.Screen name="JoinLeague" component={PlaceholderScreen('Unirse a liga')} options={{ title: 'Unirse con código' }} />
+    <Stack.Screen name="NewLeague" component={NewLeagueScreen} options={{ title: 'Nueva liga' }} />
+    <Stack.Screen name="JoinLeague" component={JoinLeagueScreen} options={{ title: 'Unirse con código' }} />
+    <Stack.Screen name="LeagueDetail" component={LeagueDetailScreen} options={{ title: 'Detalle de liga' }} />
   </Stack.Navigator>
-);
-
-const PlaceholderScreen = (name: string): React.FC => () => (
-  <View style={{ flex: 1, backgroundColor: '#0f172a', justifyContent: 'center', alignItems: 'center' }}>
-    <Text style={{ color: '#94a3b8', padding: 24, textAlign: 'center' }}>{name} — en desarrollo (feat/leagues)</Text>
-  </View>
 );

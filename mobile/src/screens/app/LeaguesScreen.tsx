@@ -20,7 +20,12 @@ export const LeaguesScreen: React.FC = () => {
         {item.description ? <Text style={styles.leagueDesc}>{item.description}</Text> : null}
         <Text style={styles.leagueMeta}>{item.memberCount ?? 0} miembros</Text>
       </View>
-      {selectedLeague?.id === item.id && <Text style={styles.check}>✓</Text>}
+      <View style={styles.cardActions}>
+        {selectedLeague?.id === item.id && <Text style={styles.check}>✓</Text>}
+        <TouchableOpacity style={styles.detailButton} onPress={() => navigation.navigate('LeagueDetail', { league: item })}>
+          <Text style={styles.detailButtonText}>Detalle</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 
@@ -62,10 +67,13 @@ const styles = StyleSheet.create({
   },
   cardActive: { borderColor: '#22c55e', backgroundColor: '#15303b' },
   cardBody: { flex: 1 },
+  cardActions: { alignItems: 'flex-end', gap: 8, marginLeft: 12 },
   leagueName: { color: '#fff', fontSize: 17, fontWeight: '600', marginBottom: 2 },
   leagueDesc: { color: '#94a3b8', fontSize: 14, marginBottom: 4 },
   leagueMeta: { color: '#64748b', fontSize: 13 },
   check: { color: '#22c55e', fontSize: 20, fontWeight: 'bold' },
+  detailButton: { backgroundColor: '#334155', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+  detailButtonText: { color: '#fff', fontSize: 13, fontWeight: '600' },
   empty: { alignItems: 'center', paddingVertical: 48 },
   emptyIcon: { fontSize: 48, marginBottom: 12 },
   emptyTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 8 },
