@@ -13,7 +13,7 @@ export default function App() {
         <AuthProvider>
           <LeagueProvider>
             <RootNavigator />
-            <StatusBar style="light" />
+            <StatusBar backgroundColor="#0f172a" style="light" translucent={false} />
           </LeagueProvider>
         </AuthProvider>
       </NavigationContainer>

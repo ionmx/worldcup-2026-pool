@@ -32,9 +32,11 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
   const [league] = useState<LeagueWithId>(route.params.league);
   const [ownerId, setOwnerId] = useState(league.ownerId);
   const [leagueName, setLeagueName] = useState(league.name);
-  const [editingName, setEditingName] = useState(false);
+  const [leagueDescription, setLeagueDescription] = useState(league.description ?? '');
+  const [editingDetails, setEditingDetails] = useState(false);
   const [nameInput, setNameInput] = useState(league.name);
-  const [savingName, setSavingName] = useState(false);
+  const [descriptionInput, setDescriptionInput] = useState(league.description ?? '');
+  const [savingDetails, setSavingDetails] = useState(false);
   const [members, setMembers] = useState<UserWithId[]>([]);
   const [memberIds, setMemberIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,18 +93,54 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     }
   };
 
-  const handleSaveName = async () => {
-    const trimmed = nameInput.trim();
-    if (!trimmed || trimmed === leagueName) { setEditingName(false); return; }
-    setSavingName(true);
+  const startEditingDetails = () => {
+    setNameInput(leagueName);
+    setDescriptionInput(leagueDescription);
+    setEditingDetails(true);
+  };
+
+  const cancelEditingDetails = () => {
+    setNameInput(leagueName);
+    setDescriptionInput(leagueDescription);
+    setEditingDetails(false);
+  };
+
+  const handleSaveDetails = async () => {
+    const trimmedName = nameInput.trim();
+    const trimmedDescription = descriptionInput.trim();
+    const nameChanged = trimmedName !== leagueName;
+    const descriptionChanged = trimmedDescription !== leagueDescription;
+
+    if (!trimmedName) {
+      Alert.alert('Nombre requerido', 'La liga necesita un nombre.');
+      return;
+    }
+
+    if (!nameChanged && !descriptionChanged) {
+      setEditingDetails(false);
+      return;
+    }
+
+    setSavingDetails(true);
     try {
-      await updateLeague(league.id, { name: trimmed });
-      setLeagueName(trimmed);
-      setEditingName(false);
+      await updateLeague(league.id, {
+        name: trimmedName,
+        description: trimmedDescription,
+      });
+      setLeagueName(trimmedName);
+      setLeagueDescription(trimmedDescription);
+      if (selectedLeague?.id === league.id) {
+        setSelectedLeague({
+          ...selectedLeague,
+          name: trimmedName,
+          description: trimmedDescription || undefined,
+        });
+      }
+      setEditingDetails(false);
     } catch (e: any) {
-      Alert.alert('Error', e.message ?? 'No se pudo renombrar la liga');
+      Alert.alert('Error', e.message ?? 'No se pudo actualizar la liga');
     } finally {
-      setSavingName(false);
+      setSavingDetails(false);
     }
   };
 
@@ -132,8 +170,8 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 
   const handleTransferOwnership = (member: UserWithId) => {
     Alert.alert(
-      'Transferir dueñía',
-      `¿Seguro que querés transferirle la dueñía de "${leagueName}" a ${member.displayName || 'este usuario'}? Ya no vas a poder administrar la liga.`,
+      'Transferir titularidad',
+      `¿Seguro que querés transferirle la titularidad de "${leagueName}" a ${member.displayName || 'este usuario'}? Ya no vas a poder administrar la liga.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -145,7 +183,7 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
               await transferOwnership(league.id, ownerId, member.id);
               setOwnerId(member.id);
             } catch (e: any) {
-              Alert.alert('Error', e.message ?? 'No se pudo transferir la dueñía');
+              Alert.alert('Error', e.message ?? 'No se pudo transferir la titularidad');
             } finally {
               setSubmitting(false);
             }
@@ -161,7 +199,7 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
       undefined,
       [
         {
-          text: 'Transferir dueñía',
+          text: 'Transferir titularidad',
           onPress: () => handleTransferOwnership(member),
         },
         {
@@ -263,36 +301,49 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
         ListHeaderComponent={
           <View>
             <View style={styles.headerCard}>
-              {editingName ? (
-                <View style={styles.nameEditRow}>
+              {editingDetails ? (
+                <View style={styles.detailsEditor}>
                   <TextInput
                     style={styles.nameInput}
                     value={nameInput}
                     onChangeText={setNameInput}
                     autoFocus
                     maxLength={50}
+                    placeholder="Nombre de la liga"
+                    placeholderTextColor="#64748b"
                   />
-                  <TouchableOpacity style={styles.nameSaveBtn} onPress={handleSaveName} disabled={savingName}>
-                    {savingName
+                  <TextInput
+                    style={[styles.nameInput, styles.descriptionInput]}
+                    value={descriptionInput}
+                    onChangeText={setDescriptionInput}
+                    maxLength={140}
+                    multiline
+                    placeholder="Descripción opcional"
+                    placeholderTextColor="#64748b"
+                  />
+                  <View style={styles.editActions}>
+                    <TouchableOpacity style={styles.nameSaveBtn} onPress={handleSaveDetails} disabled={savingDetails}>
+                      {savingDetails
                       ? <ActivityIndicator color="#fff" size="small" />
                       : <Text style={styles.nameSaveBtnText}>Guardar</Text>}
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.nameCancelBtn} onPress={() => { setEditingName(false); setNameInput(leagueName); }} disabled={savingName}>
-                    <Text style={styles.nameCancelBtnText}>✕</Text>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.nameCancelBtn} onPress={cancelEditingDetails} disabled={savingDetails}>
+                      <Text style={styles.nameCancelBtnText}>Cancelar</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               ) : (
                 <View style={styles.titleRow}>
                   <Text style={styles.title}>{leagueName}</Text>
                   {isOwner && (
-                    <TouchableOpacity onPress={() => { setNameInput(leagueName); setEditingName(true); }} style={styles.editNameBtn}>
+                    <TouchableOpacity onPress={startEditingDetails} style={styles.editNameBtn}>
                       <Text style={styles.editNameIcon}>✏️</Text>
                     </TouchableOpacity>
                   )}
                 </View>
               )}
 
-              {league.description ? <Text style={styles.description}>{league.description}</Text> : null}
+              {!editingDetails && leagueDescription ? <Text style={styles.description}>{leagueDescription}</Text> : null}
               <Text style={styles.meta}>{memberIds.length} miembros</Text>
 
               <View style={styles.invitePanel}>
@@ -358,29 +409,31 @@ const styles = StyleSheet.create({
   title: { color: '#fff', fontSize: 24, fontWeight: 'bold', flex: 1 },
   editNameBtn: { padding: 4, marginLeft: 8 },
   editNameIcon: { fontSize: 18 },
-  nameEditRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  detailsEditor: { gap: 10, marginBottom: 10 },
+  editActions: { flexDirection: 'row', gap: 10 },
   nameInput: {
-    flex: 1,
     color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '700',
     backgroundColor: '#0f172a',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#475569',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
+  descriptionInput: { minHeight: 86, textAlignVertical: 'top', fontWeight: '500' },
   nameSaveBtn: {
+    alignItems: 'center',
     backgroundColor: '#22c55e',
     borderRadius: 8,
+    flex: 1,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginLeft: 8,
+    paddingVertical: 12,
   },
   nameSaveBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  nameCancelBtn: { paddingHorizontal: 10, paddingVertical: 8 },
-  nameCancelBtnText: { color: '#94a3b8', fontSize: 18, fontWeight: '700' },
+  nameCancelBtn: { alignItems: 'center', backgroundColor: '#334155', borderRadius: 8, flex: 1, paddingHorizontal: 12, paddingVertical: 12 },
+  nameCancelBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
   description: { color: '#94a3b8', fontSize: 15, marginBottom: 10 },
   meta: { color: '#64748b', fontSize: 13, marginBottom: 16 },
   invitePanel: {

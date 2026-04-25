@@ -1,8 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PagerView from 'react-native-pager-view';
 import { RootStackParamList } from './types';
@@ -14,19 +16,19 @@ import { LeagueSelectorScreen } from '../screens/app/LeagueSelectorScreen';
 import { NewLeagueScreen } from '../screens/app/NewLeagueScreen';
 import { JoinLeagueScreen } from '../screens/app/JoinLeagueScreen';
 import { LeagueDetailScreen } from '../screens/app/LeagueDetailScreen';
-import { useLeague } from '../context/LeagueContext';
+import { ScoringHelpScreen } from '../screens/app/ScoringHelpScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const TABS = [
-  { key: 'Matches',   icon: '⚽', label: 'Partidos',  Screen: MatchesScreen,   showLeague: true  },
-  { key: 'Standings', icon: '📊', label: 'Posiciones', Screen: StandingsScreen, showLeague: false },
-  { key: 'Leagues',   icon: '🏆', label: 'Ligas',     Screen: LeaguesScreen,   showLeague: false },
-  { key: 'Profile',   icon: '👤', label: 'Perfil',    Screen: ProfileScreen,   showLeague: false },
+  { key: 'Matches',   icon: '⚽', label: 'Partidos',   Screen: MatchesScreen },
+  { key: 'Standings', icon: '📊', label: 'Posiciones', Screen: StandingsScreen },
+  { key: 'Leagues',   icon: '🏆', label: 'Ligas',      Screen: LeaguesScreen },
+  { key: 'Profile',   icon: '👤', label: 'Perfil',     Screen: ProfileScreen },
 ] as const;
 
 const MainTabs: React.FC = () => {
-  const { selectedLeague } = useLeague();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [page, setPage] = useState(0);
   const pagerRef = useRef<PagerView>(null);
   const { top, bottom } = useSafeAreaInsets();
@@ -39,15 +41,21 @@ const MainTabs: React.FC = () => {
   };
 
   const currentTab = TABS[page];
-  const headerTitle = currentTab.showLeague
-    ? (selectedLeague?.name ?? 'Sin liga')
-    : currentTab.label;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0f172a' }}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: statusBarHeight }]}>
-        <Text style={styles.headerTitle}>{headerTitle}</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>{currentTab.label}</Text>
+        <TouchableOpacity
+          style={styles.helpButton}
+          onPress={() => navigation.navigate('ScoringHelp')}
+          activeOpacity={0.75}
+          accessibilityRole="button"
+          accessibilityLabel="Ver sistema de puntos"
+        >
+          <Text style={styles.helpButtonText}>?</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Swipeable pages */}
@@ -86,29 +94,55 @@ const MainTabs: React.FC = () => {
 };
 
 export const AppNavigator: React.FC = () => (
-  <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: '#0f172a' }, headerTintColor: '#fff' }}>
+  <Stack.Navigator
+    screenOptions={{
+      headerStyle: { backgroundColor: '#0f172a' },
+      headerTintColor: '#fff',
+      statusBarBackgroundColor: '#0f172a',
+      statusBarStyle: 'light',
+      statusBarTranslucent: false,
+    }}
+  >
     <Stack.Screen name="App" component={MainTabs} options={{ headerShown: false }} />
     <Stack.Screen name="LeagueSelector" component={LeagueSelectorScreen} options={{ title: 'Elegir liga', presentation: 'modal' }} />
     <Stack.Screen name="NewLeague" component={NewLeagueScreen} options={{ title: 'Nueva liga' }} />
     <Stack.Screen name="JoinLeague" component={JoinLeagueScreen} options={{ title: 'Unirse con código' }} />
     <Stack.Screen name="LeagueDetail" component={LeagueDetailScreen} options={{ title: 'Detalle de liga' }} />
+    <Stack.Screen name="ScoringHelp" component={ScoringHelpScreen} options={{ title: 'Puntuación', presentation: 'modal' }} />
   </Stack.Navigator>
 );
 
 const styles = StyleSheet.create({
   header: {
+    alignItems: 'center',
     backgroundColor: '#0f172a',
     borderBottomWidth: 1,
     borderBottomColor: '#1e293b',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
   },
   headerTitle: {
     color: '#fff',
+    flex: 1,
     fontSize: 18,
     fontWeight: '700',
     marginTop: 8,
+    marginRight: 12,
   },
+  helpButton: {
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderColor: '#334155',
+    borderRadius: 18,
+    borderWidth: 1,
+    height: 36,
+    justifyContent: 'center',
+    marginTop: 8,
+    width: 36,
+  },
+  helpButtonText: { color: '#22c55e', fontSize: 18, fontWeight: '900' },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#0f172a',

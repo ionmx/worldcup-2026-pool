@@ -54,7 +54,7 @@ export const ProfileScreen: React.FC = () => {
       const names = ownedLeagues.map((l) => l.name).join(', ');
       Alert.alert(
         'No podés eliminar tu cuenta',
-        `Sos dueño de ${ownedLeagues.length === 1 ? 'la liga' : 'las ligas'}: ${names}.\n\nPrimero transferí la dueñía a otro miembro o eliminá cada liga desde su detalle.`,
+        `Sos dueño de ${ownedLeagues.length === 1 ? 'la liga' : 'las ligas'}: ${names}.\n\nPrimero transferí la titularidad a otro miembro o eliminá cada liga desde su detalle.`,
         [{ text: 'Entendido' }]
       );
       return;

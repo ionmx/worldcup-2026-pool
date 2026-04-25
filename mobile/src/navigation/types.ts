@@ -19,4 +19,5 @@ export type RootStackParamList = {
   NewLeague: undefined;
   JoinLeague: undefined;
   LeagueDetail: { league: LeagueWithId };
+  ScoringHelp: undefined;
 };

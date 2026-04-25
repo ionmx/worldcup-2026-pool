@@ -16,7 +16,7 @@ Join the action live at **[worldcup-2026.web.app](https://worldcup-2026.web.app/
 - 🏆 Global and private league leaderboards
 - 👥 Create and join private leagues with invite links
 - 📱 PWA support (installable on mobile)
-- 🎯 Points system: exact score (15pts), correct result (max 10pts), wrong result (0pts)
+- 🎯 Points system: exact score (6pts), close correct result (3pts), correct winner/draw (2pts), wrong result (0pts), penalty bonus in knockouts (+1pt)
 - ⏰ Prediction deadline: 10 minutes before kickoff
 
 ## Tech Stack
