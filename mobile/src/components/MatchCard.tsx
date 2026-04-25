@@ -21,11 +21,18 @@ const FIFA_TO_ISO2: Record<string, string> = {
 };
 
 const toFlagEmoji = (code: string): string => {
-  const iso2 = FIFA_TO_ISO2[code] ?? 'XX';
+  const iso2 = FIFA_TO_ISO2[code];
+  if (!iso2) return '🏳️';
   return [...iso2.toUpperCase()]
     .map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65))
     .join('');
 };
+
+// Equipos reales son 2-3 letras mayúsculas solamente
+const isKnownTeam = (code: string): boolean => /^[A-Z]{2,3}$/.test(code);
+
+const isMatchDefined = (match: Match): boolean =>
+  isKnownTeam(match.home) && isKnownTeam(match.away);
 
 interface Props {
   match: Match;
@@ -46,8 +53,21 @@ export const MatchCard: React.FC<Props> = ({ match, userId, prediction }) => {
   }, [prediction]);
 
   const isPlayed = match.homeScore >= 0 && match.awayScore >= 0;
+  const defined = isMatchDefined(match);
   const open = canPredict(match.timestamp);
-  const editable = !!userId && open && !isPlayed;
+  const editable = !!userId && open && !isPlayed && defined;
+
+  const isLive =
+    !isPlayed &&
+    Date.now() >= match.timestamp * 1000 &&
+    Date.now() < match.timestamp * 1000 + 150 * 60 * 1000;
+
+  const time = new Date(match.date).toLocaleTimeString('es-AR', {
+    hour: '2-digit', minute: '2-digit',
+  });
+
+  const showPoints = isPlayed && prediction;
+  const pts = prediction?.points ?? 0;
 
   const save = async () => {
     if (!editable || !userId) return;
@@ -66,101 +86,92 @@ export const MatchCard: React.FC<Props> = ({ match, userId, prediction }) => {
     if (home !== '' && away !== '') save();
   };
 
-  const isLive =
-    !isPlayed &&
-    Date.now() >= match.timestamp * 1000 &&
-    Date.now() < match.timestamp * 1000 + 150 * 60 * 1000;
+  const renderTeamRow = (
+    code: string,
+    name: string,
+    score: number,
+    predValue: string,
+    setPred: (v: string) => void,
+    isHome: boolean,
+  ) => (
+    <View style={styles.teamRow}>
+      <Text style={styles.flag}>{defined ? toFlagEmoji(code) : '🏳️'}</Text>
+      <Text style={styles.teamName} numberOfLines={1}>
+        {defined ? name : code}
+      </Text>
 
-  const showPoints = isPlayed && prediction;
-  const pts = prediction?.points ?? 0;
+      {/* Score real */}
+      <View style={styles.scoreBox}>
+        <Text style={[styles.scoreText, isPlayed && styles.scoreTextPlayed]}>
+          {isPlayed ? score : '–'}
+        </Text>
+      </View>
 
-  const time = new Date(match.date).toLocaleTimeString('es-AR', {
-    hour: '2-digit', minute: '2-digit',
-  });
+      {/* Predicción */}
+      {editable ? (
+        <TextInput
+          style={styles.input}
+          value={predValue}
+          onChangeText={v => setPred(v.replace(/\D/g, '').slice(0, 2))}
+          onBlur={onBlur}
+          keyboardType="number-pad"
+          maxLength={2}
+          placeholder="?"
+          placeholderTextColor="#475569"
+          editable={!saving}
+          selectTextOnFocus
+        />
+      ) : prediction && defined ? (
+        <View style={[styles.predBox, isPlayed && (pts > 0 ? styles.predGreen : styles.predRed)]}>
+          <Text style={styles.predText}>
+            {isHome ? prediction.homePrediction : prediction.awayPrediction}
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.inputPlaceholder} />
+      )}
+    </View>
+  );
 
   return (
     <View style={styles.card}>
-      {/* Main row */}
-      <View style={styles.row}>
-        {/* Teams */}
-        <View style={styles.teams}>
-          {/* Home */}
-          <View style={styles.teamRow}>
-            <Text style={styles.flag}>{toFlagEmoji(match.home)}</Text>
-            <Text style={styles.teamName} numberOfLines={1}>{match.homeName}</Text>
-            <Text style={styles.score}>
-              {isPlayed ? match.homeScore : '–'}
-            </Text>
-            {editable ? (
-              <TextInput
-                style={styles.input}
-                value={home}
-                onChangeText={v => setHome(v.replace(/\D/g, '').slice(0, 2))}
-                onBlur={onBlur}
-                keyboardType="number-pad"
-                maxLength={2}
-                placeholder="–"
-                placeholderTextColor="#475569"
-                editable={!saving}
-                selectTextOnFocus
-              />
-            ) : prediction ? (
-              <View style={styles.predBox}>
-                <Text style={styles.predText}>{prediction.homePrediction}</Text>
-              </View>
-            ) : null}
-          </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerLeft}>
+          {match.group ? `Grupo ${match.group}` : match.round}
+        </Text>
+        <View style={styles.headerRight}>
+          {isLive && <Text style={styles.liveDot}>🔴 </Text>}
+          {!defined && <Text style={styles.tbdBadge}>Por definirse</Text>}
+          {!isPlayed && defined && !open && <Text style={styles.closedBadge}>Cerrado</Text>}
+          <Text style={styles.time}>{time}</Text>
+          {saving && <ActivityIndicator size="small" color="#22c55e" style={{ marginLeft: 6 }} />}
+        </View>
+      </View>
 
-          {/* Away */}
-          <View style={styles.teamRow}>
-            <Text style={styles.flag}>{toFlagEmoji(match.away)}</Text>
-            <Text style={styles.teamName} numberOfLines={1}>{match.awayName}</Text>
-            <Text style={styles.score}>
-              {isPlayed ? match.awayScore : '–'}
-            </Text>
-            {editable ? (
-              <TextInput
-                style={styles.input}
-                value={away}
-                onChangeText={v => setAway(v.replace(/\D/g, '').slice(0, 2))}
-                onBlur={onBlur}
-                keyboardType="number-pad"
-                maxLength={2}
-                placeholder="–"
-                placeholderTextColor="#475569"
-                editable={!saving}
-                selectTextOnFocus
-              />
-            ) : prediction ? (
-              <View style={styles.predBox}>
-                <Text style={styles.predText}>{prediction.awayPrediction}</Text>
-              </View>
-            ) : null}
-          </View>
+      {/* Equipos */}
+      <View style={styles.teamsContainer}>
+        <View style={styles.teams}>
+          {renderTeamRow(match.home, match.homeName, match.homeScore, home, setHome, true)}
+          {renderTeamRow(match.away, match.awayName, match.awayScore, away, setAway, false)}
         </View>
 
-        {/* Points badge */}
+        {/* Badge de puntos */}
         {showPoints && (
           <View style={[styles.pointsBadge, pts > 0 ? styles.badgeGreen : styles.badgeRed]}>
             <Text style={styles.pointsEmoji}>
               {pts === 15 ? '🥳' : pts > 0 ? '😄' : '😔'}
             </Text>
-            <Text style={styles.pointsText}>
-              {pts > 0 ? `+${pts}` : pts} pts
-            </Text>
+            <Text style={styles.pointsLabel}>{pts > 0 ? `+${pts}` : pts}</Text>
+            <Text style={styles.pointsPts}>pts</Text>
           </View>
         )}
-
-        {saving && <ActivityIndicator size="small" color="#22c55e" style={{ marginLeft: 8 }} />}
       </View>
 
       {/* Footer */}
-      <View style={styles.footer}>
-        {match.group && <Text style={styles.meta}>Grupo {match.group} · </Text>}
-        <Text style={styles.meta}>{match.locationCity} · {time}</Text>
-        {isLive && <Text style={styles.live}> 🔴 EN VIVO</Text>}
-        {!open && !isPlayed && <Text style={styles.closed}> · Cerrado</Text>}
-      </View>
+      <Text style={styles.footer} numberOfLines={1}>
+        {match.locationCity}{match.locationCountry ? `, ${match.locationCountry}` : ''}
+      </Text>
     </View>
   );
 };
@@ -168,41 +179,60 @@ export const MatchCard: React.FC<Props> = ({ match, userId, prediction }) => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#1e293b',
-    borderRadius: 12,
-    padding: 14,
-    marginHorizontal: 16,
+    borderRadius: 14,
+    marginHorizontal: 12,
     marginVertical: 5,
-    borderWidth: 1,
-    borderColor: '#334155',
+    overflow: 'hidden',
   },
-  row: { flexDirection: 'row', alignItems: 'center' },
+  header: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 14, paddingVertical: 8,
+    backgroundColor: '#0f2236',
+  },
+  headerLeft: { color: '#64748b', fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  liveDot: { fontSize: 11 },
+  time: { color: '#94a3b8', fontSize: 13, fontWeight: '600' },
+  tbdBadge: {
+    backgroundColor: '#78350f', color: '#fcd34d',
+    fontSize: 10, fontWeight: '700', paddingHorizontal: 7,
+    paddingVertical: 2, borderRadius: 4, textTransform: 'uppercase',
+  },
+  closedBadge: {
+    backgroundColor: '#1e293b', color: '#64748b',
+    fontSize: 10, fontWeight: '600', paddingHorizontal: 7,
+    paddingVertical: 2, borderRadius: 4,
+  },
+  teamsContainer: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 12 },
   teams: { flex: 1 },
-  teamRow: {
-    flexDirection: 'row', alignItems: 'center', marginBottom: 8,
-  },
-  flag: { fontSize: 22, width: 32 },
-  teamName: { flex: 1, color: '#e2e8f0', fontSize: 14, fontWeight: '500' },
-  score: { color: '#fff', fontSize: 18, fontWeight: 'bold', width: 28, textAlign: 'center' },
+  teamRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  flag: { fontSize: 24, width: 36 },
+  teamName: { flex: 1, color: '#e2e8f0', fontSize: 15, fontWeight: '600' },
+  scoreBox: { width: 30, alignItems: 'center' },
+  scoreText: { color: '#64748b', fontSize: 18, fontWeight: '700' },
+  scoreTextPlayed: { color: '#fff' },
   input: {
-    width: 36, height: 32, backgroundColor: '#0f172a', color: '#fff',
-    borderRadius: 6, borderWidth: 1, borderColor: '#475569',
-    textAlign: 'center', fontSize: 16, fontWeight: 'bold',
+    width: 40, height: 36, backgroundColor: '#0f172a', color: '#fff',
+    borderRadius: 8, borderWidth: 1.5, borderColor: '#22c55e',
+    textAlign: 'center', fontSize: 17, fontWeight: '700', marginLeft: 8,
   },
   predBox: {
-    width: 36, height: 32, backgroundColor: '#1e3a5f', borderRadius: 6,
-    borderWidth: 1, borderColor: '#3b82f6', justifyContent: 'center', alignItems: 'center',
+    width: 40, height: 36, backgroundColor: '#1e3a5f', borderRadius: 8,
+    borderWidth: 1, borderColor: '#3b82f6', justifyContent: 'center',
+    alignItems: 'center', marginLeft: 8,
   },
-  predText: { color: '#93c5fd', fontSize: 16, fontWeight: 'bold' },
+  predGreen: { backgroundColor: '#14532d', borderColor: '#22c55e' },
+  predRed: { backgroundColor: '#450a0a', borderColor: '#ef4444' },
+  predText: { color: '#e2e8f0', fontSize: 17, fontWeight: '700' },
+  inputPlaceholder: { width: 40, height: 36, marginLeft: 8 },
   pointsBadge: {
-    width: 52, borderRadius: 8, alignItems: 'center',
-    paddingVertical: 6, marginLeft: 10,
+    width: 54, borderRadius: 10, alignItems: 'center',
+    paddingVertical: 8, marginLeft: 10,
   },
   badgeGreen: { backgroundColor: '#14532d' },
-  badgeRed: { backgroundColor: '#7f1d1d' },
-  pointsEmoji: { fontSize: 20, marginBottom: 2 },
-  pointsText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
-  footer: { flexDirection: 'row', marginTop: 2, flexWrap: 'wrap' },
-  meta: { color: '#64748b', fontSize: 12 },
-  live: { color: '#ef4444', fontSize: 12, fontWeight: 'bold' },
-  closed: { color: '#64748b', fontSize: 12 },
+  badgeRed: { backgroundColor: '#450a0a' },
+  pointsEmoji: { fontSize: 22, marginBottom: 2 },
+  pointsLabel: { color: '#fff', fontSize: 15, fontWeight: '800', lineHeight: 18 },
+  pointsPts: { color: '#86efac', fontSize: 10, fontWeight: '600' },
+  footer: { color: '#475569', fontSize: 12, paddingHorizontal: 14, paddingBottom: 10 },
 });
