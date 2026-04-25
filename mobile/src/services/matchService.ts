@@ -1,6 +1,7 @@
 import { ref, get, set } from 'firebase/database';
 import { db } from '../firebase/config';
 import { Match, MatchesData } from '@prode/shared';
+import { getTeamDisplayName } from '../utils/teams';
 
 const FIFA_API_URL = 'https://api.fifa.com/api/v3/calendar/matches';
 const SEASON_ID = '285023';
@@ -37,10 +38,10 @@ const transformFifaData = (results: FifaApiMatch[]): MatchesData => {
       locationCity: item.Stadium?.CityName?.[0]?.Description ?? '',
       locationCountry: item.Stadium?.IdCountry ?? '',
       home: item.Home?.Abbreviation ?? item.PlaceHolderA,
-      homeName: item.Home?.ShortClubName ?? item.PlaceHolderA,
+      homeName: getTeamDisplayName(item.Home?.Abbreviation, item.Home?.ShortClubName ?? item.PlaceHolderA),
       homeScore: item.Home?.Score ?? -1,
       away: item.Away?.Abbreviation ?? item.PlaceHolderB,
-      awayName: item.Away?.ShortClubName ?? item.PlaceHolderB,
+      awayName: getTeamDisplayName(item.Away?.Abbreviation, item.Away?.ShortClubName ?? item.PlaceHolderB),
       awayScore: item.Away?.Score ?? -1,
     };
   });

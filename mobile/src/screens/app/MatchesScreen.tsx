@@ -9,6 +9,7 @@ import { useMatches } from '../../hooks/useMatches';
 import { MatchCard } from '../../components/MatchCard';
 import { FilterBar, MatchFilter } from '../../components/FilterBar';
 import { Match } from '@prode/shared';
+import { getTeamDisplayName, getTeamSearchValues, normalizeSearchText } from '../../utils/teams';
 
 type MatchSection = { title: string; data: Match[] };
 type MatchLocation = { sectionIndex: number; itemIndex: number };
@@ -42,19 +43,13 @@ const GroupChips: React.FC<{
   </View>
 );
 
-const normalize = (value: string) => value.trim().toLowerCase();
-
 const matchContains = (match: Match, query: string) => {
   if (!query) return true;
 
   return [
-    match.home,
-    match.homeName,
-    match.away,
-    match.awayName,
-  ]
-    .filter(Boolean)
-    .some((value) => normalize(String(value)).includes(query));
+    ...getTeamSearchValues(match.home, match.homeName),
+    ...getTeamSearchValues(match.away, match.awayName),
+  ].some((value) => value.includes(query));
 };
 
 const filterSections = (sections: MatchSection[], query: string): MatchSection[] => {
@@ -132,7 +127,7 @@ export const MatchesScreen: React.FC = () => {
   ), [filter, sections, selectedGroup]);
 
   const query = useMemo(() => (
-    filter === 'group' ? '' : normalize(searchQuery)
+    filter === 'group' ? '' : normalizeSearchText(searchQuery)
   ), [filter, searchQuery]);
 
   const filteredSections = useMemo(() => (
@@ -256,7 +251,7 @@ export const MatchesScreen: React.FC = () => {
           <View style={styles.nextMatchCopy}>
             <Text style={styles.nextMatchLabel}>Próximo partido</Text>
             <Text style={styles.nextMatchTeams} numberOfLines={1}>
-              {nextMatch.homeName || nextMatch.home} vs {nextMatch.awayName || nextMatch.away}
+              {getTeamDisplayName(nextMatch.home, nextMatch.homeName)} vs {getTeamDisplayName(nextMatch.away, nextMatch.awayName)}
             </Text>
             <Text style={styles.nextMatchMeta}>{formatMatchDateTime(nextMatch)}</Text>
           </View>
@@ -277,7 +272,7 @@ export const MatchesScreen: React.FC = () => {
         maxToRenderPerBatch={6}
         updateCellsBatchingPeriod={40}
         windowSize={5}
-        removeClippedSubviews
+        removeClippedSubviews={false}
         stickySectionHeadersEnabled
         onScrollToIndexFailed={() => {
           const location = pendingLocationRef.current;

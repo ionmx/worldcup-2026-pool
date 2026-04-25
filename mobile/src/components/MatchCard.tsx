@@ -2,45 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { Match, Prediction } from '@prode/shared';
 import { savePrediction, canPredict } from '../services/predictionService';
-
-const FIFA_TO_ISO2: Record<string, string> = {
-  // CONMEBOL
-  ARG: 'AR', BRA: 'BR', URU: 'UY', COL: 'CO', ECU: 'EC', CHI: 'CL',
-  PER: 'PE', PAR: 'PY', BOL: 'BO', VEN: 'VE',
-  // CONCACAF — Norteamérica
-  USA: 'US', CAN: 'CA', MEX: 'MX',
-  // CONCACAF — Centroamérica
-  CRC: 'CR', HON: 'HN', PAN: 'PA', SLV: 'SV', GUA: 'GT', NCA: 'NI', BLZ: 'BZ',
-  // CONCACAF — Caribe
-  JAM: 'JM', TTO: 'TT', HAI: 'HT', CUW: 'CW', CUB: 'CU',
-  DOM: 'DO', PUR: 'PR', GUY: 'GY', SUR: 'SR', BRB: 'BB',
-  ATG: 'AG', VIN: 'VC', LCA: 'LC', SKN: 'KN', GRN: 'GD',
-  MTQ: 'MQ', GLP: 'GP', HAP: 'HT',
-  // UEFA
-  FRA: 'FR', GER: 'DE', ESP: 'ES', ENG: 'GB', POR: 'PT',
-  NED: 'NL', BEL: 'BE', ITA: 'IT', CRO: 'HR', SUI: 'CH',
-  DEN: 'DK', POL: 'PL', SRB: 'RS', AUT: 'AT', SWE: 'SE',
-  NOR: 'NO', TUR: 'TR', GRE: 'GR', UKR: 'UA', ROU: 'RO',
-  HUN: 'HU', SVK: 'SK', CZE: 'CZ', ALB: 'AL', SLO: 'SI',
-  GEO: 'GE', SCO: 'GB', WAL: 'GB', NIR: 'GB',
-  FIN: 'FI', ISL: 'IS', IRL: 'IE', BUL: 'BG', SVN: 'SI',
-  BIH: 'BA', MKD: 'MK', MNE: 'ME', LUX: 'LU',
-  // CAF
-  MAR: 'MA', SEN: 'SN', NGA: 'NG', EGY: 'EG', CMR: 'CM',
-  CIV: 'CI', GHA: 'GH', TUN: 'TN', ALG: 'DZ', MLI: 'ML',
-  RSA: 'ZA', COD: 'CD', ZIM: 'ZW', KEN: 'KE', TAN: 'TZ',
-  CPV: 'CV', EQG: 'GQ', GAB: 'GA', ZAM: 'ZM', MOZ: 'MZ',
-  UGA: 'UG', ETH: 'ET', BUR: 'BF', GUI: 'GN', GAM: 'GM',
-  MTN: 'MR', COM: 'KM', LBR: 'LR', SLE: 'SL',
-  // AFC
-  JPN: 'JP', KOR: 'KR', IRN: 'IR', SAU: 'SA', KSA: 'SA', AUS: 'AU',
-  QAT: 'QA', IRQ: 'IQ', JOR: 'JO', UAE: 'AE', UZB: 'UZ',
-  CHN: 'CN', IND: 'IN', THA: 'TH', VIE: 'VN', IDN: 'ID',
-  SYR: 'SY', PAL: 'PS', LIB: 'LB', OMA: 'OM', KUW: 'KW',
-  BHR: 'BH', YEM: 'YE', KGZ: 'KG', TJK: 'TJ', MYA: 'MM',
-  // OFC
-  NZL: 'NZ',
-};
+import { getTeamDisplayName, isKnownTeamCode, toFlagEmoji } from '../utils/teams';
 
 const ROUND_ES: Record<string, string> = {
   'Round of 32': 'Ronda de 32',
@@ -52,16 +14,7 @@ const ROUND_ES: Record<string, string> = {
   'Play-off': 'Repechaje',
 };
 
-const toFlagEmoji = (code: string): string => {
-  const iso2 = FIFA_TO_ISO2[code];
-  if (!iso2) return '🏳️';
-  return [...iso2.toUpperCase()]
-    .map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65))
-    .join('');
-};
-
-const isKnownTeam = (code: string): boolean => /^[A-Z]{2,3}$/.test(code);
-const isMatchDefined = (match: Match): boolean => isKnownTeam(match.home) && isKnownTeam(match.away);
+const isMatchDefined = (match: Match): boolean => isKnownTeamCode(match.home) && isKnownTeamCode(match.away);
 const translateRound = (round?: string): string => {
   if (!round) return 'Eliminatoria';
   return ROUND_ES[round] || round;
@@ -133,8 +86,8 @@ const MatchCardComponent: React.FC<Props> = ({ match, userId, prediction, showDa
 
   const homeFlag = defined ? toFlagEmoji(match.home) : '🏳️';
   const awayFlag = defined ? toFlagEmoji(match.away) : '🏳️';
-  const homeName = defined ? match.homeName : match.home;
-  const awayName = defined ? match.awayName : match.away;
+  const homeName = defined ? getTeamDisplayName(match.home, match.homeName) : match.home;
+  const awayName = defined ? getTeamDisplayName(match.away, match.awayName) : match.away;
 
   return (
     <View style={styles.card}>
