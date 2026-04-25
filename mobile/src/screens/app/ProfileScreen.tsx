@@ -11,11 +11,13 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useLeague } from '../../context/LeagueContext';
 import { logout } from '../../services/authService';
 import { deleteUserAccount, updateUserProfile } from '../../services/userService';
 
 export const ProfileScreen: React.FC = () => {
   const { user, userData, setUserData } = useAuth();
+  const { leagues } = useLeague();
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(userData?.displayName ?? '');
   const [saving, setSaving] = useState(false);
@@ -46,6 +48,18 @@ export const ProfileScreen: React.FC = () => {
 
   const handleDeleteAccount = () => {
     if (!user || !userData) return;
+
+    const ownedLeagues = leagues.filter((l) => l.ownerId === user.uid);
+    if (ownedLeagues.length > 0) {
+      const names = ownedLeagues.map((l) => l.name).join(', ');
+      Alert.alert(
+        'No podés eliminar tu cuenta',
+        `Sos dueño de ${ownedLeagues.length === 1 ? 'la liga' : 'las ligas'}: ${names}.\n\nPrimero transferí la dueñía a otro miembro o eliminá cada liga desde su detalle.`,
+        [{ text: 'Entendido' }]
+      );
+      return;
+    }
+
     Alert.alert(
       'Eliminar cuenta',
       'Se van a borrar tus datos, predicciones y membresías de ligas. Esta acción no se puede deshacer.',

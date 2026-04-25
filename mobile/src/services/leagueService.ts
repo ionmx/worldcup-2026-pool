@@ -155,6 +155,23 @@ export const updateLeague = async (
   await update(ref(db, `leagues/${leagueId}`), filtered);
 };
 
+export const removeMember = async (leagueId: string, memberId: string): Promise<void> => {
+  await remove(ref(db, `leagueMembers/${leagueId}/${memberId}`));
+  await remove(ref(db, `userLeagues/${memberId}/${leagueId}`));
+};
+
+export const transferOwnership = async (
+  leagueId: string,
+  currentOwnerId: string,
+  newOwnerId: string
+): Promise<void> => {
+  await update(ref(db), {
+    [`leagues/${leagueId}/ownerId`]: newOwnerId,
+    [`leagueMembers/${leagueId}/${currentOwnerId}/role`]: 'member',
+    [`leagueMembers/${leagueId}/${newOwnerId}/role`]: 'owner',
+  });
+};
+
 export const deleteLeague = async (leagueId: string, slug: string): Promise<void> => {
   const secretSnapshot = await get(ref(db, `leagueSecrets/${leagueId}/inviteCode`));
   const leagueSnapshot = await get(ref(db, `leagues/${leagueId}`));
