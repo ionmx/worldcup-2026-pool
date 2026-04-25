@@ -9,7 +9,7 @@ import { subscribeToLeagueMembers } from '../../services/leagueService';
 import { subscribeToLeaderboard } from '../../services/userService';
 
 export const StandingsScreen: React.FC = () => {
-  const { selectedLeague } = useLeague();
+  const { selectedLeague, leagues } = useLeague();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [members, setMembers] = useState<UserWithId[]>([]);
   const [memberIds, setMemberIds] = useState<string[]>([]);
@@ -60,24 +60,26 @@ export const StandingsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      {leagues.length > 0 && (
+        <TouchableOpacity
+          style={styles.leagueBanner}
+          onPress={() => navigation.navigate('LeagueSelector')}
+        >
+          <Text style={styles.bannerLabel}>🏆 {selectedLeague.name}</Text>
+          <Text style={styles.bannerChange}>Cambiar ›</Text>
+        </TouchableOpacity>
+      )}
+
       <FlatList
         data={members}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.title}>Tabla</Text>
-            <Text style={styles.subtitle}>{selectedLeague.name}</Text>
-          </View>
-        }
         renderItem={({ item, index }) => (
           <View style={styles.row}>
             <View style={[styles.position, index === 0 && styles.positionFirst]}>
               <Text style={styles.positionText}>{index + 1}</Text>
             </View>
-            <View style={styles.userInfo}>
-              <Text style={styles.userName}>{item.displayName || 'Usuario'}</Text>
-            </View>
+            <Text style={styles.userName}>{item.displayName || 'Usuario'}</Text>
             <Text style={styles.score}>{item.score ?? 0} pts</Text>
           </View>
         )}
@@ -95,10 +97,19 @@ export const StandingsScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0f172a' },
+  leagueBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1e293b',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#334155',
+  },
+  bannerLabel: { color: '#e2e8f0', fontSize: 14, fontWeight: '600' },
+  bannerChange: { color: '#22c55e', fontSize: 13 },
   list: { padding: 16 },
-  header: { marginBottom: 16 },
-  title: { color: '#fff', fontSize: 28, fontWeight: 'bold', marginBottom: 4 },
-  subtitle: { color: '#94a3b8', fontSize: 15 },
   row: {
     alignItems: 'center',
     backgroundColor: '#1e293b',
@@ -120,9 +131,7 @@ const styles = StyleSheet.create({
   },
   positionFirst: { backgroundColor: '#22c55e' },
   positionText: { color: '#fff', fontWeight: '800' },
-  userInfo: { flex: 1 },
-  userName: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  userHandle: { color: '#94a3b8', fontSize: 13, marginTop: 2 },
+  userName: { flex: 1, color: '#fff', fontSize: 16, fontWeight: '600' },
   score: { color: '#22c55e', fontSize: 16, fontWeight: '700' },
   loader: { marginTop: 24 },
   emptyText: { color: '#94a3b8', fontSize: 15, marginTop: 24, textAlign: 'center' },
