@@ -5,30 +5,38 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/types';
-import {
-  loginWithEmail,
-  useGoogleAuthRequest,
-  signInWithGoogleCredential,
-} from '../../services/authService';
+import { loginWithEmail, signInWithGoogleToken, useGoogleAuthRequest } from '../../services/authService';
 
 type Props = { navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'> };
+
+const GOOGLE_CONFIGURED = !!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+
+// Componente separado para que el hook solo se monte cuando Google está configurado
+const GoogleSignInButton: React.FC<{ disabled: boolean }> = ({ disabled }) => {
+  const [request, response, promptAsync] = useGoogleAuthRequest();
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { access_token } = response.params;
+      signInWithGoogleToken(access_token).catch((e) => Alert.alert('Error', e.message));
+    }
+  }, [response]);
+
+  return (
+    <TouchableOpacity
+      style={[styles.button, styles.googleButton]}
+      onPress={() => promptAsync()}
+      disabled={!request || disabled}
+    >
+      <Text style={styles.buttonText}>Continuar con Google</Text>
+    </TouchableOpacity>
+  );
+};
 
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const [request, response, promptAsync] = useGoogleAuthRequest();
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      setLoading(true);
-      signInWithGoogleCredential(id_token)
-        .catch((e) => Alert.alert('Error', e.message))
-        .finally(() => setLoading(false));
-    }
-  }, [response]);
 
   const handleEmailLogin = async () => {
     if (!email || !password) return;
@@ -69,13 +77,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Iniciar sesión</Text>}
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.button, styles.googleButton]}
-        onPress={() => promptAsync()}
-        disabled={!request || loading}
-      >
-        <Text style={styles.buttonText}>Continuar con Google</Text>
-      </TouchableOpacity>
+      {GOOGLE_CONFIGURED && <GoogleSignInButton disabled={loading} />}
 
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.link}>¿No tenés cuenta? Registrate</Text>

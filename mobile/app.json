@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Prode 2026",
+    "slug": "prode2026",
     "version": "1.0.0",
+    "scheme": "prode2026",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,6 +21,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.luquivan.prode2026",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },

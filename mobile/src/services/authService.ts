@@ -6,7 +6,7 @@ import {
   signInWithCredential,
   updateProfile,
 } from 'firebase/auth';
-import * as Google from 'expo-auth-session/providers/google';
+import { useAuthRequest, ResponseType } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { auth } from '../firebase/config';
 
@@ -27,15 +27,28 @@ export const registerWithEmail = async (
 
 export const logout = () => signOut(auth);
 
-// Returns the hook config for Google sign-in — call this in a component
-export const useGoogleAuthRequest = () =>
-  Google.useAuthRequest({
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-  });
+const GOOGLE_DISCOVERY = {
+  authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+  tokenEndpoint: 'https://oauth2.googleapis.com/token',
+  revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
+};
 
-export const signInWithGoogleCredential = async (idToken: string) => {
-  const credential = GoogleAuthProvider.credential(idToken);
+const REDIRECT_URI = 'https://auth.expo.io/@toronjarenosa/prode2026';
+
+// Hook genérico — sin validación de androidClientId
+export const useGoogleAuthRequest = () =>
+  useAuthRequest(
+    {
+      clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID!,
+      redirectUri: REDIRECT_URI,
+      scopes: ['openid', 'profile', 'email'],
+      responseType: ResponseType.Token,
+      usePKCE: false,
+    },
+    GOOGLE_DISCOVERY
+  );
+
+export const signInWithGoogleToken = async (accessToken: string) => {
+  const credential = GoogleAuthProvider.credential(null, accessToken);
   return signInWithCredential(auth, credential);
 };
