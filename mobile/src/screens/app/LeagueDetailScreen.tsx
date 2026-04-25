@@ -30,6 +30,7 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
   const [memberIds, setMemberIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [copied, setCopied] = useState(false);
   const { user } = useAuth();
   const { selectedLeague, setSelectedLeague } = useLeague();
   const isOwner = user?.uid === league.ownerId;
@@ -58,11 +59,18 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     return unsubscribeLeaderboard;
   }, [memberIds]);
 
+  useEffect(() => {
+    if (!copied) return;
+
+    const timeout = setTimeout(() => setCopied(false), 1800);
+    return () => clearTimeout(timeout);
+  }, [copied]);
+
   const getInviteLink = () => `https://prodeapp-739a1.web.app/league/${league.slug}/join/${league.inviteCode}`;
 
   const copyInviteCode = async () => {
     await Clipboard.setStringAsync(league.inviteCode);
-    Alert.alert('Código copiado', league.inviteCode);
+    setCopied(true);
   };
 
   const shareInvite = async () => {
@@ -164,13 +172,29 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
               {league.description ? <Text style={styles.description}>{league.description}</Text> : null}
               <Text style={styles.meta}>{memberIds.length} miembros</Text>
 
-              <TouchableOpacity style={styles.inviteButton} onPress={copyInviteCode}>
-                <Text style={styles.inviteLabel}>Copiar código</Text>
-                <Text style={styles.inviteCode}>{league.inviteCode}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.shareButton} onPress={shareInvite}>
-                <Text style={styles.shareButtonText}>Compartir invitación</Text>
-              </TouchableOpacity>
+              <View style={styles.invitePanel}>
+                <View style={styles.inviteHeader}>
+                  <View>
+                    <Text style={styles.inviteTitle}>Invitación</Text>
+                    <Text style={styles.inviteHelp}>Copiá el código o compartí el link.</Text>
+                  </View>
+                  {copied ? <Text style={styles.copiedText}>Copiado</Text> : null}
+                </View>
+
+                <TouchableOpacity style={styles.codeBox} onPress={copyInviteCode} activeOpacity={0.8}>
+                  <Text style={styles.codeLabel}>Código</Text>
+                  <Text style={styles.inviteCode}>{league.inviteCode}</Text>
+                </TouchableOpacity>
+
+                <View style={styles.inviteActions}>
+                  <TouchableOpacity style={styles.copyButton} onPress={copyInviteCode}>
+                    <Text style={styles.copyButtonText}>Copiar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.shareButton} onPress={shareInvite}>
+                    <Text style={styles.shareButtonText}>Compartir</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
 
             <Text style={styles.sectionTitle}>Miembros</Text>
@@ -212,25 +236,50 @@ const styles = StyleSheet.create({
   title: { color: '#fff', fontSize: 24, fontWeight: 'bold', marginBottom: 6 },
   description: { color: '#94a3b8', fontSize: 15, marginBottom: 10 },
   meta: { color: '#64748b', fontSize: 13, marginBottom: 16 },
-  inviteButton: {
-    alignItems: 'center',
-    backgroundColor: '#22c55e',
+  invitePanel: {
+    backgroundColor: '#0f172a',
+    borderColor: '#334155',
     borderRadius: 10,
+    borderWidth: 1,
+    padding: 12,
+  },
+  inviteHeader: {
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    marginBottom: 12,
   },
-  inviteLabel: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  inviteCode: { color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 2 },
+  inviteTitle: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  inviteHelp: { color: '#94a3b8', fontSize: 13, marginTop: 2 },
+  copiedText: { color: '#22c55e', fontSize: 13, fontWeight: '700' },
+  codeBox: {
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderColor: '#475569',
+    borderRadius: 8,
+    borderWidth: 1,
+    marginBottom: 10,
+    padding: 14,
+  },
+  codeLabel: { color: '#94a3b8', fontSize: 12, fontWeight: '700', marginBottom: 6, textTransform: 'uppercase' },
+  inviteCode: { color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: 4 },
+  inviteActions: { flexDirection: 'row', gap: 10 },
+  copyButton: {
+    alignItems: 'center',
+    backgroundColor: '#22c55e',
+    borderRadius: 8,
+    flex: 1,
+    padding: 13,
+  },
+  copyButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
   shareButton: {
     alignItems: 'center',
     backgroundColor: '#334155',
-    borderRadius: 10,
-    marginTop: 10,
-    padding: 14,
+    borderRadius: 8,
+    flex: 1,
+    padding: 13,
   },
-  shareButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  shareButtonText: { color: '#fff', fontSize: 15, fontWeight: '700' },
   sectionTitle: { color: '#fff', fontSize: 18, fontWeight: '700', marginBottom: 12 },
   loader: { marginVertical: 18 },
   memberCard: {
