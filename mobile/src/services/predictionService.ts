@@ -13,14 +13,17 @@ export const savePrediction = async (
   uid: string,
   gameId: string,
   homePrediction: number,
-  awayPrediction: number
+  awayPrediction: number,
+  penaltyWinner?: 'home' | 'away'
 ): Promise<void> => {
-  await set(ref(db, `predictions/${uid}/${gameId}`), {
+  const data: Record<string, unknown> = {
     homePrediction,
     awayPrediction,
     points: 0,
     updatedAt: Date.now(),
-  });
+  };
+  if (penaltyWinner) data.penaltyWinner = penaltyWinner;
+  await set(ref(db, `predictions/${uid}/${gameId}`), data);
 };
 
 export const getUserPredictions = async (uid: string): Promise<UserPredictions> => {

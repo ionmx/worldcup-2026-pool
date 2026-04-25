@@ -14,6 +14,7 @@ export interface Match {
   away: string;
   awayName: string;
   awayScore: number;
+  penaltyWinner?: 'home' | 'away' | null;
 }
 
 export interface MatchesData {

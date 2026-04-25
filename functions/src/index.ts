@@ -6,134 +6,127 @@ import * as admin from 'firebase-admin';
 admin.initializeApp();
 const db = admin.database();
 
-// FIFA API constants for World Cup 2026
-const FIFA_COMPETITION_ID = '17'; // FIFA World Cup
-const FIFA_SEASON_ID = '285023'; // 2026
+const FIFA_COMPETITION_ID = '17';
+const FIFA_SEASON_ID = '285023';
 
 interface Match {
   game: number;
   fifaId: string;
+  group: string | null;
   homeScore: number;
   awayScore: number;
+  penaltyWinner: 'home' | 'away' | null;
 }
 
 interface Prediction {
   homePrediction: number;
   awayPrediction: number;
   points: number;
+  penaltyWinner?: 'home' | 'away';
 }
 
 interface FifaMatch {
   IdMatch: string;
   Home: { Score: number | null };
   Away: { Score: number | null };
+  HomeTeamPenaltyScore: number | null;
+  AwayTeamPenaltyScore: number | null;
 }
 
 interface FifaApiResponse {
   Results: FifaMatch[];
 }
 
-/**
- * Determine the winner of a match
- */
-const getWinner = (home: number, away: number): 'home' | 'away' | 'tied' => {
+const getWinner = (home: number, away: number): 'home' | 'away' | 'draw' => {
   if (home > away) return 'home';
   if (home < away) return 'away';
-  return 'tied';
+  return 'draw';
 };
 
+const isClose = (
+  homeScore: number, awayScore: number,
+  homePred: number, awayPred: number
+): boolean =>
+  Math.abs(homePred - homeScore) <= 1 && Math.abs(awayPred - awayScore) <= 1;
+
 /**
- * Calculate points for a prediction
- * - 15 points: Exact score
- * - Up to 10 points: Correct winner, minus difference from actual score (min 0)
- * - 0 points: Wrong winner or no prediction
+ * 6 pts exact / 3 pts close (correct winner + each goal within 1) /
+ * 2 pts correct winner / 0 pts wrong
+ * +1 bonus if predicted draw in knockout, went to penalties, and penalty winner correct
  */
 const calculatePoints = (
   homeScore: number,
   awayScore: number,
   homePrediction: number | null,
-  awayPrediction: number | null
+  awayPrediction: number | null,
+  penaltyWinner: 'home' | 'away' | null,
+  predPenaltyWinner?: 'home' | 'away'
 ): number => {
-  // No prediction or match not played yet
-  if (homeScore < 0 || homePrediction === null || awayPrediction === null) {
-    return 0;
-  }
+  if (homeScore < 0 || homePrediction === null || awayPrediction === null) return 0;
 
-  // Exact score: 15 points
+  let points = 0;
+
   if (homeScore === homePrediction && awayScore === awayPrediction) {
-    return 15;
+    points = 6;
+  } else if (getWinner(homeScore, awayScore) === getWinner(homePrediction, awayPrediction)) {
+    points = isClose(homeScore, awayScore, homePrediction, awayPrediction) ? 3 : 2;
   }
 
-  // Correct winner: 10 points minus difference (min 0)
-  if (getWinner(homeScore, awayScore) === getWinner(homePrediction, awayPrediction)) {
-    const difference = Math.abs(homePrediction - homeScore) + Math.abs(awayPrediction - awayScore);
-    return Math.max(0, 10 - difference);
+  if (
+    penaltyWinner !== null &&
+    homePrediction === awayPrediction &&
+    predPenaltyWinner === penaltyWinner
+  ) {
+    points += 1;
   }
 
-  // Wrong winner: 0 points
-  return 0;
+  return points;
 };
 
-/**
- * Scheduled function to fetch and update match scores from FIFA API
- * Runs every 1 minute during the tournament
- */
 export const updateMatchScores = onSchedule('every 1 minutes', async () => {
   logger.info('Updating match scores from FIFA API...');
-
   try {
-    // Get today's date range
     const now = new Date();
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(now);
-    endOfDay.setHours(23, 59, 59, 999);
+    const startOfDay = new Date(now); startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(now); endOfDay.setHours(23, 59, 59, 999);
 
-    const fromDate = startOfDay.toISOString();
-    const toDate = endOfDay.toISOString();
-
-    // Fetch today's matches from FIFA API
-    const apiUrl = `https://api.fifa.com/api/v3/calendar/matches?idseason=${FIFA_SEASON_ID}&idcompetition=${FIFA_COMPETITION_ID}&from=${fromDate}&to=${toDate}&count=500`;
+    const apiUrl = `https://api.fifa.com/api/v3/calendar/matches?idseason=${FIFA_SEASON_ID}&idcompetition=${FIFA_COMPETITION_ID}&from=${startOfDay.toISOString()}&to=${endOfDay.toISOString()}&count=500`;
 
     const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`FIFA API error: ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error(`FIFA API error: ${response.status}`);
     const data = await response.json() as FifaApiResponse;
 
-    // Get current matches from database
     const matchesSnapshot = await db.ref('matches').once('value');
     const matches = matchesSnapshot.val() as Record<string, Match> | null;
+    if (!matches) { logger.warn('No matches in DB'); return; }
 
-    if (!matches) {
-      logger.warn('No matches found in database');
-      return;
-    }
-
-    // Update scores for matching games
-    const updates: Record<string, number> = {};
+    const updates: Record<string, number | string | null> = {};
 
     for (const fifaMatch of data.Results) {
       for (const [gameId, match] of Object.entries(matches)) {
-        if (match.fifaId === fifaMatch.IdMatch) {
-          const homeScore = fifaMatch.Home?.Score ?? -1;
-          const awayScore = fifaMatch.Away?.Score ?? -1;
+        if (match.fifaId !== fifaMatch.IdMatch) continue;
 
-          if (match.homeScore !== homeScore && homeScore >= 0) {
-            updates[`matches/${gameId}/homeScore`] = homeScore;
-            logger.info(`Updated game ${gameId} home score: ${homeScore}`);
-          }
+        const homeScore = fifaMatch.Home?.Score ?? -1;
+        const awayScore = fifaMatch.Away?.Score ?? -1;
 
-          if (match.awayScore !== awayScore && awayScore >= 0) {
-            updates[`matches/${gameId}/awayScore`] = awayScore;
-            logger.info(`Updated game ${gameId} away score: ${awayScore}`);
-          }
+        if (homeScore >= 0 && match.homeScore !== homeScore)
+          updates[`matches/${gameId}/homeScore`] = homeScore;
+        if (awayScore >= 0 && match.awayScore !== awayScore)
+          updates[`matches/${gameId}/awayScore`] = awayScore;
+
+        // Penalty winner only applies to knockout rounds (group === null)
+        if (match.group === null) {
+          const homePen = fifaMatch.HomeTeamPenaltyScore ?? 0;
+          const awayPen = fifaMatch.AwayTeamPenaltyScore ?? 0;
+          const hasPenalties = homePen > 0 || awayPen > 0;
+          const penaltyWinner = hasPenalties ? (homePen > awayPen ? 'home' : 'away') : null;
+
+          if (match.penaltyWinner !== penaltyWinner)
+            updates[`matches/${gameId}/penaltyWinner`] = penaltyWinner;
         }
       }
     }
 
-    // Apply all updates at once
     if (Object.keys(updates).length > 0) {
       await db.ref().update(updates);
       logger.info(`Applied ${Object.keys(updates).length} score updates`);
@@ -143,60 +136,39 @@ export const updateMatchScores = onSchedule('every 1 minutes', async () => {
   }
 });
 
-/**
- * Triggered when a match is updated
- * Recalculates prediction points for all users for that match
- */
 export const updatePredictionPoints = onValueWritten(
   'matches/{matchId}',
   async (event) => {
     const matchId = event.params.matchId;
     const match = event.data.after.val() as Match | null;
+    if (!match || match.homeScore < 0 || match.awayScore < 0) return;
 
-    if (!match) {
-      logger.warn(`Match ${matchId} was deleted`);
-      return;
-    }
-
-    // Only recalculate if match has scores
-    if (match.homeScore < 0 || match.awayScore < 0) {
-      return;
-    }
-
-    logger.info(`Updating prediction points for match ${matchId}`);
-
+    logger.info(`Recalculating points for match ${matchId}`);
     try {
-      // Get all users
       const usersSnapshot = await db.ref('users').once('value');
       const users = usersSnapshot.val() as Record<string, unknown> | null;
-
-      if (!users) {
-        return;
-      }
+      if (!users) return;
 
       const updates: Record<string, number> = {};
 
-      // Calculate points for each user's prediction
       for (const userId of Object.keys(users)) {
-        const predictionSnapshot = await db.ref(`predictions/${userId}/${matchId}`).once('value');
-        const prediction = predictionSnapshot.val() as Prediction | null;
+        const predSnap = await db.ref(`predictions/${userId}/${matchId}`).once('value');
+        const prediction = predSnap.val() as Prediction | null;
+        if (!prediction) continue;
 
-        if (prediction) {
-          const points = calculatePoints(
-            match.homeScore,
-            match.awayScore,
-            prediction.homePrediction,
-            prediction.awayPrediction
-          );
+        const points = calculatePoints(
+          match.homeScore,
+          match.awayScore,
+          prediction.homePrediction,
+          prediction.awayPrediction,
+          match.penaltyWinner ?? null,
+          prediction.penaltyWinner
+        );
 
-          if (prediction.points !== points) {
-            updates[`predictions/${userId}/${matchId}/points`] = points;
-            logger.info(`User ${userId}: ${points} points for match ${matchId}`);
-          }
-        }
+        if (prediction.points !== points)
+          updates[`predictions/${userId}/${matchId}/points`] = points;
       }
 
-      // Apply all updates at once
       if (Object.keys(updates).length > 0) {
         await db.ref().update(updates);
         logger.info(`Updated ${Object.keys(updates).length} prediction points`);
@@ -207,33 +179,29 @@ export const updatePredictionPoints = onValueWritten(
   }
 );
 
-/**
- * Triggered when prediction points change
- * Updates the user's total score
- */
 export const updateUserScore = onValueWritten(
   'predictions/{userId}/{matchId}/points',
   async (event) => {
     const { userId } = event.params;
-    const beforePoints = event.data.before.val() as number | null ?? 0;
-    const afterPoints = event.data.after.val() as number | null ?? 0;
+    const before = event.data.before.val() as number | null ?? 0;
+    const after = event.data.after.val() as number | null ?? 0;
+    if (before === after) return;
 
-    // No change in points
-    if (beforePoints === afterPoints) {
-      return;
-    }
-
-    const pointsDiff = afterPoints - beforePoints;
-
-    logger.info(`User ${userId} points changed: ${beforePoints} -> ${afterPoints} (diff: ${pointsDiff})`);
+    const diff = after - before;
+    logger.info(`User ${userId} points diff: ${diff}`);
 
     try {
-      const scoreSnapshot = await db.ref(`users/${userId}/score`).once('value');
-      const currentScore = scoreSnapshot.val() as number | null ?? 0;
-      const newScore = currentScore + pointsDiff;
+      const scoreSnap = await db.ref(`users/${userId}/score`).once('value');
+      const current = scoreSnap.val() as number | null ?? 0;
+      const newScore = current + diff;
 
-      await db.ref(`users/${userId}/score`).set(newScore);
-      logger.info(`User ${userId} total score: ${newScore}`);
+      // Update both private and public score so leaderboard stays in sync
+      await db.ref().update({
+        [`users/${userId}/score`]: newScore,
+        [`publicUsers/${userId}/score`]: newScore,
+      });
+
+      logger.info(`User ${userId} score: ${newScore}`);
     } catch (error) {
       logger.error('Error updating user score:', error);
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Match, Prediction } from '@prode/shared';
 import { savePrediction, canPredict } from '../services/predictionService';
 
@@ -74,15 +74,19 @@ interface Props {
   showDate?: boolean;
 }
 
+const isKnockoutMatch = (match: Match): boolean => match.group === null;
+
 const MatchCardComponent: React.FC<Props> = ({ match, userId, prediction, showDate = false }) => {
   const [home, setHome] = useState(prediction?.homePrediction?.toString() ?? '');
   const [away, setAway] = useState(prediction?.awayPrediction?.toString() ?? '');
+  const [penaltyWinner, setPenaltyWinner] = useState<'home' | 'away' | undefined>(prediction?.penaltyWinner);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   useEffect(() => {
     if (prediction) {
       setHome(prediction.homePrediction?.toString() ?? '');
       setAway(prediction.awayPrediction?.toString() ?? '');
+      setPenaltyWinner(prediction.penaltyWinner);
     }
   }, [prediction]);
 
@@ -113,14 +117,18 @@ const MatchCardComponent: React.FC<Props> = ({ match, userId, prediction, showDa
   const showPoints = isPlayed && !!prediction;
   const pts = prediction?.points ?? 0;
 
+  const isDraw = home !== '' && away !== '' && home === away;
+  const showPenaltyPicker = editable && isKnockoutMatch(match) && isDraw;
+
   const save = async () => {
     if (!editable || !userId) return;
     const h = parseInt(home, 10);
     const a = parseInt(away, 10);
     if (isNaN(h) || isNaN(a) || h < 0 || a < 0) return;
+    const pw = isKnockoutMatch(match) && h === a ? penaltyWinner : undefined;
     setSaveStatus('saving');
     try {
-      await savePrediction(userId, String(match.game), h, a);
+      await savePrediction(userId, String(match.game), h, a, pw);
       setSaveStatus('saved');
     } catch {
       setSaveStatus('error');
@@ -205,6 +213,23 @@ const MatchCardComponent: React.FC<Props> = ({ match, userId, prediction, showDa
                   selectTextOnFocus
                 />
               </View>
+              {showPenaltyPicker && (
+                <View style={styles.penaltyRow}>
+                  <Text style={styles.penaltyLabel}>Penales:</Text>
+                  <TouchableOpacity
+                    style={[styles.penaltyBtn, penaltyWinner === 'home' && styles.penaltyBtnActive]}
+                    onPress={() => { setPenaltyWinner('home'); setSaveStatus('idle'); }}
+                  >
+                    <Text style={styles.penaltyBtnText}>{homeName}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.penaltyBtn, penaltyWinner === 'away' && styles.penaltyBtnActive]}
+                    onPress={() => { setPenaltyWinner('away'); setSaveStatus('idle'); }}
+                  >
+                    <Text style={styles.penaltyBtnText}>{awayName}</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
               {saveStatus !== 'idle' ? (
                 <Text style={[styles.saveStatus, saveStatus === 'error' && styles.saveStatusError]}>
                   {saveStatus === 'saving' ? 'Guardando...' : saveStatus === 'saved' ? 'Guardado' : 'Error al guardar'}
@@ -227,7 +252,7 @@ const MatchCardComponent: React.FC<Props> = ({ match, userId, prediction, showDa
           {showPoints && (
             <View style={[styles.pointsBadge, pts > 0 ? styles.badgeGreen : styles.badgeRed]}>
               <Text style={styles.pointsText}>
-                {pts === 15 ? '🥳' : pts > 0 ? '😄' : '😔'} {pts > 0 ? `+${pts}` : pts} pts
+                {pts >= 6 ? '🥳' : pts > 0 ? '😄' : '😔'} {pts > 0 ? `+${pts}` : pts} pts
               </Text>
             </View>
           )}
@@ -389,6 +414,15 @@ const styles = StyleSheet.create({
   },
   saveStatus: { color: '#22c55e', fontSize: 10, fontWeight: '700' },
   saveStatusError: { color: '#ef4444' },
+  penaltyRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  penaltyLabel: { color: '#64748b', fontSize: 10, fontWeight: '700' },
+  penaltyBtn: {
+    paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: 6, borderWidth: 1, borderColor: '#334155',
+    backgroundColor: '#0f172a',
+  },
+  penaltyBtnActive: { borderColor: '#22c55e', backgroundColor: '#14532d' },
+  penaltyBtnText: { color: '#e2e8f0', fontSize: 10, fontWeight: '600' },
 
   predDisplayRow: {
     flexDirection: 'row',
