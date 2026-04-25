@@ -6,15 +6,23 @@
       ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
     },
 
-    // Users - anyone can read, users can write their own profile, admins can write any
+    // Users - private profile data, including email
     "users": {
-      ".read": true,
       "$userId": {
+        ".read": "auth != null && (auth.uid === $userId || root.child('users').child(auth.uid).child('admin').val() === true)",
         ".write": "auth != null && (auth.uid === $userId || root.child('users').child(auth.uid).child('admin').val() === true)",
         // Prevent non-admins from setting admin flag
         "admin": {
           ".write": "auth != null && root.child('users').child(auth.uid).child('admin').val() === true"
         }
+      }
+    },
+
+    // Public user profile data for leaderboards and member lists
+    "publicUsers": {
+      ".read": true,
+      "$userId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('admin').val() === true || (auth.uid === $userId && (!newData.exists() || (!data.exists() && newData.child('score').val() === 0) || (data.exists() && newData.child('score').val() === data.child('score').val()))))"
       }
     },
 
@@ -24,6 +32,14 @@
       "$normalizedUsername": {
         // Can write if: claiming for yourself OR releasing your own OR admin
         ".write": "auth != null && (newData.val() === auth.uid || !data.exists() || data.val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)"
+      }
+    },
+
+    // Minimal username -> email index for username login. Exact-key lookup only.
+    "userLoginEmails": {
+      "$normalizedUsername": {
+        ".read": true,
+        ".write": "auth != null && ((newData.exists() && newData.val() === root.child('users').child(auth.uid).child('email').val()) || (!newData.exists() && data.val() === root.child('users').child(auth.uid).child('email').val()) || root.child('users').child(auth.uid).child('admin').val() === true)"
       }
     },
 
@@ -75,6 +91,22 @@
       }
     },
 
+    // Invite codes index - allows lookup by exact code without listing all codes
+    "inviteCodes": {
+      "$code": {
+        ".read": true,
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('admin').val() === true || (data.exists() && root.child('leagues').child(data.val()).child('ownerId').val() === auth.uid) || (!data.exists() && newData.exists() && root.child('leagues').child(newData.val()).child('ownerId').val() === auth.uid))"
+      }
+    },
+
+    // League secrets - readable only by league members/owner/admin
+    "leagueSecrets": {
+      "$leagueId": {
+        ".read": "auth != null && (root.child('leagueMembers').child($leagueId).child(auth.uid).exists() || root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)",
+        ".write": "auth != null && (root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)"
+      }
+    },
+
     // League members - who is in each league
     "leagueMembers": {
       ".read": true,
@@ -82,8 +114,8 @@
         // Allow owner or admin to delete the entire member list (for league deletion)
         ".write": "auth != null && (root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)",
         "$userId": {
-          // Users can add/remove themselves, league owner can remove members, admin can remove anyone
-          ".write": "auth != null && (auth.uid === $userId || root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)"
+          // Users can remove themselves. Joining requires the invite code. Owner/admin can manage anyone.
+          ".write": "auth != null && (root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true || (auth.uid === $userId && (!newData.exists() || newData.child('inviteCode').val() === root.child('leagueSecrets').child($leagueId).child('inviteCode').val() || newData.child('inviteCode').val() === root.child('leagues').child($leagueId).child('inviteCode').val())))"
         }
       }
     },
@@ -95,8 +127,8 @@
         // Users can delete their entire userLeagues entry (for account deletion)
         ".write": "auth != null && auth.uid === $userId && !newData.exists()",
         "$leagueId": {
-          // Users can add/remove themselves, league owner can remove members, admin can remove anyone
-          ".write": "auth != null && (auth.uid === $userId || root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true)"
+          // Users can add this reverse index only after leagueMembers was validated.
+          ".write": "auth != null && (root.child('leagues').child($leagueId).child('ownerId').val() === auth.uid || root.child('users').child(auth.uid).child('admin').val() === true || (auth.uid === $userId && (!newData.exists() || root.child('leagueMembers').child($leagueId).child($userId).exists())))"
         }
       }
     },

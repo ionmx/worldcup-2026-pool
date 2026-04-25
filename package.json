@@ -1,4 +1,15 @@
 {
+  "name": "worldcup-2026-pool",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "web",
+    "functions"
+  ],
+  "scripts": {
+    "web": "npm run dev --workspace=web",
+    "mobile": "npm run start --workspace=mobile"
+  },
   "dependencies": {
     "firebase": "^12.7.0"
   }
