@@ -20,7 +20,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const TABS = [
   { key: 'Matches',   icon: '⚽', label: 'Partidos',  Screen: MatchesScreen,   showLeague: true  },
-  { key: 'Standings', icon: '📊', label: 'Tabla',     Screen: StandingsScreen, showLeague: true  },
+  { key: 'Standings', icon: '📊', label: 'Posiciones', Screen: StandingsScreen, showLeague: false },
   { key: 'Leagues',   icon: '🏆', label: 'Ligas',     Screen: LeaguesScreen,   showLeague: false },
   { key: 'Profile',   icon: '👤', label: 'Perfil',    Screen: ProfileScreen,   showLeague: false },
 ] as const;
