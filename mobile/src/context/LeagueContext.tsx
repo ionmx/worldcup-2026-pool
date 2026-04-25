@@ -33,15 +33,10 @@ export const LeagueProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const unsubscribe = subscribeToUserLeagues(user.uid, (updatedLeagues) => {
       setLeagues(updatedLeagues);
-      // Auto-select first league if none selected
-      if (!selectedLeague && updatedLeagues.length > 0) {
-        setSelectedLeague(updatedLeagues[0]);
-      }
-      // Sync selected league data if it was updated
-      if (selectedLeague) {
-        const updated = updatedLeagues.find((l) => l.id === selectedLeague.id);
-        if (updated) setSelectedLeague(updated);
-      }
+      setSelectedLeague((current) => {
+        if (!current) return updatedLeagues[0] ?? null;
+        return updatedLeagues.find((l) => l.id === current.id) ?? updatedLeagues[0] ?? null;
+      });
       setLoading(false);
     });
 

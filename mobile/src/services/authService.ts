@@ -5,15 +5,51 @@ import {
   GoogleAuthProvider,
   signInWithCredential,
   updateProfile,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { useAuthRequest, ResponseType } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
-import { auth } from '../firebase/config';
+import { ref, get } from 'firebase/database';
+import { normalizeUsername, UserData } from '@prode/shared';
+import { auth, db } from '../firebase/config';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export const loginWithEmail = (email: string, password: string) =>
   signInWithEmailAndPassword(auth, email, password);
+
+const resolveEmail = async (identifier: string): Promise<string> => {
+  const value = identifier.trim();
+  if (value.includes('@')) return value;
+
+  const usernameSnapshot = await get(ref(db, `usernames/${normalizeUsername(value)}`));
+  if (!usernameSnapshot.exists()) {
+    throw new Error('No encontramos ese usuario');
+  }
+
+  const uid = usernameSnapshot.val() as string;
+  const userSnapshot = await get(ref(db, `users/${uid}`));
+  if (!userSnapshot.exists()) {
+    throw new Error('No encontramos ese usuario');
+  }
+
+  const userData = userSnapshot.val() as UserData;
+  if (!userData.email) {
+    throw new Error('Ese usuario no tiene email asociado');
+  }
+
+  return userData.email;
+};
+
+export const loginWithIdentifier = async (identifier: string, password: string) => {
+  const email = await resolveEmail(identifier);
+  return signInWithEmailAndPassword(auth, email, password);
+};
+
+export const resetPassword = async (identifier: string) => {
+  const email = await resolveEmail(identifier);
+  return sendPasswordResetEmail(auth, email);
+};
 
 export const registerWithEmail = async (
   email: string,

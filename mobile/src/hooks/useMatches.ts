@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchMatches } from '../services/matchService';
 import { subscribeToPredictions } from '../services/predictionService';
 import { useAuth } from '../context/AuthContext';
@@ -91,10 +91,11 @@ export const useMatches = (filter: MatchFilter) => {
     return subscribeToPredictions(user.uid, setPredictions);
   }, [user?.uid]);
 
-  const sections: MatchSection[] =
+  const sections: MatchSection[] = useMemo(() => (
     filter === 'group' ? byGroup(allMatches) :
     filter === 'knockout' ? byKnockout(allMatches) :
-    byDate(allMatches);
+    byDate(allMatches)
+  ), [allMatches, filter]);
 
   const refresh = () => { setRefreshing(true); load(true); };
 

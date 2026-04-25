@@ -74,7 +74,7 @@ interface Props {
   showDate?: boolean;
 }
 
-export const MatchCard: React.FC<Props> = ({ match, userId, prediction, showDate = false }) => {
+const MatchCardComponent: React.FC<Props> = ({ match, userId, prediction, showDate = false }) => {
   const [home, setHome] = useState(prediction?.homePrediction?.toString() ?? '');
   const [away, setAway] = useState(prediction?.awayPrediction?.toString() ?? '');
   const [saving, setSaving] = useState(false);
@@ -232,6 +232,8 @@ export const MatchCard: React.FC<Props> = ({ match, userId, prediction, showDate
     </View>
   );
 };
+
+export const MatchCard = React.memo(MatchCardComponent);
 
 const NUM_STYLE = {
   fontVariant: ['tabular-nums' as const],
