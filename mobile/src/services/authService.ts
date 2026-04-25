@@ -5,6 +5,7 @@ import {
   GoogleAuthProvider,
   signInWithCredential,
   updateProfile,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { useAuthRequest, ResponseType } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
@@ -14,6 +15,12 @@ WebBrowser.maybeCompleteAuthSession();
 
 export const loginWithEmail = (email: string, password: string) =>
   signInWithEmailAndPassword(auth, email, password);
+
+export const loginWithIdentifier = (identifier: string, password: string) =>
+  signInWithEmailAndPassword(auth, identifier.trim(), password);
+
+export const resetPassword = (identifier: string) =>
+  sendPasswordResetEmail(auth, identifier.trim());
 
 export const registerWithEmail = async (
   email: string,
@@ -33,14 +40,15 @@ const GOOGLE_DISCOVERY = {
   revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
 };
 
-const REDIRECT_URI = 'https://auth.expo.io/@toronjarenosa/prode2026';
+const GOOGLE_REDIRECT_URI =
+  process.env.EXPO_PUBLIC_GOOGLE_REDIRECT_URI || 'https://auth.expo.io/@toronjarenosa/prode2026';
 
 // Hook genérico — sin validación de androidClientId
 export const useGoogleAuthRequest = () =>
   useAuthRequest(
     {
       clientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID!,
-      redirectUri: REDIRECT_URI,
+      redirectUri: GOOGLE_REDIRECT_URI,
       scopes: ['openid', 'profile', 'email'],
       responseType: ResponseType.Token,
       usePKCE: false,

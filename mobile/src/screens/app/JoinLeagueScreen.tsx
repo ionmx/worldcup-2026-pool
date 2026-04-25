@@ -44,7 +44,7 @@ export const JoinLeagueScreen: React.FC<Props> = ({ navigation }) => {
         return;
       }
 
-      await joinLeague(league.id, user.uid);
+      await joinLeague(league.id, user.uid, finalCode);
       setSelectedLeague(league);
       navigation.replace('LeagueDetail', { league });
     } catch (e: any) {

@@ -34,6 +34,7 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
   const { user } = useAuth();
   const { selectedLeague, setSelectedLeague } = useLeague();
   const isOwner = user?.uid === league.ownerId;
+  const inviteCode = league.inviteCode ?? '';
 
   useEffect(() => {
     setLoading(true);
@@ -66,10 +67,10 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     return () => clearTimeout(timeout);
   }, [copied]);
 
-  const getInviteLink = () => `https://prodeapp-739a1.web.app/league/${league.slug}/join/${league.inviteCode}`;
+  const getInviteLink = () => `https://prodeapp-739a1.web.app/league/${league.slug}/join/${inviteCode}`;
 
   const copyInviteCode = async () => {
-    await Clipboard.setStringAsync(league.inviteCode);
+    await Clipboard.setStringAsync(inviteCode);
     setCopied(true);
   };
 
@@ -77,7 +78,7 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
     try {
       await Share.share({
         title: `Invitación a ${league.name}`,
-        message: `Sumate a mi liga "${league.name}" en Prode 2026.\nCódigo: ${league.inviteCode}\n${getInviteLink()}`,
+        message: `Sumate a mi liga "${league.name}" en Prode 2026.\nCódigo: ${inviteCode}\n${getInviteLink()}`,
         url: getInviteLink(),
       });
     } catch (e: any) {
@@ -182,7 +183,7 @@ export const LeagueDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 
                 <TouchableOpacity style={styles.codeBox} onPress={copyInviteCode} activeOpacity={0.8}>
                   <Text style={styles.codeLabel}>Código</Text>
-                  <Text style={styles.inviteCode}>{league.inviteCode}</Text>
+                  <Text style={styles.inviteCode}>{inviteCode}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.inviteActions}>

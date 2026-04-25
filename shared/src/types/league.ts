@@ -2,7 +2,7 @@ export interface League {
   name: string;
   slug: string;
   ownerId: string;
-  inviteCode: string;
+  inviteCode?: string;
   createdAt: number;
   description?: string;
   imageURL?: string;

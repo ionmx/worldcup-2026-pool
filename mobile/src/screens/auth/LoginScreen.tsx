@@ -5,7 +5,12 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/types';
-import { loginWithEmail, signInWithGoogleToken, useGoogleAuthRequest } from '../../services/authService';
+import {
+  loginWithIdentifier,
+  resetPassword,
+  signInWithGoogleToken,
+  useGoogleAuthRequest,
+} from '../../services/authService';
 
 type Props = { navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'> };
 
@@ -34,17 +39,34 @@ const GoogleSignInButton: React.FC<{ disabled: boolean }> = ({ disabled }) => {
 };
 
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleEmailLogin = async () => {
-    if (!email || !password) return;
+    if (!identifier || !password) return;
     setLoading(true);
     try {
-      await loginWithEmail(email.trim(), password);
-    } catch (e: any) {
-      Alert.alert('Error', e.message);
+      await loginWithIdentifier(identifier.trim(), password);
+    } catch {
+      Alert.alert('Error', 'No pudimos iniciar sesión con esos datos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!identifier) {
+      Alert.alert('Recuperar contraseña', 'Ingresá tu email o usuario primero');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await resetPassword(identifier.trim());
+      Alert.alert('Listo', 'Te mandamos un email para recuperar tu contraseña');
+    } catch {
+      Alert.alert('Listo', 'Si existe una cuenta con esos datos, te mandamos un email para recuperar tu contraseña');
     } finally {
       setLoading(false);
     }
@@ -57,10 +79,10 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="Email o usuario"
         placeholderTextColor="#888"
-        value={email}
-        onChangeText={setEmail}
+        value={identifier}
+        onChangeText={setIdentifier}
         keyboardType="email-address"
         autoCapitalize="none"
       />
@@ -72,6 +94,10 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
         onChangeText={setPassword}
         secureTextEntry
       />
+
+      <TouchableOpacity onPress={handleResetPassword} disabled={loading}>
+        <Text style={styles.forgotLink}>¿Olvidaste tu contraseña?</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleEmailLogin} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Iniciar sesión</Text>}
@@ -100,5 +126,6 @@ const styles = StyleSheet.create({
   },
   googleButton: { backgroundColor: '#4285f4' },
   buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  forgotLink: { color: '#22c55e', textAlign: 'right', marginBottom: 16, fontWeight: '600' },
   link: { color: '#94a3b8', textAlign: 'center', marginTop: 8 },
 });

@@ -30,36 +30,52 @@ export const createLeague = async (
 
   const newLeagueRef = push(ref(db, 'leagues'));
   const leagueId = newLeagueRef.key!;
+  const inviteCode = generateInviteCode();
 
-  const league: League = {
+  const league: Omit<League, 'inviteCode'> = {
     name,
     slug,
     ownerId,
-    inviteCode: generateInviteCode(),
     createdAt: Date.now(),
     ...(options?.description && { description: options.description }),
   };
 
   await set(newLeagueRef, league);
   await set(ref(db, `leagueSlugs/${slug}`), leagueId);
-  await set(ref(db, `leagueMembers/${leagueId}/${ownerId}`), true);
+  await set(ref(db, `leagueSecrets/${leagueId}/inviteCode`), inviteCode);
+  await set(ref(db, `inviteCodes/${inviteCode}`), leagueId);
+  await set(ref(db, `leagueMembers/${leagueId}/${ownerId}`), { joinedAt: Date.now(), role: 'owner' });
   await set(ref(db, `userLeagues/${ownerId}/${leagueId}`), true);
 
-  return { ...league, id: leagueId };
+  return { ...league, inviteCode, id: leagueId };
 };
 
 export const getLeagueByInviteCode = async (code: string): Promise<LeagueWithId | null> => {
+  const finalCode = code.toUpperCase();
+  const inviteSnapshot = await get(ref(db, `inviteCodes/${finalCode}`));
+  if (inviteSnapshot.exists()) {
+    const leagueId = inviteSnapshot.val() as string;
+    const leagueSnapshot = await get(ref(db, `leagues/${leagueId}`));
+    if (leagueSnapshot.exists()) {
+      return { id: leagueId, ...(leagueSnapshot.val() as League), inviteCode: finalCode };
+    }
+  }
+
+  // Legacy fallback for leagues created before inviteCodes/leagueSecrets existed.
   const snapshot = await get(ref(db, 'leagues'));
   if (!snapshot.exists()) return null;
   const leagues = snapshot.val() as Record<string, League>;
   for (const [id, league] of Object.entries(leagues)) {
-    if (league.inviteCode.toUpperCase() === code.toUpperCase()) return { id, ...league };
+    if (league.inviteCode?.toUpperCase() === finalCode) return { id, ...league, inviteCode: finalCode };
   }
   return null;
 };
 
-export const joinLeague = async (leagueId: string, userId: string): Promise<void> => {
-  await set(ref(db, `leagueMembers/${leagueId}/${userId}`), true);
+export const joinLeague = async (leagueId: string, userId: string, inviteCode: string): Promise<void> => {
+  await set(ref(db, `leagueMembers/${leagueId}/${userId}`), {
+    joinedAt: Date.now(),
+    inviteCode: inviteCode.toUpperCase(),
+  });
   await set(ref(db, `userLeagues/${userId}/${leagueId}`), true);
 };
 
@@ -96,9 +112,16 @@ export const subscribeToUserLeagues = (
       const leagueSnapshot = await get(ref(db, `leagues/${leagueId}`));
       if (leagueSnapshot.exists()) {
         const membersSnapshot = await get(ref(db, `leagueMembers/${leagueId}`));
+        const secretSnapshot = await get(ref(db, `leagueSecrets/${leagueId}/inviteCode`));
+        const league = leagueSnapshot.val() as League;
         const memberCount = membersSnapshot.exists()
           ? Object.keys(membersSnapshot.val() as Record<string, boolean>).length : 0;
-        leagues.push({ id: leagueId, ...(leagueSnapshot.val() as League), memberCount });
+        leagues.push({
+          id: leagueId,
+          ...league,
+          inviteCode: secretSnapshot.exists() ? secretSnapshot.val() as string : league.inviteCode,
+          memberCount,
+        });
       }
     }
     callback(leagues);
@@ -107,7 +130,18 @@ export const subscribeToUserLeagues = (
 
 export const regenerateInviteCode = async (leagueId: string): Promise<string> => {
   const newCode = generateInviteCode();
-  await update(ref(db, `leagues/${leagueId}`), { inviteCode: newCode });
+  const secretSnapshot = await get(ref(db, `leagueSecrets/${leagueId}/inviteCode`));
+  const leagueSnapshot = await get(ref(db, `leagues/${leagueId}`));
+  const oldCode = secretSnapshot.exists()
+    ? secretSnapshot.val() as string
+    : (leagueSnapshot.val() as League | null)?.inviteCode;
+
+  await update(ref(db), {
+    [`leagueSecrets/${leagueId}/inviteCode`]: newCode,
+    [`inviteCodes/${newCode}`]: leagueId,
+    [`leagues/${leagueId}/inviteCode`]: null,
+    ...(oldCode ? { [`inviteCodes/${oldCode}`]: null } : {}),
+  });
   return newCode;
 };
 
@@ -122,11 +156,18 @@ export const updateLeague = async (
 };
 
 export const deleteLeague = async (leagueId: string, slug: string): Promise<void> => {
+  const secretSnapshot = await get(ref(db, `leagueSecrets/${leagueId}/inviteCode`));
+  const leagueSnapshot = await get(ref(db, `leagues/${leagueId}`));
+  const inviteCode = secretSnapshot.exists()
+    ? secretSnapshot.val() as string
+    : (leagueSnapshot.val() as League | null)?.inviteCode;
   const memberIds = await getLeagueMembers(leagueId);
   for (const memberId of memberIds) {
     await remove(ref(db, `userLeagues/${memberId}/${leagueId}`));
   }
   await remove(ref(db, `leagueMembers/${leagueId}`));
+  await remove(ref(db, `leagueSecrets/${leagueId}`));
+  if (inviteCode) await remove(ref(db, `inviteCodes/${inviteCode}`));
   await remove(ref(db, `leagueSlugs/${slug}`));
   await remove(ref(db, `leagues/${leagueId}`));
 };

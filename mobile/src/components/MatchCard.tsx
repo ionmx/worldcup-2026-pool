@@ -74,10 +74,10 @@ interface Props {
   showDate?: boolean;
 }
 
-export const MatchCard: React.FC<Props> = ({ match, userId, prediction, showDate = false }) => {
+const MatchCardComponent: React.FC<Props> = ({ match, userId, prediction, showDate = false }) => {
   const [home, setHome] = useState(prediction?.homePrediction?.toString() ?? '');
   const [away, setAway] = useState(prediction?.awayPrediction?.toString() ?? '');
-  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   useEffect(() => {
     if (prediction) {
@@ -86,10 +86,17 @@ export const MatchCard: React.FC<Props> = ({ match, userId, prediction, showDate
     }
   }, [prediction]);
 
+  useEffect(() => {
+    if (saveStatus !== 'saved') return;
+    const timeout = setTimeout(() => setSaveStatus('idle'), 1800);
+    return () => clearTimeout(timeout);
+  }, [saveStatus]);
+
   const isPlayed = match.homeScore >= 0 && match.awayScore >= 0;
   const defined = isMatchDefined(match);
   const open = canPredict(match.timestamp);
   const editable = !!userId && open && !isPlayed && defined;
+  const saving = saveStatus === 'saving';
 
   const isLive =
     !isPlayed &&
@@ -111,11 +118,12 @@ export const MatchCard: React.FC<Props> = ({ match, userId, prediction, showDate
     const h = parseInt(home, 10);
     const a = parseInt(away, 10);
     if (isNaN(h) || isNaN(a) || h < 0 || a < 0) return;
-    setSaving(true);
+    setSaveStatus('saving');
     try {
       await savePrediction(userId, String(match.game), h, a);
-    } finally {
-      setSaving(false);
+      setSaveStatus('saved');
+    } catch {
+      setSaveStatus('error');
     }
   };
 
@@ -169,32 +177,39 @@ export const MatchCard: React.FC<Props> = ({ match, userId, prediction, showDate
 
           {/* Prediction inputs or display */}
           {editable ? (
-            <View style={styles.inputRow}>
-              <TextInput
-                style={styles.input}
-                value={home}
-                onChangeText={v => setHome(v.replace(/\D/g, '').slice(0, 2))}
-                onBlur={onBlur}
-                keyboardType="number-pad"
-                maxLength={2}
-                placeholder="?"
-                placeholderTextColor="#475569"
-                editable={!saving}
-                selectTextOnFocus
-              />
-              <Text style={styles.inputSep}>-</Text>
-              <TextInput
-                style={styles.input}
-                value={away}
-                onChangeText={v => setAway(v.replace(/\D/g, '').slice(0, 2))}
-                onBlur={onBlur}
-                keyboardType="number-pad"
-                maxLength={2}
-                placeholder="?"
-                placeholderTextColor="#475569"
-                editable={!saving}
-                selectTextOnFocus
-              />
+            <View style={styles.predictionEditor}>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.input}
+                  value={home}
+                  onChangeText={v => { setHome(v.replace(/\D/g, '').slice(0, 2)); setSaveStatus('idle'); }}
+                  onBlur={onBlur}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="?"
+                  placeholderTextColor="#475569"
+                  editable={!saving}
+                  selectTextOnFocus
+                />
+                <Text style={styles.inputSep}>-</Text>
+                <TextInput
+                  style={styles.input}
+                  value={away}
+                  onChangeText={v => { setAway(v.replace(/\D/g, '').slice(0, 2)); setSaveStatus('idle'); }}
+                  onBlur={onBlur}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  placeholder="?"
+                  placeholderTextColor="#475569"
+                  editable={!saving}
+                  selectTextOnFocus
+                />
+              </View>
+              {saveStatus !== 'idle' ? (
+                <Text style={[styles.saveStatus, saveStatus === 'error' && styles.saveStatusError]}>
+                  {saveStatus === 'saving' ? 'Guardando...' : saveStatus === 'saved' ? 'Guardado' : 'Error al guardar'}
+                </Text>
+              ) : null}
             </View>
           ) : prediction && defined ? (
             <View style={styles.predDisplayRow}>
@@ -232,6 +247,8 @@ export const MatchCard: React.FC<Props> = ({ match, userId, prediction, showDate
     </View>
   );
 };
+
+export const MatchCard = React.memo(MatchCardComponent);
 
 const NUM_STYLE = {
   fontVariant: ['tabular-nums' as const],
@@ -323,6 +340,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
+  predictionEditor: { alignItems: 'center', gap: 4 },
 
   scoreRow: {
     flexDirection: 'row',
@@ -369,6 +387,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
   },
+  saveStatus: { color: '#22c55e', fontSize: 10, fontWeight: '700' },
+  saveStatusError: { color: '#ef4444' },
 
   predDisplayRow: {
     flexDirection: 'row',
