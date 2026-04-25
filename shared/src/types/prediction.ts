@@ -3,6 +3,7 @@ export interface Prediction {
   awayPrediction: number;
   points: number;
   updatedAt: number;
+  penaltyWinner?: 'home' | 'away';
 }
 
 export interface UserPredictions {
