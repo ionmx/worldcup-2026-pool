@@ -15,16 +15,18 @@ const ROUND_ES: Record<string, string> = {
   'Play-off': 'Repechaje',
 };
 const translateRound = (round?: string): string => ROUND_ES[round ?? ''] || round || 'Eliminatoria';
+const dateFormatter = new Intl.DateTimeFormat('es-AR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+});
 
 export interface MatchSection {
   title: string;
   data: Match[];
 }
 
-const fmt = (date: string) =>
-  new Date(date).toLocaleDateString('es-AR', {
-    weekday: 'long', day: 'numeric', month: 'long',
-  });
+const fmt = (date: string) => dateFormatter.format(new Date(date));
 
 const byDate = (data: MatchesData): MatchSection[] => {
   const grouped: Record<string, Match[]> = {};
@@ -91,11 +93,13 @@ export const useMatches = (filter: MatchFilter) => {
     return subscribeToPredictions(user.uid, setPredictions);
   }, [user?.uid]);
 
-  const sections: MatchSection[] = useMemo(() => (
-    filter === 'group' ? byGroup(allMatches) :
-    filter === 'knockout' ? byKnockout(allMatches) :
-    byDate(allMatches)
-  ), [allMatches, filter]);
+  const sectionsByFilter: Record<MatchFilter, MatchSection[]> = useMemo(() => ({
+    date: byDate(allMatches),
+    group: byGroup(allMatches),
+    knockout: byKnockout(allMatches),
+  }), [allMatches]);
+
+  const sections = sectionsByFilter[filter];
 
   const refresh = () => { setRefreshing(true); load(true); };
 
