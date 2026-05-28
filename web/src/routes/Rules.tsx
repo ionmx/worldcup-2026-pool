@@ -44,11 +44,11 @@ export const Rules = () => {
               <span className="text-2xl">😄</span>
               <div>
                 <h3 className="font-semibold text-white">
-                  Correct Result — Up to 10 points
+                  Correct Result — Up to 9 points
                 </h3>
                 <p className="text-sm">
                   Predict the correct winner (or draw), but not the exact score.
-                  Points = 10 minus the difference from the actual scores.
+                  Points = 10 minus the difference from the actual scores, so the maximum non-exact score is 9.
                 </p>
               </div>
             </div>
