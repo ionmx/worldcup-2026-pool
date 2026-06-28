@@ -13,7 +13,11 @@ const FIFA_SEASON_ID = '285023'; // 2026
 interface Match {
   game: number;
   fifaId: string;
+  home: string;
+  homeName: string;
   homeScore: number;
+  away: string;
+  awayName: string;
   awayScore: number;
 }
 
@@ -25,9 +29,26 @@ interface Prediction {
 
 interface FifaMatch {
   IdMatch: string;
-  Home: { Score: number | null };
-  Away: { Score: number | null };
+  Home: {
+    Abbreviation: string | null;
+    ShortClubName: string | null;
+    Score: number | null;
+  };
+  Away: {
+    Abbreviation: string | null;
+    ShortClubName: string | null;
+    Score: number | null;
+  };
+  PlaceHolderA: string;
+  PlaceHolderB: string;
 }
+
+const getTeamFields = (fifaMatch: FifaMatch) => ({
+  home: fifaMatch.Home?.Abbreviation ?? fifaMatch.PlaceHolderA,
+  homeName: fifaMatch.Home?.ShortClubName ?? fifaMatch.PlaceHolderA,
+  away: fifaMatch.Away?.Abbreviation ?? fifaMatch.PlaceHolderB,
+  awayName: fifaMatch.Away?.ShortClubName ?? fifaMatch.PlaceHolderB,
+});
 
 interface FifaApiResponse {
   Results: FifaMatch[];
@@ -75,11 +96,11 @@ const calculatePoints = (
 };
 
 /**
- * Scheduled function to fetch and update match scores from FIFA API
+ * Scheduled function to fetch and update matches from FIFA API
  * Runs every 1 minute during the tournament
  */
 export const updateMatchScores = onSchedule('every 1 minutes', async () => {
-  logger.info('Updating match scores from FIFA API...');
+  logger.info('Updating matches from FIFA API...');
 
   try {
     const apiUrl = `https://api.fifa.com/api/v3/calendar/matches?idseason=${FIFA_SEASON_ID}&idcompetition=${FIFA_COMPETITION_ID}&count=500`;
@@ -100,32 +121,50 @@ export const updateMatchScores = onSchedule('every 1 minutes', async () => {
       return;
     }
 
-    // Update scores for matching games
-    const updates: Record<string, number> = {};
+    const updates: Record<string, string | number> = {};
 
     for (const fifaMatch of data.Results) {
       for (const [gameId, match] of Object.entries(matches)) {
-        if (match.fifaId === fifaMatch.IdMatch) {
-          const homeScore = fifaMatch.Home?.Score ?? -1;
-          const awayScore = fifaMatch.Away?.Score ?? -1;
+        if (match.fifaId !== fifaMatch.IdMatch) {
+          continue;
+        }
 
-          if (match.homeScore !== homeScore && homeScore >= 0) {
-            updates[`matches/${gameId}/homeScore`] = homeScore;
-            logger.info(`Updated game ${gameId} home score: ${homeScore}`);
-          }
+        const homeScore = fifaMatch.Home?.Score ?? -1;
+        const awayScore = fifaMatch.Away?.Score ?? -1;
 
-          if (match.awayScore !== awayScore && awayScore >= 0) {
-            updates[`matches/${gameId}/awayScore`] = awayScore;
-            logger.info(`Updated game ${gameId} away score: ${awayScore}`);
-          }
+        if (match.homeScore !== homeScore && homeScore >= 0) {
+          updates[`matches/${gameId}/homeScore`] = homeScore;
+          logger.info(`Updated game ${gameId} home score: ${homeScore}`);
+        }
+
+        if (match.awayScore !== awayScore && awayScore >= 0) {
+          updates[`matches/${gameId}/awayScore`] = awayScore;
+          logger.info(`Updated game ${gameId} away score: ${awayScore}`);
+        }
+
+        const teams = getTeamFields(fifaMatch);
+        if (match.home !== teams.home) {
+          updates[`matches/${gameId}/home`] = teams.home;
+          logger.info(`Updated game ${gameId} home: ${teams.home}`);
+        }
+        if (match.homeName !== teams.homeName) {
+          updates[`matches/${gameId}/homeName`] = teams.homeName;
+          logger.info(`Updated game ${gameId} home name: ${teams.homeName}`);
+        }
+        if (match.away !== teams.away) {
+          updates[`matches/${gameId}/away`] = teams.away;
+          logger.info(`Updated game ${gameId} away: ${teams.away}`);
+        }
+        if (match.awayName !== teams.awayName) {
+          updates[`matches/${gameId}/awayName`] = teams.awayName;
+          logger.info(`Updated game ${gameId} away name: ${teams.awayName}`);
         }
       }
     }
 
-    // Apply all updates at once
     if (Object.keys(updates).length > 0) {
       await db.ref().update(updates);
-      logger.info(`Applied ${Object.keys(updates).length} score updates`);
+      logger.info(`Applied ${Object.keys(updates).length} match updates`);
     }
   } catch (error) {
     logger.error('Error updating match scores:', error);
