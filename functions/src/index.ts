@@ -66,7 +66,7 @@ const getWinner = (home: number, away: number): 'home' | 'away' | 'tied' => {
 /**
  * Calculate points for a prediction
  * - 15 points: Exact score
- * - Up to 10 points: Correct winner, minus difference from actual score (min 0)
+ * - Up to 9 points: Correct winner, minus difference from actual score (min 0)
  * - 0 points: Wrong winner or no prediction
  */
 const calculatePoints = (
@@ -85,7 +85,7 @@ const calculatePoints = (
     return 15;
   }
 
-  // Correct winner: 10 points minus difference (min 0)
+  // Correct winner: up to 9 points, based on 10 minus difference (min 0)
   if (getWinner(homeScore, awayScore) === getWinner(homePrediction, awayPrediction)) {
     const difference = Math.abs(homePrediction - homeScore) + Math.abs(awayPrediction - awayScore);
     return Math.max(0, 10 - difference);
