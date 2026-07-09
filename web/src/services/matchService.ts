@@ -29,6 +29,7 @@ export interface MatchesData {
 
 interface FifaApiMatch {
   IdMatch: string;
+  MatchNumber: number;
   StageName: Array<{ Description: string }>;
   GroupName: Array<{ Description: string }> | null;
   Date: string;
@@ -41,12 +42,12 @@ interface FifaApiMatch {
     Abbreviation: string | null;
     ShortClubName: string | null;
     Score: number | null;
-  };
+  } | null;
   Away: {
     Abbreviation: string | null;
     ShortClubName: string | null;
     Score: number | null;
-  };
+  } | null;
   PlaceHolderA: string;
   PlaceHolderB: string;
 }
@@ -79,8 +80,8 @@ const fetchFromFifaApi = async (): Promise<MatchesData> => {
 const transformFifaData = (results: FifaApiMatch[]): MatchesData => {
   const matches: MatchesData = {};
 
-  results.forEach((item, index) => {
-    const game = index + 1;
+  results.forEach((item) => {
+    const game = item.MatchNumber;
     const round = item.StageName?.[0]?.Description ?? '';
     const group =
       item.GroupName?.[0]?.Description?.replace('Group ', '') ?? null;
